@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Hodler.Domain.Transactions.Services;
 
 namespace Hodler.Domain.Transactions.Models;
 
@@ -16,19 +17,21 @@ public class Transactions : ITransactions
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public TransactionsSummaryReport GetSummaryReport()
+    public async Task<TransactionsSummaryReport> GetSummaryReportAsync(
+        ICurrentPriceProvider currentPriceProvider,
+        CancellationToken cancellationToken)
     {
         var netInvestedFiat = _transactions.Sum(t => t.FiatAmount);
         var totalBtcInvestment = _transactions.Sum(t => t.BtcAmount);
-        var currentBtcPrice = 62000.0;
+
+        var currentBtcPrice = await currentPriceProvider.GetCurrentPriceAsync(cancellationToken);
         var currentValue = totalBtcInvestment * currentBtcPrice;
         var totalProfitFiat = currentValue - netInvestedFiat;
         var totalProfitPercentage = (totalProfitFiat / netInvestedFiat) * 100;
 
-        
 
         var avgBtcPrice = _transactions.Average(x => x.MarketPrice);
-      
+
 
         var taxFreeTransactions = _transactions
             .Where(t => t.Timestamp <= DateTimeOffset.UtcNow.AddYears(-1));
@@ -37,15 +40,15 @@ public class Transactions : ITransactions
         var taxFreeProfit = taxFreeTotalBtcInvestment * currentBtcPrice;
 
         return new TransactionsSummaryReport(
-            netInvestedFiat, 
-            totalBtcInvestment, 
-            currentBtcPrice, 
-            currentValue, 
+            netInvestedFiat,
+            totalBtcInvestment,
+            currentBtcPrice,
+            currentValue,
             totalProfitFiat,
-            totalProfitPercentage, 
+            totalProfitPercentage,
             avgBtcPrice,
-            taxFreeProfit, 
+            taxFreeProfit,
             taxFreeTotalBtcInvestment
-            );
+        );
     }
 }

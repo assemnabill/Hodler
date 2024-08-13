@@ -10,19 +10,21 @@ public class TransactionsQueryService : ITransactionsQueryService
     private readonly ILogger<TransactionsQueryService> _logger;
     private readonly IBitPandaTransactionParser _bitPandaTransactionParser;
     private readonly IKrakenTransactionParser _krakenTransactionParser;
+    private readonly ICurrentPriceProvider _currentPriceProvider;
 
     public TransactionsQueryService(
         ILogger<TransactionsQueryService> logger,
         IBitPandaTransactionParser bitPandaTransactionParser,
-        IKrakenTransactionParser krakenTransactionParser
-    )
+        IKrakenTransactionParser krakenTransactionParser,
+        ICurrentPriceProvider currentPriceProvider)
     {
         _logger = logger;
         _bitPandaTransactionParser = bitPandaTransactionParser;
         _krakenTransactionParser = krakenTransactionParser;
+        _currentPriceProvider = currentPriceProvider;
     }
 
-    public TransactionsSummaryReport GetTransactionsSummaryReport()
+    public async Task<TransactionsSummaryReport> GetTransactionsSummaryReportAsync(CancellationToken cancellationToken)
     {
         var transactions = new Models.Transactions(
             ParseBitPandaTransactions()
@@ -31,7 +33,7 @@ public class TransactionsQueryService : ITransactionsQueryService
                 .ToList()
         );
 
-        var summaryReport = transactions.GetSummaryReport();
+        var summaryReport = await transactions.GetSummaryReportAsync(_currentPriceProvider, cancellationToken);
 
         return summaryReport;
     }

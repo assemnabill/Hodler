@@ -4,5 +4,5 @@ namespace Hodler.Domain.Transactions.Services;
 
 public interface ITransactionsQueryService
 {
-    TransactionsSummaryReport GetTransactionsSummaryReport();
+    Task<TransactionsSummaryReport> GetTransactionsSummaryReportAsync(CancellationToken cancellationToken);
 }

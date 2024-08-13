@@ -10,6 +10,7 @@ builder.AddServiceDefaults();
 
 builder.Services
     .AddDomain()
+    .AddExternalApis()
     .AddProblemDetails();
 
 var app = builder.Build();
@@ -17,10 +18,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
-app.MapGet("/transactions-summary-report", () =>
+app.MapGet("/transactions-summary-report", async () =>
 {
     var service = app.Services.GetRequiredService<ITransactionsQueryService>();
-    var summaryReport = service.GetTransactionsSummaryReport();
+    var summaryReport = await service.GetTransactionsSummaryReportAsync(default);
     return summaryReport;
 });
 
