@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Hodler.Domain\Hodler.Domain.csproj" />
+    <ProjectReference Include="..\Hodler.ExternalApis\Hodler.ExternalApis.csproj" />
     <ProjectReference Include="..\Hodler.ServiceDefaults\Hodler.ServiceDefaults.csproj" />
   </ItemGroup>
 

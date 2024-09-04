@@ -1,8 +1,9 @@
 ﻿using Hodler.Domain.Transactions.Ports.DiaDataApi;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Hodler.ExternalApis;
 
-public class ServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddExternalApis(this IServiceCollection services)
     {

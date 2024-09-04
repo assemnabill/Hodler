@@ -10,15 +10,19 @@
 
 @if (_transactionSummaryReport == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
     <h3>Transactions Summary Report</h3>
     <div>
-    <b>Net investment: </b> @_transactionSummaryReport.NetInvestedFiat <b>€</b>
+        <b>Net investment: </b> @_transactionSummaryReport.NetInvestedFiat <b>€</b>
     </div>
-        <b>Total Bitcoin Owned: </b> @_transactionSummaryReport.TotalBtcInvestment <b>BTC</b>
+    <b>Total Bitcoin Owned: </b>
+    @_transactionSummaryReport.TotalBtcInvestment
+    <b>BTC</b>
     <div>
         <b>Current Bitcoin Price: </b> @_transactionSummaryReport.CurrentBtcPrice <b>€</b>
     </div>
@@ -40,39 +44,15 @@ else
     <div>
         <b>Tax Free Profit: </b> @_transactionSummaryReport.TaxFreeProfit %
     </div>
-    <div>
-        @_summaryReport
-    </div>
 }
-
 
 
 @code {
     private TransactionsSummaryReport? _transactionSummaryReport;
-    private string _summaryReport;
 
     protected override async Task OnInitializedAsync()
     {
         _transactionSummaryReport = await HodlerApi.GetTransactionsSummaryReportAsync();
-        _summaryReport = string.Format(
-            "Net invested: {0:C}\n" +
-            "Total BTC bought: {1} BTC\n" +
-            "Current BTC price: {2:C}\n" +
-            "Current value: {3:C}\n" +
-            "Total profit: {4:C}\n" +
-            "Total profit percentage: {5:0.00}%\n" +
-            "Average BTC price: {6:C}\n" +
-            "Net profit (tax free): {7:C}\n" +
-            "Total BTC bought (tax free): {8} BTC",
-            _transactionSummaryReport!.NetInvestedFiat,
-            _transactionSummaryReport.TotalBtcInvestment,
-            _transactionSummaryReport.CurrentBtcPrice,
-            _transactionSummaryReport.CurrentValue,
-            _transactionSummaryReport.TotalProfitFiat,
-            _transactionSummaryReport.TotalProfitPercentage,
-            _transactionSummaryReport.AverageBtcPrice,
-            _transactionSummaryReport.TaxFreeProfit,
-            _transactionSummaryReport.TaxFreeTotalBtcInvestment
-        );
     }
+
 }

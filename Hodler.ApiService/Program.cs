@@ -1,6 +1,7 @@
 using Hodler.ApiService;
 using Hodler.Domain;
 using Hodler.Domain.Transactions.Services;
+using Hodler.ExternalApis;
 using Hodler.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
