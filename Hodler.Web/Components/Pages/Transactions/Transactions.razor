@@ -1,0 +1,153 @@
+ @page "/transactions"
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+@using Transaction = Hodler.Web.Components.Pages.Transactions.TransactionViewModel
+
+<PageTitle>Transactions</PageTitle>
+
+<div class="container">
+    <MatHeadline2 Style="padding: 10px">Transactions</MatHeadline2>
+
+    <div class="action-buttons">
+        <MatTooltip Tooltip="Add a transaction manually" Position="@MatTooltipPosition.Top">
+            <MatButton Outlined="true" RefBack="@context" Icon="@MatIconNames.Add" OnClick="OpenAddTransactionModal">Add Transaction</MatButton>
+        </MatTooltip>
+        <MatTooltip Tooltip="Import transactions automatically by syncing with Exchange" Position="@MatTooltipPosition.Top">
+            <MatButton Outlined="true" RefBack="@context" Icon="@MatIconNames.Sync" OnClick="OpenSyncModal">Import Transaction</MatButton>
+        </MatTooltip>
+    </div>
+
+    <TransactionsTable Transactions="@_transactions"></TransactionsTable>
+</div>
+
+<style>
+    .action-buttons  {
+        display: flex;
+        justify-content: end;
+    }
+    .action-buttons button {
+        margin-left: 10px;
+        justify-items: end;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+</style>
+
+@if (_isAddTransactionModalVisible)
+{
+    <div class="modal">
+        <div class="modal-content">
+            <span class="close" @onclick="CloseAddTransactionModal">&times;</span>
+            <h2>Add Transaction</h2>
+            <EditForm Model="@_newTransaction" OnValidSubmit="@AddTransaction">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+
+                <label for="date">Date:</label>
+                <InputDate id="date" @bind-Value="_newTransaction.Date"/>
+
+                <label for="type">Type:</label>
+                <InputSelect id="type" @bind-Value="_newTransaction.Type">
+                    <option value="Buy">Buy</option>
+                    <option value="Sell">Sell</option>
+                </InputSelect>
+
+                <label for="amount">Amount (BTC):</label>
+                <InputNumber id="amount" @bind-Value="_newTransaction.Amount"/>
+
+                <label for="price">Price (EUR):</label>
+                <InputNumber id="price" @bind-Value="_newTransaction.Price"/>
+
+                <button type="submit">Add Transaction</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@if (_isSyncModalVisible)
+{
+    <div class="modal">
+        <div class="modal-content">
+            <span class="close" @onclick="CloseSyncModal">&times;</span>
+            <h2>Sync with Exchange</h2>
+            <p>Select an exchange to sync your data:</p>
+            <button @onclick='() => SyncWithExchange("Bitpanda")'>Bitpanda</button>
+            <button @onclick='() => SyncWithExchange("Kraken")'>Kraken</button>
+        </div>
+    </div>
+}
+
+
+@code {
+    private bool _isAddTransactionModalVisible;
+    private bool _isSyncModalVisible;
+    private readonly List<Transaction> _transactions = new();
+    private Transaction _newTransaction = new();
+
+    protected override void OnInitialized()
+    {
+        _transactions.Add(new Transaction { Date = new DateTime(2023, 9, 1), Type = "Buy", Amount = 0.5m, Price = 20000, Total = 10000 });
+        _transactions.Add(new Transaction { Date = new DateTime(2023, 10, 15), Type = "Sell", Amount = 0.2m, Price = 25000, Total = 5000 });
+    }
+
+    private void OpenAddTransactionModal()
+    {
+        _isAddTransactionModalVisible = true;
+    }
+
+    private void CloseAddTransactionModal()
+    {
+        _isAddTransactionModalVisible = false;
+        _newTransaction = new Transaction();
+    }
+
+    private void OpenSyncModal()
+    {
+        _isSyncModalVisible = true;
+    }
+
+    private void CloseSyncModal()
+    {
+        _isSyncModalVisible = false;
+    }
+
+    private void SyncWithExchange(string exchange)
+    {
+        Console.WriteLine($"Syncing with {exchange}");
+        CloseSyncModal();
+    }
+
+    private void AddTransaction()
+    {
+        if (ValidateTransaction())
+        {
+            _newTransaction.Total = _newTransaction.Amount * _newTransaction.Price;
+            _transactions.Add(_newTransaction);
+            CloseAddTransactionModal();
+        }
+    }
+
+    private bool ValidateTransaction()
+    {
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(_newTransaction);
+        if (!Validator.TryValidateObject(_newTransaction, context, results, true))
+        {
+            foreach (var error in results)
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+}

@@ -1,0 +1,45 @@
+@* @inherits LayoutComponentBase *@
+
+<div class="metric">
+
+    <MatTooltip Tooltip="@Tooltip" TargetId="metricTooltip">
+        <div id="metricTooltip">
+            @Title
+            <MatIcon Icon="@MatIconNames.Info" Style="opacity: 40%"/>
+        </div>
+    </MatTooltip>
+
+    <div>
+        @Value
+        @if (PercentageChange.HasValue)
+        {
+        <span class="@GetPercentageChangeClass()">
+                (@PercentageChange.Value.ToString("F")%)
+            </span>
+        }
+    </div>
+</div>
+
+<style>
+    .positive {
+        color: #26b050;
+    }
+
+    .negative {
+        color: #b02a37;
+    }
+</style>
+
+@code
+{
+[Parameter] public required string Title { get; set; }
+[Parameter] public required string Value { get; set; }
+[Parameter] public decimal? PercentageChange { get; set; }
+[Parameter] public required string Tooltip { get; set; }
+
+private string GetPercentageChangeClass()
+{
+if (!PercentageChange.HasValue) return "";
+return PercentageChange.Value >= 0 ? "positive" : "negative";
+}
+}

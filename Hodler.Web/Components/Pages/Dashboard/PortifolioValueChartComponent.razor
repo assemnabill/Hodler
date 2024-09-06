@@ -1,0 +1,81 @@
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.Common.Axes
+@using ChartJs.Blazor.Common.Enums
+@using ChartJs.Blazor.LineChart
+@using ChartJs.Blazor.Util
+@rendermode InteractiveServer
+
+<Chart Config="_config" @ref="_chart"></Chart>
+
+@code
+{
+    private const int InitalCount = 12;
+
+    private Chart _chart;
+    private LineConfig _config;
+
+    protected override void OnInitialized()
+    {
+        InitChartConfig();
+        _chart = new Chart();
+
+        IDataset<int> dataset1 = new LineDataset<int>(SampleUtils.RandomScalingFactor(InitalCount))
+        {
+            Label = "Portfolio Value",
+            BackgroundColor = ColorUtil.FromDrawingColor(SampleUtils.ChartColors.Green),
+            BorderColor = ColorUtil.FromDrawingColor(SampleUtils.ChartColors.Green),
+            Fill = FillingMode.Disabled
+        };
+
+        _config.Data.Labels.AddRange(SampleUtils.Months.Take(InitalCount));
+        _config.Data.Datasets.Add(dataset1);
+    }
+
+    private void InitChartConfig()
+    {
+        _config = new LineConfig
+        {
+            Options = new LineOptions
+            {
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = false,
+                },
+                Tooltips = new Tooltips
+                {
+                    Mode = InteractionMode.X,
+                    Intersect = false
+                },
+                Hover = new Hover
+                {
+                    Mode = InteractionMode.X,
+                    Intersect = false
+                },
+                Scales = new Scales
+                {
+                    XAxes = new List<CartesianAxis>
+                    {
+                        new CategoryAxis
+                        {
+                            ScaleLabel = new ScaleLabel
+                            {
+                                LabelString = "Month"
+                            }
+                        }
+                    },
+                    YAxes = new List<CartesianAxis>
+                    {
+                        new LinearCartesianAxis
+                        {
+                            ScaleLabel = new ScaleLabel
+                            {
+                                LabelString = "Value"
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+}

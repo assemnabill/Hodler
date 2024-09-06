@@ -1,0 +1,66 @@
+@rendermode InteractiveServer
+@using Transaction = Hodler.Web.Components.Pages.Transactions.TransactionViewModel
+
+<div class="container">
+    <MatTable Items="_sortedData" ShowPaging="false" UseSortHeaderRow="true">
+        <MatTableHeader>
+            <MatSortHeaderRow SortChanged="@SortData">
+                <MatSortHeader SortId="date">Date</MatSortHeader>
+                <MatSortHeader SortId="type">Type</MatSortHeader>
+                <MatSortHeader SortId="amount">Amount</MatSortHeader>
+                <MatSortHeader SortId="price">Price</MatSortHeader>
+                <MatSortHeader SortId="total">Total</MatSortHeader>
+            </MatSortHeaderRow>
+        </MatTableHeader>
+
+        <MatTableRow>
+            <td>@context.Date.ToShortDateString()</td>
+            <td>@context.Type</td>
+            <td>@context.Amount BTC</td>
+            <td>€@context.Price</td>
+            <td>€@context.Total</td>
+        </MatTableRow>
+
+    </MatTable >
+</div>
+
+@code {
+    Transaction[] _sortedData = [];
+    [Parameter] public List<Transaction> Transactions { get; set; } = [];
+
+    void SortData(MatSortChangedEvent sort)
+    {
+        _sortedData = Transactions.ToArray();
+
+        if (sort is null || sort.Direction == MatSortDirection.None || string.IsNullOrEmpty(sort.SortId))
+            return;
+
+        Comparison<Transaction>? comparison = sort.SortId switch
+        {
+            "date" => (s1, s2) => s1.Date.CompareTo(s2.Date),
+            "type" => (s1, s2) => string.Compare(s1.Type, s2.Type, StringComparison.InvariantCultureIgnoreCase),
+            "amount" => (s1, s2) => s1.Amount.CompareTo(s2.Amount),
+            "price" => (s1, s2) => s1.Price.CompareTo(s2.Price),
+            "total" => (s1, s2) => s1.Total.CompareTo(s2.Total),
+            _ => null
+        };
+
+        if (comparison != null)
+        {
+            Array.Sort(
+                _sortedData,
+                sort.Direction == MatSortDirection.Desc
+                    ? (s1, s2) => -1 * comparison(s1, s2)
+                    : comparison
+            );
+        }
+    }
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SortData(null);
+    }
+
+}

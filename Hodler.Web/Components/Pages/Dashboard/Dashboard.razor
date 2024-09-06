@@ -1,0 +1,28 @@
+@page "/"
+@using Hodler.Web.Components.Layout
+@rendermode InteractiveServer
+@layout MainLayout
+
+<PageTitle>Dashboard</PageTitle>
+
+<div class="padding-window">
+
+    <div class="container">
+        <MatHeadline2 Style="padding: 10px">Hello, Hodler!</MatHeadline2>
+        <PortifolioValueChartComponent></PortifolioValueChartComponent>
+    </div>
+
+    <div class="container">
+        <PortifolioMetricsComponent></PortifolioMetricsComponent>
+    </div>
+
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+</style>
