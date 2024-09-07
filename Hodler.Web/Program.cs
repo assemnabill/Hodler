@@ -1,6 +1,7 @@
 using Hodler.ServiceDefaults;
 using Hodler.Web;
 using Hodler.Web.Components;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +10,11 @@ builder.AddServiceDefaults();
 builder.AddRedisOutputCache("cache");
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
+builder.Services
+    .AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddRadzenComponents();
 
 builder.Services.AddHttpClient<HodlerApiClient>(client =>
     {

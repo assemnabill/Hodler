@@ -1,45 +1,35 @@
-@* @inherits LayoutComponentBase *@
-
 <div class="metric">
-
-    <MatTooltip Tooltip="@Tooltip" TargetId="metricTooltip">
-        <div id="metricTooltip">
+    <MatTooltip Tooltip="@Tooltip" TargetId="@TooltipId"
+                Position="MatTooltipPosition.Top">
+        <div id="@TooltipId" style="display: inline-flex;">
             @Title
-            <MatIcon Icon="@MatIconNames.Info" Style="opacity: 40%"/>
+            <MatIcon Icon="@MatIconNames.Info" Style="opacity: 40%; scale: 0.5"/>
         </div>
     </MatTooltip>
 
-    <div>
-        @Value
+    <div class="@GetPercentageChangeClass()" style="display: block ruby;">
+        @Value @string.Empty
         @if (PercentageChange.HasValue)
         {
-        <span class="@GetPercentageChangeClass()">
+            <span>
                 (@PercentageChange.Value.ToString("F")%)
             </span>
         }
     </div>
 </div>
 
-<style>
-    .positive {
-        color: #26b050;
-    }
-
-    .negative {
-        color: #b02a37;
-    }
-</style>
-
 @code
 {
-[Parameter] public required string Title { get; set; }
-[Parameter] public required string Value { get; set; }
-[Parameter] public decimal? PercentageChange { get; set; }
-[Parameter] public required string Tooltip { get; set; }
+    [Parameter] public required string Title { get; set; }
+    [Parameter] public required string Value { get; set; }
+    [Parameter] public decimal? PercentageChange { get; set; }
+    [Parameter] public required string Tooltip { get; set; }
 
-private string GetPercentageChangeClass()
-{
-if (!PercentageChange.HasValue) return "";
-return PercentageChange.Value >= 0 ? "positive" : "negative";
-}
+    private string TooltipId => $"{Title}MetricTooltip";
+
+    private string GetPercentageChangeClass()
+    {
+        if (!PercentageChange.HasValue) return "";
+        return PercentageChange.Value >= 0 ? "positive" : "negative";
+    }
 }

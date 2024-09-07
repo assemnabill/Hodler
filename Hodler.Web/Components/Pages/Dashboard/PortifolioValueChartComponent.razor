@@ -1,81 +1,95 @@
-@using ChartJs.Blazor.Common
-@using ChartJs.Blazor.Common.Axes
-@using ChartJs.Blazor.Common.Enums
-@using ChartJs.Blazor.LineChart
-@using ChartJs.Blazor.Util
-@rendermode InteractiveServer
+@using System.Globalization
 
-<Chart Config="_config" @ref="_chart"></Chart>
+<RadzenStack class="rz-p-0 rz-p-md-6 rz-p-lg-12">
+    <RadzenChart>
+        <RadzenChartTooltipOptions Shared="@sharedTooltip"/>
+        <RadzenLineSeries Smooth="@smooth" 
+                          Data="@revenue2024" 
+                          CategoryProperty="Date"
+                          @* Title="2024"  *@
+                          ValueProperty="Revenue">
+            <RadzenMarkers Visible="@showMarkers" MarkerType="MarkerType.Circle"/>
+            <RadzenSeriesDataLabels Visible="@showDataLabels"/>
+        </RadzenLineSeries>
+        <RadzenCategoryAxis Padding="20"/>
+        @* <RadzenValueAxis Formatter="@FormatAsUSD"> *@
+        @*     $1$ <RadzenGridLines Visible="true" /> #1# *@
+        @*     $1$ <RadzenAxisTitle Text="Revenue in USD" /> #1# *@
+        @* </RadzenValueAxis> *@
+    </RadzenChart>
+</RadzenStack>
 
-@code
-{
-    private const int InitalCount = 12;
+@code {
+    bool smooth = true;
+    bool sharedTooltip = false;
+    bool showDataLabels = false;
+    bool showMarkers = true;
 
-    private Chart _chart;
-    private LineConfig _config;
-
-    protected override void OnInitialized()
+    class DataItem
     {
-        InitChartConfig();
-        _chart = new Chart();
-
-        IDataset<int> dataset1 = new LineDataset<int>(SampleUtils.RandomScalingFactor(InitalCount))
-        {
-            Label = "Portfolio Value",
-            BackgroundColor = ColorUtil.FromDrawingColor(SampleUtils.ChartColors.Green),
-            BorderColor = ColorUtil.FromDrawingColor(SampleUtils.ChartColors.Green),
-            Fill = FillingMode.Disabled
-        };
-
-        _config.Data.Labels.AddRange(SampleUtils.Months.Take(InitalCount));
-        _config.Data.Datasets.Add(dataset1);
+        public string Date { get; set; }
+        public double Revenue { get; set; }
     }
 
-    private void InitChartConfig()
+    string FormatAsUSD(object value)
     {
-        _config = new LineConfig
-        {
-            Options = new LineOptions
-            {
-                Responsive = true,
-                Title = new OptionsTitle
-                {
-                    Display = false,
-                },
-                Tooltips = new Tooltips
-                {
-                    Mode = InteractionMode.X,
-                    Intersect = false
-                },
-                Hover = new Hover
-                {
-                    Mode = InteractionMode.X,
-                    Intersect = false
-                },
-                Scales = new Scales
-                {
-                    XAxes = new List<CartesianAxis>
-                    {
-                        new CategoryAxis
-                        {
-                            ScaleLabel = new ScaleLabel
-                            {
-                                LabelString = "Month"
-                            }
-                        }
-                    },
-                    YAxes = new List<CartesianAxis>
-                    {
-                        new LinearCartesianAxis
-                        {
-                            ScaleLabel = new ScaleLabel
-                            {
-                                LabelString = "Value"
-                            }
-                        }
-                    }
-                }
-            }
-        };
+        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
     }
+    
+    DataItem[] revenue2024 =
+    [
+        new()
+        {
+            Date = "Jan",
+            Revenue = 334000
+        },
+        new()
+        {
+            Date = "Feb",
+            Revenue = 369000
+        },
+        new()
+        {
+            Date = "Mar",
+            Revenue = 333000
+        },
+        new()
+        {
+            Date = "Apr",
+            Revenue = 344000
+        },
+        new()
+        {
+            Date = "May",
+            Revenue = 314000
+        },
+        new()
+        {
+            Date = "Jun",
+            Revenue = 353000
+        },
+        new()
+        {
+            Date = "Jul",
+            Revenue = 374000
+        },
+        new()
+        {
+            Date = "Aug",
+            Revenue = 384000
+        },
+        new()
+        {
+            Date = "Sept",
+            Revenue = 373000
+        },
+        new()
+        {
+            Date = "Oct",
+            Revenue = 382000
+        },
+        new() { Date = "Nov", Revenue = 389000 },
+        new() { Date = "Dec", Revenue = 394000 }
+    ];
+
 }
