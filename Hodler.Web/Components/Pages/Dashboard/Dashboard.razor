@@ -16,16 +16,10 @@
 else
 {
     <div class="padding-window">
-        <h1>Hello, Hodler!</h1>
-
         <div class="container">
-            <PortifolioValueChartComponent></PortifolioValueChartComponent>
+            <PortifolioValueChartComponent CurrentValue="_transactionReport.CurrentValue"></PortifolioValueChartComponent>
         </div>
-
-        <div class="container">
-            <PortifolioMetricsComponent TransactionsSummaryReport="_transactionReport"></PortifolioMetricsComponent>
-        </div>
-
+        <PortifolioMetricsComponent TransactionsSummaryReport="_transactionReport"></PortifolioMetricsComponent>
     </div>
 }
 
