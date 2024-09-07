@@ -6,16 +6,12 @@
         <RadzenLineSeries Smooth="@smooth" 
                           Data="@revenue2024" 
                           CategoryProperty="Date"
-                          @* Title="2024"  *@
+                          Titel="Value"
                           ValueProperty="Revenue">
             <RadzenMarkers Visible="@showMarkers" MarkerType="MarkerType.Circle"/>
             <RadzenSeriesDataLabels Visible="@showDataLabels"/>
         </RadzenLineSeries>
         <RadzenCategoryAxis Padding="20"/>
-        @* <RadzenValueAxis Formatter="@FormatAsUSD"> *@
-        @*     $1$ <RadzenGridLines Visible="true" /> #1# *@
-        @*     $1$ <RadzenAxisTitle Text="Revenue in USD" /> #1# *@
-        @* </RadzenValueAxis> *@
     </RadzenChart>
 </RadzenStack>
 
