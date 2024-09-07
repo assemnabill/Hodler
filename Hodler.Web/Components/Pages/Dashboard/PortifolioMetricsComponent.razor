@@ -1,12 +1,47 @@
+@using System.Globalization
 @using Hodler.Web.Components.Shared
 
+
+@{
+    var culture = CultureInfo.CurrentCulture.Name;
+    var cultureInfo = CultureInfo.CreateSpecificCulture(culture);
+
 <div class="metrics">
-    <MetricComponent Title="Current Value" Value="€112,500" Tooltip="The current value of your Bitcoin in EUR"/>
-    <MetricComponent Title="Total BTC" Value="2.5 BTC" Tooltip="The total amount of Bitcoin in your portfolio"/>
-    <MetricComponent Title="Profit/Loss" Value="+€22,500" PercentageChange="25" Tooltip="Your total profit or loss based on purchase prices"/>
-    <MetricComponent Title="Taxable Amount" Value="€7,875" PercentageChange="35" Tooltip="The amount subject to capital gains tax"/>
-    <MetricComponent Title="Tax-Free BTC" Value="1.8 BTC" Tooltip="Amount of Bitcoin held for over a year (tax-free in Germany)"/>
-</div>
+    @{ var totalBtcInvestment = $"{TransactionsSummaryReport.TotalBtcInvestment} BTC"; }
+    <MetricComponent Title="Total BTC"
+                     Value="@totalBtcInvestment"
+                     Tooltip="The total amount of Bitcoin in your portfolio"/>
+
+    <MetricComponent Title="Current Value"
+                     Value="@TransactionsSummaryReport.CurrentValue.ToString("C", cultureInfo)"
+                     Tooltip="The current value of your Bitcoin investment"/>
+
+    <MetricComponent Title="Total P/L"
+                     Value="@TransactionsSummaryReport.ProfitLossInFiat.ToString("C", cultureInfo)"
+                     PercentageChange="(decimal?)TransactionsSummaryReport.ProfitLossInFiatPercentage"
+                     Tooltip="The total profit you have made from your Bitcoin investments"/>
+
+    <MetricComponent Title="Net Investment"
+                     Value="@TransactionsSummaryReport.NetInvestedFiat.ToString("C", cultureInfo)"
+                     Tooltip="The total amount of money you have invested in Bitcoin"/>
+
+    <MetricComponent Title="Current BTC Price"
+                     Value="@TransactionsSummaryReport.CurrentBtcPrice.ToString("C", cultureInfo)"
+                     Tooltip="The current price of Bitcoin in USD"/>
+
+    <MetricComponent Title="Tax-Free Amount"
+                     Value="@TransactionsSummaryReport.TaxFreeBtcInvestment.ToString("C", cultureInfo)"
+                     PercentageChange="(decimal?)TransactionsSummaryReport.TaxFreeProfitPercentage * 100"
+                     Tooltip="The profit you have made from your tax-free Bitcoin investments"/>
+
+    <MetricComponent Title="Average BTC Price"
+                     Value="@TransactionsSummaryReport.AverageBtcPrice.ToString("C", cultureInfo)"
+                     Tooltip="The average price you have paid for one Bitcoin"/>
+</div>}
+
+@code {
+    [Parameter] public required TransactionsSummaryReport TransactionsSummaryReport { get; set; }
+}
 
 <style>
      .metrics {

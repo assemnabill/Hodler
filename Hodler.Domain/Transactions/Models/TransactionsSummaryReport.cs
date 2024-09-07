@@ -6,31 +6,31 @@ public class TransactionsSummaryReport
     public double TotalBtcInvestment { get; }
     public double CurrentBtcPrice { get; }
     public double CurrentValue { get; }
-    public double TotalProfitFiat { get; }
-    public double TotalProfitPercentage { get; }
+    public double ProfitLossInFiat { get; }
+    public double ProfitLossInFiatPercentage { get; }
     public double AverageBtcPrice { get; }
-    public double TaxFreeTotalBtcInvestment { get; }
-    public double TaxFreeProfit { get; }
+    public double TaxFreeBtcInvestment { get; }
+    public double TaxFreeProfitPercentage { get; }
 
     public TransactionsSummaryReport(
         double netInvestedFiat,
         double totalBtcInvestment, 
         double currentBtcPrice, 
         double currentValue,
-        double totalProfitFiat, 
-        double totalProfitPercentage, 
+        double profitLossInFiat, 
+        double profitLossInFiatPercentage, 
         double averageBtcPrice, 
-        double taxFreeTotalBtcInvestment,
-        double taxFreeProfit)
+        double taxFreeBtcInvestment,
+        double taxFreeProfitPercentage)
     {
         NetInvestedFiat = netInvestedFiat;
         TotalBtcInvestment = totalBtcInvestment;
         CurrentBtcPrice = currentBtcPrice;
         CurrentValue = currentValue;
-        TotalProfitFiat = totalProfitFiat;
-        TotalProfitPercentage = totalProfitPercentage;
+        ProfitLossInFiat = profitLossInFiat;
+        ProfitLossInFiatPercentage = profitLossInFiatPercentage;
         AverageBtcPrice = averageBtcPrice;
-        TaxFreeTotalBtcInvestment = taxFreeTotalBtcInvestment;
-        TaxFreeProfit = taxFreeProfit;
+        TaxFreeBtcInvestment = taxFreeBtcInvestment;
+        TaxFreeProfitPercentage = taxFreeProfitPercentage;
     }
 }

@@ -29,7 +29,9 @@
 
     private string GetPercentageChangeClass()
     {
-        if (!PercentageChange.HasValue) return "";
+        if (!PercentageChange.HasValue) 
+            return "";
+        
         return PercentageChange.Value >= 0 ? "positive" : "negative";
     }
 }

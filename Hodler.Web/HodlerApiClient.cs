@@ -18,10 +18,10 @@ public record TransactionsSummaryReport(
     double TotalBtcInvestment,
     double CurrentBtcPrice,
     double CurrentValue,
-    double TotalProfitFiat,
-    double TotalProfitPercentage,
+    double ProfitLossInFiat,
+    double ProfitLossInFiatPercentage,
     double AverageBtcPrice,
-    double TaxFreeTotalBtcInvestment,
-    double TaxFreeProfit);
+    double TaxFreeBtcInvestment,
+    double TaxFreeProfitPercentage);
 
 

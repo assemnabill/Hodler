@@ -1,24 +1,44 @@
 @page "/"
+@layout MainLayout
+@rendermode InteractiveServer
+@inject HodlerApiClient HodlerApi
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
 @using Hodler.Web.Components.Layout
 @using Hodler.Web.Components.Shared
-@rendermode InteractiveServer
-@layout MainLayout
 
 <PageTitle>Dashboard</PageTitle>
 
-<div class="padding-window">
-<h1>Hello, Hodler!</h1>
+@if (_transactionReport == null)
+{
+    <LoadingComponent></LoadingComponent>
+}
+else
+{
+    <div class="padding-window">
+        <h1>Hello, Hodler!</h1>
 
-    <div class="container">
-        <PortifolioValueChartComponent></PortifolioValueChartComponent>
+        <div class="container">
+            <PortifolioValueChartComponent></PortifolioValueChartComponent>
+        </div>
+
+        <div class="container">
+            <PortifolioMetricsComponent TransactionsSummaryReport="_transactionReport"></PortifolioMetricsComponent>
+        </div>
+
     </div>
+}
 
-    <div class="container">
-        <PortifolioMetricsComponent></PortifolioMetricsComponent>
-    </div>
+@code {
+    private TransactionsSummaryReport? _transactionReport;
 
-</div>
-    
+    protected override async Task OnInitializedAsync()
+    {
+        _transactionReport = await HodlerApi.GetTransactionsSummaryReportAsync();
+    }
+
+}
+
 <style>
     .container {
         max-width: 1200px;
