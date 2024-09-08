@@ -1,93 +1,82 @@
 @using System.Globalization
+@using Hodler.Domain.Transactions.Models
+@using TransactionViewModel = Hodler.Web.TransactionViewModel
+@inject HodlerApiClient HodlerApi
+
 <RadzenStack Gap="0" class="rz-p-0 rz-p-md-6 rz-p-lg-12">
-    <div style="font-size: 30px;"><b>Hello, Hodler!</b></div>
+    <div style="font-size: 30px;">
+        <b>Hello, Hodler!</b>
+    </div>
     <br/>
     <RadzenLabel Style="font-weight: lighter; font-size: 20px;" Text="Portfolio Value"></RadzenLabel>
-    <RadzenText Style="font-size: 35px;" Text="@CurrentValue.ToString("C", CultureInfo.CurrentCulture)"></RadzenText>
-    <RadzenChart>
-        <RadzenChartTooltipOptions Shared="@sharedTooltip"/>
-        <RadzenAreaSeries Smooth="@smooth"
-                          Data="@revenue2024"
+    <RadzenText Style="font-size: 35px;" Text="@_portfolioOverallValue.ToString("C", CultureInfo.CurrentCulture)"></RadzenText>
+    <RadzenChart TooltipTolerance="100">
+        <RadzenChartTooltipOptions Shared="@_sharedTooltip"/>
+        <RadzenAreaSeries Smooth="@_smooth"
+                          Data="@_portfolioPositions"
                           Title="Portfolio Value"
                           CategoryProperty="Date"
                           ValueProperty="Revenue">
-            <RadzenMarkers Visible="@showMarkers" MarkerType="MarkerType.Circle"/>
-            <RadzenSeriesDataLabels Visible="@showDataLabels"/>
-            <RadzenLegend Visible="false"></RadzenLegend>
-            <RadzenValueAxis Visible="false"></RadzenValueAxis>
+            <RadzenMarkers Visible="@_showMarkers" MarkerType="MarkerType.Circle"/>
+            <RadzenSeriesDataLabels Visible="@_showDataLabels"/>
+            <RadzenLegend Visible="@_showLegend"></RadzenLegend>
         </RadzenAreaSeries>
-        <RadzenCategoryAxis Padding="20"/>
+        <RadzenValueAxis Visible="false"></RadzenValueAxis>
+        <RadzenCategoryAxis Visible="false" Padding="20"/>
     </RadzenChart>
 </RadzenStack>
 
 @code {
-    bool smooth = true;
-    bool sharedTooltip = false;
-    bool showDataLabels = false;
-    bool showMarkers = true;
+    private TransactionViewModel[]? _transactions;
+    private bool _smooth = true;
+    private bool _sharedTooltip = false;
+    private bool _showDataLabels = false;
+    private bool _showMarkers = false;
+    private bool _showLegend = false;
+    private double _portfolioOverallValue = 0.0;
+    DataItem[] _portfolioPositions = [];
 
-    [Parameter] public required double CurrentValue { get; set; }
-    class DataItem
+    protected override async Task OnInitializedAsync()
+    {
+        _transactions = (await HodlerApi.GetTransactionsAsync()!)?
+            .OrderBy(t => t.Timestamp)
+            .ToArray();
+
+        _portfolioPositions = _transactions?
+            .Select(t => new DataItem
+            {
+                Date = t.Timestamp.ToString("R"),
+                Revenue = GetPortfolioValue(t)
+            })
+            .ToArray()!;
+    }
+
+    private double GetPortfolioValue(TransactionViewModel transaction)
+    {
+        var transactions = _transactions
+            .TakeWhile(t => t.Timestamp <= transaction.Timestamp)
+            .ToArray();
+
+        var bought = transactions
+            .Where(t => t.Type == TransactionType.Buy)
+            .Sum(t => t.BtcAmount);
+
+        var sold = transactions
+            .Where(t => t.Type == TransactionType.Sell)
+            .Sum(t => t.BtcAmount);
+
+        var positionValue = (bought - sold) * transaction.MarketPrice;
+
+        _portfolioOverallValue = positionValue;
+
+        return _portfolioOverallValue;
+    }
+
+    record DataItem
     {
         public string Date { get; set; }
         public double Revenue { get; set; }
     }
-    
-    DataItem[] revenue2024 =
-    [
-        new()
-        {
-            Date = "Jan",
-            Revenue = 500
-        },
-        new()
-        {
-            Date = "Feb",
-            Revenue = 369000
-        },
-        new()
-        {
-            Date = "Mar",
-            Revenue = 333000
-        },
-        new()
-        {
-            Date = "Apr",
-            Revenue = 344000
-        },
-        new()
-        {
-            Date = "May",
-            Revenue = 314000
-        },
-        new()
-        {
-            Date = "Jun",
-            Revenue = 353000
-        },
-        new()
-        {
-            Date = "Jul",
-            Revenue = 374000
-        },
-        new()
-        {
-            Date = "Aug",
-            Revenue = 384000
-        },
-        new()
-        {
-            Date = "Sept",
-            Revenue = 373000
-        },
-        new()
-        {
-            Date = "Oct",
-            Revenue = 382000
-        },
-        new() { Date = "Nov", Revenue = 389000 },
-        new() { Date = "Dec", Revenue = 394000 }
-    ];
 
 }
 

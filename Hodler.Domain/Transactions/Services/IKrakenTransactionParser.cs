@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using BitCalculator;
 using Hodler.Domain.Transactions.Models;
 
 namespace Hodler.Domain.Transactions.Services;

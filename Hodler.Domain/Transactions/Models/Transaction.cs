@@ -1,5 +1,3 @@
-using BitCalculator;
-
 namespace Hodler.Domain.Transactions.Models;
 
 public record Transaction(

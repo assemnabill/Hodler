@@ -1,16 +1,26 @@
+using Hodler.Domain.Transactions.Models;
+
 namespace Hodler.Web;
 
 public class HodlerApiClient(HttpClient httpClient)
 {
-    public async Task<TransactionsSummaryReport?> GetTransactionsSummaryReportAsync(int maxItems = 10, CancellationToken cancellationToken = default)
+    public async Task<TransactionsSummaryReport?> GetTransactionsSummaryReportAsync(int maxItems = 10,
+        CancellationToken cancellationToken = default)
     {
-        return await httpClient.GetFromJsonAsync<TransactionsSummaryReport>("/transactions-summary-report", cancellationToken);
+        return await httpClient
+            .GetFromJsonAsync<TransactionsSummaryReport>(
+                "/transactions-summary-report",
+                cancellationToken);
     }
-}
-
-public record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    
+    public async Task<TransactionViewModel[]?> GetTransactionsAsync(int maxItems = 10,
+        CancellationToken cancellationToken = default)
+    {
+        return await httpClient
+            .GetFromJsonAsync<TransactionViewModel[]>(
+                "/transactions",
+                cancellationToken);
+    }
 }
 
 public record TransactionsSummaryReport(
@@ -23,5 +33,10 @@ public record TransactionsSummaryReport(
     double AverageBtcPrice,
     double TaxFreeBtcInvestment,
     double TaxFreeProfitPercentage);
-
-
+    
+public record TransactionViewModel(
+    TransactionType Type,
+    double FiatAmount,
+    double BtcAmount,
+    double MarketPrice,
+    DateTimeOffset Timestamp);

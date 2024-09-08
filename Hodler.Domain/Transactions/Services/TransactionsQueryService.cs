@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using BitCalculator;
 using Hodler.Domain.Transactions.Models;
 using Microsoft.Extensions.Logging;
 
@@ -36,6 +35,17 @@ public class TransactionsQueryService : ITransactionsQueryService
         var summaryReport = await transactions.GetSummaryReportAsync(_currentPriceProvider, cancellationToken);
 
         return summaryReport;
+    }
+
+    public Task<ITransactions> GetTransactionsAsync(CancellationToken cancellationToken)
+    {
+        var transactions = new Models.Transactions(
+            ParseBitPandaTransactions()
+                .Concat(ParseKrakenTransactions())
+                .ToList()
+        );
+
+        return Task.FromResult<ITransactions>(transactions);
     }
 
     private ITransactions ParseBitPandaTransactions()

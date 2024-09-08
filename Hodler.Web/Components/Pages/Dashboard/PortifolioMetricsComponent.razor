@@ -1,5 +1,6 @@
 @using System.Globalization
 @using Hodler.Web.Components.Shared
+@using TransactionsSummaryReport = Hodler.Web.TransactionsSummaryReport
 
 
 @{
@@ -11,15 +12,16 @@
     <MetricComponent Title="Total BTC"
                      Value="@totalBtcInvestment"
                      Tooltip="The total amount of Bitcoin in your portfolio"/>
-
-    <MetricComponent Title="Current Value"
-                     Value="@TransactionsSummaryReport.CurrentValue.ToString("C", cultureInfo)"
-                     Tooltip="The current value of your Bitcoin investment"/>
-
+    
     <MetricComponent Title="Total P/L"
                      Value="@TransactionsSummaryReport.ProfitLossInFiat.ToString("C", cultureInfo)"
                      PercentageChange="(decimal?)TransactionsSummaryReport.ProfitLossInFiatPercentage"
                      Tooltip="The total profit you have made from your Bitcoin investments"/>
+
+    <MetricComponent Title="Tax-Free Amount"
+                     Value="@TransactionsSummaryReport.TaxFreeBtcInvestment.ToString("C", cultureInfo)"
+                     PercentageChange="(decimal?)TransactionsSummaryReport.TaxFreeProfitPercentage * 100"
+                     Tooltip="The profit you have made from your tax-free Bitcoin investments"/>
 
     <MetricComponent Title="Net Investment"
                      Value="@TransactionsSummaryReport.NetInvestedFiat.ToString("C", cultureInfo)"
@@ -28,11 +30,6 @@
     <MetricComponent Title="Current BTC Price"
                      Value="@TransactionsSummaryReport.CurrentBtcPrice.ToString("C", cultureInfo)"
                      Tooltip="The current price of Bitcoin in USD"/>
-
-    <MetricComponent Title="Tax-Free Amount"
-                     Value="@TransactionsSummaryReport.TaxFreeBtcInvestment.ToString("C", cultureInfo)"
-                     PercentageChange="(decimal?)TransactionsSummaryReport.TaxFreeProfitPercentage * 100"
-                     Tooltip="The profit you have made from your tax-free Bitcoin investments"/>
 
     <MetricComponent Title="Average BTC Price"
                      Value="@TransactionsSummaryReport.AverageBtcPrice.ToString("C", cultureInfo)"

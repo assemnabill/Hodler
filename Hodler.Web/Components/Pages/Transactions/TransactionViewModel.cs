@@ -4,7 +4,7 @@ namespace Hodler.Web.Components.Pages.Transactions;
 
 public class TransactionViewModel
 {
-    [Required] public DateTime Date { get; set; }
+    [Required] public DateTimeOffset Date { get; set; }
 
     [Required] public string Type { get; set; }
 

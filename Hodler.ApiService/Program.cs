@@ -26,6 +26,13 @@ app.MapGet("/transactions-summary-report", async () =>
     return summaryReport;
 });
 
+app.MapGet("/transactions", async () =>
+{
+    var service = app.Services.GetRequiredService<ITransactionsQueryService>();
+    var transactions = await service.GetTransactionsAsync(default);
+    return transactions;
+});
+
 app.MapDefaultEndpoints();
 
 app.Run();

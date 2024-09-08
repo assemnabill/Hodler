@@ -6,6 +6,7 @@
 @attribute [OutputCache(Duration = 5)]
 @using Hodler.Web.Components.Layout
 @using Hodler.Web.Components.Shared
+@using TransactionsSummaryReport = Hodler.Web.TransactionsSummaryReport
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -17,7 +18,7 @@ else
 {
     <div class="padding-window">
         <div class="container">
-            <PortifolioValueChartComponent CurrentValue="_transactionReport.CurrentValue"></PortifolioValueChartComponent>
+            <PortifolioValueChartComponent></PortifolioValueChartComponent>
         </div>
         <PortifolioMetricsComponent TransactionsSummaryReport="_transactionReport"></PortifolioMetricsComponent>
     </div>
