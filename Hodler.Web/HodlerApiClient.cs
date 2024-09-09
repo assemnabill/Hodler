@@ -1,4 +1,4 @@
-using Hodler.Domain.Transactions.Models;
+using Hodler.Domain.Portfolio.Models;
 
 namespace Hodler.Web;
 

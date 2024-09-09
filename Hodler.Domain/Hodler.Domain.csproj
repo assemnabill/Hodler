@@ -7,17 +7,22 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Corz.DomainDriven.Abstractions" Version="2024.3.26.1557" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0-preview.7.24405.7" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0-preview.7.24405.7" />
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="Transactions\Resources\bitpanda.csv">
+      <EmbeddedResource Include="Portfolio\Resources\bitpanda.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
-      <EmbeddedResource Include="Transactions\Resources\kraken.csv">
+      <EmbeddedResource Include="Portfolio\Resources\kraken.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="User\Models\" />
     </ItemGroup>
 
 </Project>

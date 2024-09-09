@@ -1,8 +1,10 @@
-using Hodler.ApiService;
+using Hodler.Application;
 using Hodler.Domain;
-using Hodler.Domain.Transactions.Services;
-using Hodler.ExternalApis;
+using Hodler.Integration.Repositories;
+using Hodler.Integrations.ExternalApis;
 using Hodler.ServiceDefaults;
+using Mapster;
+using ServiceCollectionExtensions = Hodler.Application.ServiceCollectionExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,36 +13,58 @@ builder.AddServiceDefaults();
 
 builder.Services
     .AddDomain()
+    .AddApplication()
     .AddExternalApis()
-    .AddProblemDetails();
+    .AddRepositories()
+    .AddProblemDetails()
+    .AddSwaggerGen(options => { options.SwaggerDoc("v1", new() { Title = "Hodler.ApiService", Version = "v1" }); })
+    .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); });
+
+builder.Services.AddMvcCore()
+    .AddApiExplorer();
+
+// Tell Mapster to scan this assambly searching for the Mapster.IRegister
+// classes and execute them
+TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceCollectionExtensions).Assembly);
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
-app.MapGet("/transactions-summary-report", async () =>
+if (app.Environment.IsDevelopment())
 {
-    var service = app.Services.GetRequiredService<ITransactionsQueryService>();
-    var summaryReport = await service.GetTransactionsSummaryReportAsync(default);
-    return summaryReport;
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.RoutePrefix = string.Empty; // To serve the Swagger UI at the app's root
+    });}
 
-app.MapGet("/transactions", async () =>
-{
-    var service = app.Services.GetRequiredService<ITransactionsQueryService>();
-    var transactions = await service.GetTransactionsAsync(default);
-    return transactions;
-});
+// TODO: Validation        
+
+// app.MapGet("/transactions-summary-report", async () =>
+// {
+//     var service = app.Services.GetRequiredService<ITransactionsQueryService>();
+//     var summaryReport = await service.GetTransactionsSummaryReportAsync(default);
+//     return summaryReport;
+// });
+//
+// app.MapGet("/transactions", async () =>
+// {
+//     var service = app.Services.GetRequiredService<ITransactionsQueryService>();
+//     var transactions = await service.GetTransactionsAsync(default);
+//     return transactions;
+// });
+//
+// app.MapGet("/transactions/sync/bitpanda", async () =>
+// {
+//     var service = app.Services.GetRequiredService<ITransactionsQueryService>();
+//     var transactions = await service.GetTransactionsAsync(default);
+//     return transactions;
+// });
 
 app.MapDefaultEndpoints();
+app.MapControllers();
 
 app.Run();
-
-namespace Hodler.ApiService
-{
-    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-    {
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
-}

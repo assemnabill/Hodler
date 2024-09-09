@@ -7,14 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hodler.Domain\Hodler.Domain.csproj" />
-    <ProjectReference Include="..\Hodler.ExternalApis\Hodler.ExternalApis.csproj" />
+    <ProjectReference Include="..\Hodler.Application\Hodler.Application.csproj" />
+    <ProjectReference Include="..\Hodler.Integration.Repositories\Hodler.Integration.Repositories.csproj" />
+    <ProjectReference Include="..\Hodler.Integrations.ExternalApis\Hodler.Integrations.ExternalApis.csproj" />
     <ProjectReference Include="..\Hodler.ServiceDefaults\Hodler.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Resources\bitpanda.csv" />
     <None Remove="Resources\kraken.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
   </ItemGroup>
 
 </Project>
