@@ -1,8 +1,9 @@
 using Hodler.Domain.Portfolio.Models;
+using Hodler.Domain.User.Models;
 
 namespace Hodler.Domain.Portfolio.Services.Sync;
 
 public interface IPortfolioSyncService
 {
-    Task<IPortfolio> SyncWithExchangeAsync(Guid userId, CancellationToken cancellationToken);
+    Task<IPortfolio> SyncWithExchangeAsync(UserId userId, CancellationToken cancellationToken);
 }

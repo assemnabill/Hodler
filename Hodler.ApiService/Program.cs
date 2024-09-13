@@ -1,10 +1,13 @@
 using Hodler.Application;
 using Hodler.Domain;
 using Hodler.Integration.Repositories;
-using Hodler.Integrations.ExternalApis;
+using Hodler.Integration.Repositories.Portfolio.Context;
+using Hodler.Integration.ExternalApis;
+using Hodler.Integration.Repositories.User.Context;
+using Hodler.Integration.Repositories.User.Entities;
 using Hodler.ServiceDefaults;
-using Mapster;
-using ServiceCollectionExtensions = Hodler.Application.ServiceCollectionExtensions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,12 +23,13 @@ builder.Services
     .AddSwaggerGen(options => { options.SwaggerDoc("v1", new() { Title = "Hodler.ApiService", Version = "v1" }); })
     .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); });
 
-builder.Services.AddMvcCore()
+builder.Services
+    .AddMvcCore()
     .AddApiExplorer();
 
-// Tell Mapster to scan this assambly searching for the Mapster.IRegister
-// classes and execute them
-TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceCollectionExtensions).Assembly);
+AddAuthentication(builder);
+
+builder.AddNpgsqlDbContext<PortfolioDbContext>("hodler-db");
 
 var app = builder.Build();
 
@@ -39,7 +43,8 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         c.RoutePrefix = string.Empty; // To serve the Swagger UI at the app's root
-    });}
+    });
+}
 
 // TODO: Validation        
 
@@ -63,8 +68,25 @@ if (app.Environment.IsDevelopment())
 //     var transactions = await service.GetTransactionsAsync(default);
 //     return transactions;
 // });
-
 app.MapDefaultEndpoints();
 app.MapControllers();
-
+app.MapIdentityApi<User>();
 app.Run();
+
+void AddAuthentication(WebApplicationBuilder webApplicationBuilder)
+{
+    webApplicationBuilder.Services
+        .AddAuthentication(IdentityConstants.ApplicationScheme)
+        .AddIdentityCookies();
+    
+    webApplicationBuilder.Services.AddAuthorizationBuilder();
+
+    webApplicationBuilder.Services.AddDbContext<UserDbContext>(
+        options => options.UseNpgsql("identity-db")
+    );
+
+    webApplicationBuilder.Services
+        .AddIdentityCore<User>()
+        .AddEntityFrameworkStores<UserDbContext>()
+        .AddApiEndpoints();
+}

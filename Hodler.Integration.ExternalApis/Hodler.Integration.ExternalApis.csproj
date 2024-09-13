@@ -5,8 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
-        <AssemblyName>Hodler.Integrations.ExternalApis</AssemblyName>
-        <RootNamespace>Hodler.Integrations.ExternalApis</RootNamespace>
+        <PackageId>Hodler.Integration.ExternalApis</PackageId>
     </PropertyGroup>
 
     <ItemGroup>

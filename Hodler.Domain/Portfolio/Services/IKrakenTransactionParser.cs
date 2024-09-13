@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Hodler.Domain.Portfolio.Models;
+using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolio.Services;
 
@@ -20,11 +21,14 @@ public class KrakenTransactionParser : IKrakenTransactionParser
                 var marketPrice = Math.Abs(spendingTransaction!.Amount / receivingTransaction!.Amount);
 
                 return new Transaction(
+                    Guid.NewGuid(), 
                     TransactionType.Buy,
+                    FiatCurrency.Euro,
                     spendingTransaction.Amount,
                     receivingTransaction.Amount,
                     marketPrice,
-                    spendingTransaction.Timestamp
+                    spendingTransaction.Timestamp,
+                    CryptoExchange.Kraken
                 );
             })
             .ToList();

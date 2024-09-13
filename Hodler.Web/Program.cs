@@ -1,6 +1,7 @@
 using Hodler.ServiceDefaults;
 using Hodler.Web;
 using Hodler.Web.Components;
+using Microsoft.AspNetCore.Identity;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,10 @@ builder.Services
     .AddInteractiveServerComponents();
 
 builder.Services.AddRadzenComponents();
+
+builder.Services
+    .AddAuthentication(IdentityConstants.ApplicationScheme)
+    .AddIdentityCookies();
 
 builder.Services.AddHttpClient<HodlerApiClient>(client =>
     {

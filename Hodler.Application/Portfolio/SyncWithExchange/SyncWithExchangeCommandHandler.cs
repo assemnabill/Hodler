@@ -19,7 +19,7 @@ public class SyncWithExchangeCommandHandler : IRequestHandler<SyncWithExchangeCo
         CancellationToken cancellationToken)
     {
         var domainService = _serviceProvider.GetRequiredKeyedService<IPortfolioSyncService>(
-            Enum.GetName(request.ExchangeName)
+            request.ExchangeName.Name
         );
         
         return domainService.SyncWithExchangeAsync(request.UserId, cancellationToken);

@@ -7,12 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Portfolio\DbContext\" />
-      <Folder Include="Portfolio\Entities\" />
+      <ProjectReference Include="..\Hodler.Application\Hodler.Application.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Hodler.Application\Hodler.Application.csproj" />
+      <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
     </ItemGroup>
 
 </Project>

@@ -2,6 +2,7 @@ using Hodler.Application.Portfolio.AddTransaction;
 using Hodler.Application.Portfolio.GetPortfolio;
 using Hodler.Application.Portfolio.SyncWithExchange;
 using Hodler.Domain.Shared.Models;
+using Hodler.Domain.User.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +27,8 @@ public class PortfolioController : ControllerBase
     }
 
     [HttpPost("transaction")]
-    public async Task<IActionResult> AddTransaction([FromBody] AddTransactionRequestContract addTransactionRequestContract)
+    public async Task<IActionResult> AddTransaction(
+        [FromBody] AddTransactionRequestContract addTransactionRequestContract)
     {
         await _mediator.Send(new AddTransactionCommand(
             addTransactionRequestContract.UserId,
@@ -40,10 +42,10 @@ public class PortfolioController : ControllerBase
     }
 
     [HttpPost("sync/{exchangeName}")]
-    public async Task<IActionResult> SyncWithExchange([FromBody] Guid userId, CryptoExchange exchangeName)
+    public async Task<IActionResult> SyncWithExchange([FromBody] Guid userId, [FromQuery] CryptoExchange exchangeName)
     {
-        var result = await _mediator.Send(new SyncWithExchangeCommand(userId, exchangeName));
-        
+        var result = await _mediator.Send(new SyncWithExchangeCommand(new UserId(userId), exchangeName));
+
         return Ok(result);
     }
 }

@@ -1,0 +1,51 @@
+﻿using System.Diagnostics;
+using Hodler.Integration.Repositories.Portfolio.Context;
+using Hodler.Integration.Repositories.User.Context;
+using Microsoft.EntityFrameworkCore;
+
+namespace Hodler.Integration.DbMigration;
+
+internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<HodlerDbInitializer> logger)
+    : BackgroundService
+{
+    public const string ActivitySourceName = "Migrations";
+
+    private readonly ActivitySource _activitySource = new(ActivitySourceName);
+
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    {
+        using var scope = serviceProvider.CreateScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<PortfolioDbContext>();
+        await InitializeDatabaseAsync(dbContext, cancellationToken);
+
+        var identityDbContext = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+        await InitializeDatabaseAsync(identityDbContext, cancellationToken);
+    }
+
+    private async Task InitializeDatabaseAsync(UserDbContext identityDbContext, CancellationToken cancellationToken)
+    {
+        using var activity = _activitySource.StartActivity("Initializing identity", ActivityKind.Client);
+
+        var sw = Stopwatch.StartNew();
+
+        var strategy = identityDbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(identityDbContext.Database.MigrateAsync, cancellationToken);
+
+        logger.LogInformation("Database initialization completed after {ElapsedMilliseconds}ms",
+            sw.ElapsedMilliseconds);
+    }
+
+    private async Task InitializeDatabaseAsync(PortfolioDbContext dbContext, CancellationToken cancellationToken)
+    {
+        using var activity = _activitySource.StartActivity("Initializing hodler database", ActivityKind.Client);
+
+        var sw = Stopwatch.StartNew();
+
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(dbContext.Database.MigrateAsync, cancellationToken);
+
+        logger.LogInformation("Database initialization completed after {ElapsedMilliseconds}ms",
+            sw.ElapsedMilliseconds);
+    }
+}

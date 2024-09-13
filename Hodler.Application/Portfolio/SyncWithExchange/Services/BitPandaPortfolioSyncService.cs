@@ -3,6 +3,7 @@ using Hodler.Domain.Portfolio.Ports.BitPandaApi;
 using Hodler.Domain.Portfolio.Ports.Repositories;
 using Hodler.Domain.Portfolio.Services;
 using Hodler.Domain.Portfolio.Services.Sync;
+using Hodler.Domain.User.Models;
 
 namespace Hodler.Application.Portfolio.SyncWithExchange.Services;
 
@@ -22,7 +23,7 @@ public class BitPandaPortfolioSyncService : IPortfolioSyncService
         _portfolioRepository = portfolioRepository;
     }
 
-    public async Task<IPortfolio> SyncWithExchangeAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<IPortfolio> SyncWithExchangeAsync(UserId userId, CancellationToken cancellationToken)
     {
         var transactions = await _bitPandaApiClient.GetTransactionsAsync(userId, cancellationToken);
 

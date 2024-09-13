@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Hodler.Domain.Shared.Ports.DiaDataApi;
 
-namespace Hodler.Integrations.ExternalApis.PriceFeed;
+namespace Hodler.Integration.ExternalApis.PriceFeed;
 
 public class DiaDataApiClient : IDiaDataApiClient
 {

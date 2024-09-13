@@ -21,8 +21,4 @@
       </EmbeddedResource>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="User\Models\" />
-    </ItemGroup>
-
 </Project>

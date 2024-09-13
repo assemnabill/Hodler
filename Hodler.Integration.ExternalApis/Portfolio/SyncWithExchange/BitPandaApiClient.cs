@@ -4,7 +4,7 @@ using Hodler.Domain.Portfolio.Ports.BitPandaApi;
 using Hodler.Domain.User.Services;
 using Mapster;
 
-namespace Hodler.Integrations.ExternalApis.Portfolio.SyncWithExchange;
+namespace Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange;
 
 public class BitPandaApiClient : IBitPandaApiClient
 {

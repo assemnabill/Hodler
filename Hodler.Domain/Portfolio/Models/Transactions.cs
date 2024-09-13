@@ -8,9 +8,9 @@ public class Transactions : ITransactions
     private readonly List<Transaction> _transactions;
     public int Count => _transactions.Count;
 
-    public Transactions(List<Transaction> transactions)
+    public Transactions(IEnumerable<Transaction> transactions)
     {
-        _transactions = transactions;
+        _transactions = transactions.ToList();
     }
 
     public IEnumerator<Transaction> GetEnumerator() => _transactions.GetEnumerator();

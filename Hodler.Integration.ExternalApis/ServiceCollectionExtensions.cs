@@ -1,11 +1,11 @@
 ﻿using Hodler.Domain.Portfolio.Ports.BitPandaApi;
 using Hodler.Domain.Shared.Ports.DiaDataApi;
-using Hodler.Integrations.ExternalApis.Portfolio.SyncWithExchange;
-using Hodler.Integrations.ExternalApis.PriceFeed;
+using Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange;
+using Hodler.Integration.ExternalApis.PriceFeed;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hodler.Integrations.ExternalApis;
+namespace Hodler.Integration.ExternalApis;
 
 public static class ServiceCollectionExtensions
 {

@@ -1,6 +1,6 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
 
-namespace Hodler.Integrations.ExternalApis.Portfolio.SyncWithExchange;
+namespace Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange;
 
 public class CryptoCurrency : TypeSafeEnum<CryptoCurrency>
 {

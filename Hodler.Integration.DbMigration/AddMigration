@@ -1,0 +1,2 @@
+cd ../Hodler.Integration.Repositories
+dotnet ef --startup-project ../Hodler.ApiService/Hodler.ApiService.csproj migrations add <MigrationName> --context <DbContext> --output-dir Migrations/Portfolio --project ./Hodler.Integration.Repositories.csproj
