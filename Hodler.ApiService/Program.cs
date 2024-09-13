@@ -9,6 +9,9 @@ using Hodler.ServiceDefaults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+const string connectionString = "hodler-db";
+const string apiVersion = "v1";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -20,7 +23,6 @@ builder.Services
     .AddExternalApis()
     .AddRepositories()
     .AddProblemDetails()
-    .AddSwaggerGen(options => { options.SwaggerDoc("v1", new() { Title = "Hodler.ApiService", Version = "v1" }); })
     .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); });
 
 builder.Services
@@ -28,8 +30,8 @@ builder.Services
     .AddApiExplorer();
 
 AddAuthentication(builder);
-
-builder.AddNpgsqlDbContext<PortfolioDbContext>("hodler-db");
+AddDbContexts(builder);
+AddSwagger(builder);
 
 var app = builder.Build();
 
@@ -41,8 +43,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        c.RoutePrefix = string.Empty; // To serve the Swagger UI at the app's root
+        c.SwaggerEndpoint(
+            "/swagger/v1/swagger.json",
+            $"Hodler API {apiVersion}");
+        c.RoutePrefix = "hodler"; // To serve the Swagger UI at the app's root
     });
 }
 
@@ -73,20 +77,42 @@ app.MapControllers();
 app.MapIdentityApi<User>();
 app.Run();
 
+
 void AddAuthentication(WebApplicationBuilder webApplicationBuilder)
 {
     webApplicationBuilder.Services
         .AddAuthentication(IdentityConstants.ApplicationScheme)
         .AddIdentityCookies();
-    
+
     webApplicationBuilder.Services.AddAuthorizationBuilder();
 
     webApplicationBuilder.Services.AddDbContext<UserDbContext>(
-        options => options.UseNpgsql("identity-db")
+        options => options.UseNpgsql(connectionString)
     );
 
     webApplicationBuilder.Services
         .AddIdentityCore<User>()
         .AddEntityFrameworkStores<UserDbContext>()
         .AddApiEndpoints();
+}
+
+void AddDbContexts(WebApplicationBuilder builder1)
+{
+    builder1.AddNpgsqlDbContext<PortfolioDbContext>(connectionString);
+}
+
+void AddSwagger(WebApplicationBuilder webApplicationBuilder1)
+{
+    // Swagger/OpenAPI services
+    webApplicationBuilder1.Services
+        .AddEndpointsApiExplorer()
+        .AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc(
+                apiVersion, new()
+                {
+                    Title = "Hodler.Api",
+                    Version = apiVersion
+                });
+        });
 }
