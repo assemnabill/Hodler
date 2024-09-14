@@ -2,15 +2,15 @@ namespace Hodler.Integration.Repositories.Portfolio.Entities;
 
 public class Transaction : Entity
 {
-    public Guid Id { get; set; }
-    public Guid PortfolioId { get; set; }
-    public int Type { get; set; }
-    public double FiatAmount { get; set; }
-    public double BtcAmount { get; set; }
-    public double MarketPrice { get; set; }
-    public DateTimeOffset Timestamp { get; set; }
-    public int CryptoExchange { get; set; }
-    public int FiatCurrency { get; set; }
+    public Guid TransactionId { get; init; }
+    public Guid PortfolioId { get; init; }
+    public int Type { get; init; }
+    public double FiatAmount { get; init; }
+    public double BtcAmount { get; init; }
+    public double MarketPrice { get; init; }
+    public DateTimeOffset Timestamp { get; init; }
+    public int CryptoExchange { get; init; }
+    public int FiatCurrency { get; init; }
 
-    public virtual Portfolio Portfolio { get; set; }
+    public virtual Portfolio Portfolio { get; init; }
 }

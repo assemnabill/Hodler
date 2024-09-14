@@ -21,11 +21,9 @@ public class KrakenTransactionParser : IKrakenTransactionParser
                 var marketPrice = Math.Abs(spendingTransaction!.Amount / receivingTransaction!.Amount);
 
                 return new Transaction(
-                    Guid.NewGuid(), 
                     TransactionType.Buy,
-                    FiatCurrency.Euro,
-                    spendingTransaction.Amount,
-                    receivingTransaction.Amount,
+                    new FiatAmount(spendingTransaction.Amount, FiatCurrency.Euro),
+                    new BitcoinAmount(receivingTransaction.Amount),
                     marketPrice,
                     spendingTransaction.Timestamp,
                     CryptoExchange.Kraken
@@ -59,7 +57,8 @@ public record KrakenTransactionRow
     public DateTimeOffset Timestamp { get; }
     public string ReferenceId { get; }
 
-    public KrakenTransactionRow(string krakenTransactionType, double amount, DateTimeOffset timestamp, string referenceId)
+    public KrakenTransactionRow(string krakenTransactionType, double amount, DateTimeOffset timestamp,
+        string referenceId)
     {
         KrakenTransactionType = krakenTransactionType;
         Amount = amount;

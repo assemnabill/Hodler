@@ -1,4 +1,5 @@
 ﻿using Hodler.Domain.Portfolio.Services;
+using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolio.Models;
 
@@ -8,5 +9,5 @@ public interface ITransactions : IReadOnlyCollection<Transaction>
         ICurrentPriceProvider currentPriceProvider,
         CancellationToken cancellationToken);
 
-    ITransactions Sync(IEnumerable<Transaction> transactions);
+    SyncResult<ITransactions> Sync(IEnumerable<Transaction> transactions);
 }

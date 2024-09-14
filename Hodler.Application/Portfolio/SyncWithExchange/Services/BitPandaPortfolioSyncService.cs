@@ -15,7 +15,7 @@ public class BitPandaPortfolioSyncService : IPortfolioSyncService
 
     public BitPandaPortfolioSyncService(
         IBitPandaApiClient bitPandaApiClient,
-        IPortfolioQueryService portfolioQueryService, 
+        IPortfolioQueryService portfolioQueryService,
         IPortfolioRepository portfolioRepository)
     {
         _bitPandaApiClient = bitPandaApiClient;
@@ -23,15 +23,23 @@ public class BitPandaPortfolioSyncService : IPortfolioSyncService
         _portfolioRepository = portfolioRepository;
     }
 
-    public async Task<IPortfolio> SyncWithExchangeAsync(UserId userId, CancellationToken cancellationToken)
+    public async Task<IPortfolio> SyncWithExchangeAsync(
+        UserId userId,
+        CancellationToken cancellationToken
+    )
     {
         var transactions = await _bitPandaApiClient.GetTransactionsAsync(userId, cancellationToken);
 
-        var portfolio = await _portfolioQueryService.GetByUserIdAsync(userId);
-        portfolio = portfolio.SyncTransactions(transactions);
+        var portfolio = await _portfolioQueryService.GetByUserIdAsync(userId, cancellationToken)
+                        ?? Domain.Portfolio.Models.Portfolio.Create(userId);
 
-        await _portfolioRepository.StoreAsync(portfolio, cancellationToken);
+        var syncResult = portfolio.SyncTransactions(transactions);
 
-        return portfolio;
+        if (syncResult.Changed)
+        {
+            await _portfolioRepository.StoreAsync(portfolio, cancellationToken);
+        }
+
+        return syncResult.CurrentState;
     }
 }

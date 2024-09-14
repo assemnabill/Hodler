@@ -5,5 +5,6 @@ namespace Hodler.Domain.Portfolio.Services;
 
 public interface IPortfolioQueryService   
 {
-    Task<IPortfolio> GetByUserIdAsync(UserId userId);
+    Task<IPortfolio?> GetByUserIdAsync(UserId userId, CancellationToken cancellationToken);
+
 }

@@ -12,7 +12,7 @@ builder.AddNpgsqlDbContext<PortfolioDbContext>(
     "hodler-db",
     null,
     optionsBuilder => optionsBuilder.UseNpgsql(npgsqlBuilder =>
-        npgsqlBuilder.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)
+        npgsqlBuilder.MigrationsAssembly(typeof(PortfolioDbContext).Assembly.GetName().Name)
     )
 );
 
@@ -20,7 +20,7 @@ builder.AddNpgsqlDbContext<UserDbContext>(
     "hodler-db",
     null,
     optionsBuilder => optionsBuilder.UseNpgsql(npgsqlBuilder =>
-        npgsqlBuilder.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)
+        npgsqlBuilder.MigrationsAssembly(typeof(UserDbContext).Assembly.GetName().Name)
     )
 );
 

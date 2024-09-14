@@ -33,8 +33,13 @@ public class BitPandaTransactionParser : IBitPandaTransactionParser
         var marketPrice = double.Parse(line[8], NumberStyles.Float, CultureInfo.InvariantCulture);
         var timestamp = DateTimeOffset.Parse(line[1]);
 
-        return new Transaction(Guid.NewGuid(), transactionType,
-            FiatCurrency.Euro, fiatAmount, btcAmount, marketPrice,
-            timestamp, CryptoExchange.BitPanda);
+        return new Transaction(
+            transactionType,
+            new FiatAmount(fiatAmount, FiatCurrency.Euro),
+            new BitcoinAmount(btcAmount),
+            marketPrice,
+            timestamp,
+            CryptoExchange.BitPanda
+        );
     }
 }

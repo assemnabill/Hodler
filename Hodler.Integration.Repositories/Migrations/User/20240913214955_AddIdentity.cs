@@ -3,7 +3,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace Hodler.Integration.DbMigration.Migrations.User
+namespace Hodler.Integration.Repositories.Migrations.User
 {
     /// <inheritdoc />
     public partial class AddIdentity : Migration

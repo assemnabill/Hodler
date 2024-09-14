@@ -17,4 +17,19 @@
       <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <EmbeddedResource Update="Failures\failures.en.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>failures.en.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Failures\failures.en.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>failures.en.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

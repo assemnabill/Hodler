@@ -5,13 +5,14 @@ using Mapster;
 
 namespace Hodler.Integration.Repositories.Portfolio.Mappings;
 
-public class PortfolioMappingRegisteration : IRegister
+public class PortfolioMappingRegistration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
         config
             .NewConfig<Entities.Portfolio, IPortfolio>()
             .MapWith((portfolio => new Domain.Portfolio.Models.Portfolio(
+                new PortfolioId(portfolio.PortfolioId),
                 new Transactions(portfolio.Transactions.Select(x => x.Adapt<Entities.Transaction, Transaction>())),
                 new UserId(portfolio.PortfolioId)
             )));
@@ -26,11 +27,10 @@ public class PortfolioMappingRegisteration : IRegister
         config
             .NewConfig<Entities.Transaction, Transaction>()
             .MapWith(transaction => new Transaction(
-                transaction.Id,
                 (TransactionType)transaction.Type,
-                FiatCurrency.AsEnumerable().FirstOrDefault(x => x.Id == transaction.FiatCurrency)!,
-                transaction.FiatAmount,
-                transaction.BtcAmount,
+                new FiatAmount(transaction.FiatAmount,
+                    FiatCurrency.AsEnumerable().FirstOrDefault(x => x.Id == transaction.FiatCurrency)!),
+                new BitcoinAmount(transaction.BtcAmount),
                 transaction.MarketPrice,
                 transaction.Timestamp,
                 CryptoExchange.AsEnumerable().FirstOrDefault(x => x.Id == transaction.CryptoExchange)
@@ -38,10 +38,10 @@ public class PortfolioMappingRegisteration : IRegister
 
         config
             .NewConfig<Transaction, Entities.Transaction>()
-            .Map(dest => dest.Id, src => src.TransactionId)
             .Map(dest => dest.Type, src => src.Type)
-            .Map(dest => dest.FiatAmount, src => src.FiatAmount)
-            .Map(dest => dest.BtcAmount, src => src.BtcAmount)
+            .Map(dest => dest.FiatAmount, src => src.FiatAmount.Amount)
+            .Map(dest => dest.FiatCurrency, src => src.FiatAmount.FiatCurrency.Id)
+            .Map(dest => dest.BtcAmount, src => src.BtcAmount.Amount)
             .Map(dest => dest.MarketPrice, src => src.MarketPrice)
             .Map(dest => dest.Timestamp, src => src.Timestamp);
     }

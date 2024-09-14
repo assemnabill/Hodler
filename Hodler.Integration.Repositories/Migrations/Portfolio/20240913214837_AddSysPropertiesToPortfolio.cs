@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Hodler.Integration.DbMigration.Migrations.Portfolio
+namespace Hodler.Integration.Repositories.Migrations.Portfolio
 {
     /// <inheritdoc />
     public partial class AddSysPropertiesToPortfolio : Migration

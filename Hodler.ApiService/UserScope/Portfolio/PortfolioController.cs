@@ -19,13 +19,15 @@ public class PortfolioController : ControllerBase
         _mediator = mediator;
     }
 
+    // TODO: Add authentication and implementation
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetPortfolio(Guid userId)
     {
         var portfolio = await _mediator.Send(new GetPortfolioQuery(userId));
         return Ok(portfolio);
     }
-
+    
+    // TODO: Add authentication and implementation
     [HttpPost("transaction")]
     public async Task<IActionResult> AddTransaction(
         [FromBody] AddTransactionRequestContract addTransactionRequestContract)
@@ -41,6 +43,7 @@ public class PortfolioController : ControllerBase
         return Ok();
     }
 
+    // TODO: Add authentication
     [HttpPost("sync/{exchangeName}")]
     public async Task<IActionResult> SyncWithExchange([FromBody] Guid userId, [FromQuery] CryptoExchange exchangeName)
     {

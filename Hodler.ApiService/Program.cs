@@ -1,37 +1,35 @@
+using Hodler.ApiService;
 using Hodler.Application;
 using Hodler.Domain;
 using Hodler.Integration.Repositories;
-using Hodler.Integration.Repositories.Portfolio.Context;
 using Hodler.Integration.ExternalApis;
-using Hodler.Integration.Repositories.User.Context;
 using Hodler.Integration.Repositories.User.Entities;
 using Hodler.ServiceDefaults;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-const string connectionString = "hodler-db";
-const string apiVersion = "v1";
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 
+// Hodler Service Layers.
 builder.Services
     .AddDomain()
     .AddApplication()
     .AddExternalApis()
-    .AddRepositories()
-    .AddProblemDetails()
-    .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); });
+    .AddRepositories();
 
+// Hodler Service Core
 builder.Services
+    .AddProblemDetails()
+    .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); })
     .AddMvcCore()
     .AddApiExplorer();
 
-AddAuthentication(builder);
-AddDbContexts(builder);
-AddSwagger(builder);
+// Hodler Service Infrastructure
+builder.AddRedisDistributedCache("cache");
+builder.AddAuthentication();
+builder.AddDbContexts();
+builder.AddSwagger();
 
 var app = builder.Build();
 
@@ -45,7 +43,7 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint(
             "/swagger/v1/swagger.json",
-            $"Hodler API {apiVersion}");
+            $"Hodler API {ServiceConstants.ApiVersion}");
         c.RoutePrefix = "hodler"; // To serve the Swagger UI at the app's root
     });
 }
@@ -75,44 +73,5 @@ if (app.Environment.IsDevelopment())
 app.MapDefaultEndpoints();
 app.MapControllers();
 app.MapIdentityApi<User>();
+
 app.Run();
-
-
-void AddAuthentication(WebApplicationBuilder webApplicationBuilder)
-{
-    webApplicationBuilder.Services
-        .AddAuthentication(IdentityConstants.ApplicationScheme)
-        .AddIdentityCookies();
-
-    webApplicationBuilder.Services.AddAuthorizationBuilder();
-
-    webApplicationBuilder.Services.AddDbContext<UserDbContext>(
-        options => options.UseNpgsql(connectionString)
-    );
-
-    webApplicationBuilder.Services
-        .AddIdentityCore<User>()
-        .AddEntityFrameworkStores<UserDbContext>()
-        .AddApiEndpoints();
-}
-
-void AddDbContexts(WebApplicationBuilder builder1)
-{
-    builder1.AddNpgsqlDbContext<PortfolioDbContext>(connectionString);
-}
-
-void AddSwagger(WebApplicationBuilder webApplicationBuilder1)
-{
-    // Swagger/OpenAPI services
-    webApplicationBuilder1.Services
-        .AddEndpointsApiExplorer()
-        .AddSwaggerGen(options =>
-        {
-            options.SwaggerDoc(
-                apiVersion, new()
-                {
-                    Title = "Hodler.Api",
-                    Version = apiVersion
-                });
-        });
-}
