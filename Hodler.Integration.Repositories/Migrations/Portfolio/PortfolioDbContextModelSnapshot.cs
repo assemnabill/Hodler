@@ -24,7 +24,7 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
 
             modelBuilder.Entity("Hodler.Integration.Repositories.Portfolio.Entities.Portfolio", b =>
                 {
-                    b.Property<Guid>("PortfolioId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -43,7 +43,7 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("PortfolioId");
+                    b.HasKey("Id");
 
                     b.ToTable("Portfolios");
                 });

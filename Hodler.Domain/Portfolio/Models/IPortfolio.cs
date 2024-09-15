@@ -6,7 +6,7 @@ namespace Hodler.Domain.Portfolio.Models;
 
 public interface IPortfolio : IAggregateRoot<IPortfolio>
 {
-    public PortfolioId PortfolioId { get; }
+    public PortfolioId Id { get; }
     public UserId UserId { get; }
     ITransactions Transactions { get; }
 

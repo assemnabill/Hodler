@@ -6,7 +6,7 @@ namespace Hodler.Domain.Portfolio.Models;
 
 public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
 {
-    public PortfolioId PortfolioId { get; private set; }
+    public PortfolioId Id { get; private set; }
     public UserId UserId { get; private set; }
     public ITransactions Transactions { get; private set; }
 
@@ -16,7 +16,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
 
         Transactions = transactions;
         UserId = userId;
-        PortfolioId = portfolioId;
+        Id = portfolioId;
     }
 
     public SyncResult<IPortfolio> SyncTransactions(IEnumerable<Transaction> transactions)
