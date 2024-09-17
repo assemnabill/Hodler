@@ -25,3 +25,7 @@
 
 /Hodler.Web/bin/*
 /Hodler.Web/obj/*
+
+/Hodler.Contracts/bin/*
+/Hodler.Contracts/obj/*
+
