@@ -3,6 +3,7 @@ using System;
 using Hodler.Integration.Repositories.Portfolio.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hodler.Integration.Repositories.Migrations.Portfolio
 {
     [DbContext(typeof(PortfolioDbContext))]
-    partial class PortfolioDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240915125051_ChangeIdName")]
+    partial class ChangeIdName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,7 +27,7 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
 
             modelBuilder.Entity("Hodler.Integration.Repositories.Portfolio.Entities.Portfolio", b =>
                 {
-                    b.Property<Guid>("PortfolioId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -40,11 +43,10 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
-                    b.HasKey("PortfolioId");
+                    b.HasKey("Id");
 
                     b.ToTable("Portfolios");
                 });

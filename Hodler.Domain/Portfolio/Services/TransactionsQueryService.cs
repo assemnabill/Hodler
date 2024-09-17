@@ -25,6 +25,7 @@ public class TransactionsQueryService : ITransactionsQueryService
 
     public async Task<TransactionsSummaryReport> GetTransactionsSummaryReportAsync(CancellationToken cancellationToken)
     {
+        
         var transactions = new Transactions(
             ParseBitPandaTransactions()
                 .Concat(ParseKrakenTransactions())

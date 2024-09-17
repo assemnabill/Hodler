@@ -1,11 +1,11 @@
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 
-const string apiServiceName = "hodler-api";
-const string frontendComponentName = "hodler-web";
-const string dbName = "hodler-db";
+const string serviceName = "hodler";
+const string apiServiceName = $"{serviceName}-api";
+const string webFrontendName = $"{serviceName}-web";
+const string dbName = $"{serviceName}-db";
 
 var postgresComponent = builder
     .AddPostgres("postgres")
@@ -19,12 +19,13 @@ var apiService = builder
     .WithReference(hodlerDb);
 
 builder
-    .AddProject<Projects.Hodler_Web>(frontendComponentName)
+    .AddProject<Projects.Hodler_Web>(webFrontendName)
     .WithExternalHttpEndpoints()
     .WithReference(cache)
     .WithReference(apiService);
 
-builder.AddProject<Projects.Hodler_Integration_DbMigration>("hodler-db-manager")
+builder
+    .AddProject<Projects.Hodler_Integration_DbMigration>($"{serviceName}-db-manager")
     .WithReference(hodlerDb);
 
 builder.Build().Run();

@@ -39,7 +39,7 @@ internal class PortfolioRepository : IPortfolioRepository
         try
         {
             var existingDbEntity = await IncludeAggregate()
-                .FirstOrDefaultAsync(t => t.Id == aggregateRoot.Id, cancellationToken);
+                .FirstOrDefaultAsync(t => t.PortfolioId == aggregateRoot.Id, cancellationToken);
 
             var entity = aggregateRoot.Adapt<IPortfolio, Portfolio.Entities.Portfolio>();
 
@@ -86,7 +86,7 @@ internal class PortfolioRepository : IPortfolioRepository
         ArgumentNullException.ThrowIfNull(userId);
 
         var entity = await IncludeAggregate()
-            .Where(x => x.UserId == userId)
+            .Where(x => x.UserId == userId.Value.ToString())
             .FirstOrDefaultAsync(cancellationToken);
 
         return entity?.Adapt<Portfolio.Entities.Portfolio, IPortfolio>();

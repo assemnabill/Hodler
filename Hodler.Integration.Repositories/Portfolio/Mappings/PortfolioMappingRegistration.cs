@@ -12,14 +12,14 @@ public class PortfolioMappingRegistration : IRegister
         config
             .NewConfig<Entities.Portfolio, IPortfolio>()
             .MapWith((portfolio => new Domain.Portfolio.Models.Portfolio(
-                new PortfolioId(portfolio.Id),
+                new PortfolioId(portfolio.PortfolioId),
                 new Transactions(portfolio.Transactions.Select(x => x.Adapt<Entities.Transaction, Transaction>())),
-                new UserId(portfolio.Id)
+                new UserId(portfolio.PortfolioId)
             )));
 
         config
             .NewConfig<IPortfolio, Entities.Portfolio>()
-            .Map(dest => dest.Id, src => src.Id.Value)
+            .Map(dest => dest.PortfolioId, src => src.Id.Value)
             .Map(dest => dest.UserId, src => src.UserId.Value)
             .Map(dest => dest.Transactions,
                 src => src.Transactions.Select(x => x.Adapt<Transaction, Entities.Transaction>()).ToList());

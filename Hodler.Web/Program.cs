@@ -25,9 +25,10 @@ builder.Services.AddHttpClient<HodlerApiClient>(client =>
 {
     // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
     // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-    client.BaseAddress = new("https+http://apiservice");
+    client.BaseAddress = new("https+http://hodler-api");
 });
 
+// ConfigureServices(builder.Services);
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -48,3 +49,12 @@ app.MapRazorComponents<App>()
 app.MapDefaultEndpoints();
 
 app.Run();
+
+// todo: auth
+// void ConfigureServices(IServiceCollection services)
+// {
+//     services.AddBlazoredLocalStorage();
+//     services.AddAuthorizationCore();
+//     // services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
+//     services.AddScoped<IAuthService, AuthService>();
+// }

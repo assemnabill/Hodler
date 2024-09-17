@@ -1,6 +1,7 @@
 using Hodler.ApiService;
 using Hodler.Application;
 using Hodler.Domain;
+using Hodler.Domain.Portfolio.Services;
 using Hodler.Integration.Repositories;
 using Hodler.Integration.ExternalApis;
 using Hodler.Integration.Repositories.User.Entities;
@@ -20,14 +21,17 @@ builder.Services
 
 // Hodler Service Core
 builder.Services
+    .AddMediatR(cfg =>
+    {
+        cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    })
     .AddProblemDetails()
-    .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); })
     .AddMvcCore()
     .AddApiExplorer();
 
 // Hodler Service Infrastructure
 builder.AddRedisDistributedCache("cache");
-builder.AddAuthentication();
+builder.AddAuthentication(builder.Configuration);
 builder.AddDbContexts();
 builder.AddSwagger();
 
@@ -48,30 +52,17 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// TODO: Validation        
+// TODO: Move to portfolio controller        
+app.MapGet("/transactions-summary-report", async () =>
+{
+    var service = app.Services.GetRequiredService<ITransactionsQueryService>();
+    var summaryReport = await service.GetTransactionsSummaryReportAsync(default);
+    return summaryReport;
+});
 
-// app.MapGet("/transactions-summary-report", async () =>
-// {
-//     var service = app.Services.GetRequiredService<ITransactionsQueryService>();
-//     var summaryReport = await service.GetTransactionsSummaryReportAsync(default);
-//     return summaryReport;
-// });
-//
-// app.MapGet("/transactions", async () =>
-// {
-//     var service = app.Services.GetRequiredService<ITransactionsQueryService>();
-//     var transactions = await service.GetTransactionsAsync(default);
-//     return transactions;
-// });
-//
-// app.MapGet("/transactions/sync/bitpanda", async () =>
-// {
-//     var service = app.Services.GetRequiredService<ITransactionsQueryService>();
-//     var transactions = await service.GetTransactionsAsync(default);
-//     return transactions;
-// });
 app.MapDefaultEndpoints();
 app.MapControllers();
 app.MapIdentityApi<User>();
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.Run();

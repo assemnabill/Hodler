@@ -16,19 +16,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hodler.Integration.External
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hodler.Application", "Hodler.Application\Hodler.Application.csproj", "{409210EB-99C5-4192-B0D6-EF7DE65B4E95}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{294DC339-0A42-473C-8DCF-787B342106FD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04_Domain", "04_Domain", "{294DC339-0A42-473C-8DCF-787B342106FD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{F0F764F4-6467-4B11-8A28-88BAA2BB9654}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02_Presentation", "02_Presentation", "{F0F764F4-6467-4B11-8A28-88BAA2BB9654}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Execution", "Execution", "{2ECCA4B9-D014-428B-A81C-A5B6AA91829B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01_Execution", "01_Execution", "{2ECCA4B9-D014-428B-A81C-A5B6AA91829B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "Integration", "{0FA427D1-98C2-492D-8191-73857A029AAA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05_Integration", "05_Integration", "{0FA427D1-98C2-492D-8191-73857A029AAA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{776801DB-1239-4E14-99DD-C84A1A3B3498}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03_Application", "03_Application", "{776801DB-1239-4E14-99DD-C84A1A3B3498}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hodler.Integration.Repositories", "Hodler.Integration.Repositories\Hodler.Integration.Repositories.csproj", "{ADC80F45-9F76-418C-8915-ADBEE9749165}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hodler.Integration.DbMigration", "Hodler.Integration.DbMigration\Hodler.Integration.DbMigration.csproj", "{43441AD3-4035-4122-91BD-5B44299B6C26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hodler.Contracts", "Hodler.Contracts\Hodler.Contracts.csproj", "{FE7695E0-FBF9-4957-8975-5B5CE30985B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,6 +74,10 @@ Global
 		{43441AD3-4035-4122-91BD-5B44299B6C26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43441AD3-4035-4122-91BD-5B44299B6C26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43441AD3-4035-4122-91BD-5B44299B6C26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE7695E0-FBF9-4957-8975-5B5CE30985B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE7695E0-FBF9-4957-8975-5B5CE30985B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE7695E0-FBF9-4957-8975-5B5CE30985B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE7695E0-FBF9-4957-8975-5B5CE30985B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,5 +95,6 @@ Global
 		{409210EB-99C5-4192-B0D6-EF7DE65B4E95} = {776801DB-1239-4E14-99DD-C84A1A3B3498}
 		{ADC80F45-9F76-418C-8915-ADBEE9749165} = {0FA427D1-98C2-492D-8191-73857A029AAA}
 		{43441AD3-4035-4122-91BD-5B44299B6C26} = {0FA427D1-98C2-492D-8191-73857A029AAA}
+		{FE7695E0-FBF9-4957-8975-5B5CE30985B8} = {F0F764F4-6467-4B11-8A28-88BAA2BB9654}
 	EndGlobalSection
 EndGlobal

@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hodler.Domain\Hodler.Domain.csproj" />
+    <ProjectReference Include="..\Hodler.Contracts\Hodler.Contracts.csproj" />
     <ProjectReference Include="..\Hodler.ServiceDefaults\Hodler.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="8.1.0" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="MatBlazor" Version="2.10.0" />
     <PackageReference Include="Radzen.Blazor" Version="5.1.9" />
   </ItemGroup>

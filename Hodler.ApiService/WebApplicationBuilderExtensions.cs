@@ -1,6 +1,5 @@
 ﻿using Hodler.Integration.Repositories.Portfolio.Context;
 using Hodler.Integration.Repositories.User.Context;
-using Hodler.Integration.Repositories.User.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +7,9 @@ namespace Hodler.ApiService;
 
 public static class WebApplicationBuilderExtensions
 {
-    public static WebApplicationBuilder AddAuthentication(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddAuthentication(
+        this WebApplicationBuilder builder,
+        IConfiguration configuration)
     {
         builder.Services
             .AddAuthentication(IdentityConstants.ApplicationScheme)
@@ -17,20 +18,26 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddAuthorizationBuilder();
 
         builder.Services.AddDbContext<UserDbContext>(
-            options => options.UseNpgsql(ServiceConstants.ConnectionString)
-        );
+            options =>
+            {
+                var connectionString = configuration.GetConnectionString(ServiceConstants.DatabaseName);
+
+                options.UseNpgsql(connectionString);
+            });
 
         builder.Services
-            .AddIdentityCore<User>()
+            .AddIdentityCore<Hodler.Integration.Repositories.User.Entities.User>()
             .AddEntityFrameworkStores<UserDbContext>()
             .AddApiEndpoints();
 
         return builder;
     }
 
-    public static WebApplicationBuilder AddDbContexts(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddDbContexts(
+        this WebApplicationBuilder builder
+    )
     {
-        builder.AddNpgsqlDbContext<PortfolioDbContext>(ServiceConstants.ConnectionString);
+        builder.AddNpgsqlDbContext<PortfolioDbContext>(ServiceConstants.DatabaseName);
 
         return builder;
     }

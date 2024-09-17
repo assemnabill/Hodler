@@ -19,7 +19,7 @@ public class UserMappingRegistration : IRegister
         config.ForType<Entities.UserSettings, UserSettings>()
             .MapWith(x => new UserSettings(
                 x.UserSettingsId,
-                new UserId(x.UserId),
+                new UserId(Guid.Parse(x.UserId)),
                 x.Language,
                 x.Currency,
                 x.Theme,
@@ -31,7 +31,7 @@ public class UserMappingRegistration : IRegister
                 x.UserSettings != null
                     ? new UserSettings(
                         x.UserSettings.UserSettingsId,
-                        new UserId(x.UserSettings.UserId),
+                        new UserId(Guid.Parse(x.UserSettings.UserId)),
                         x.UserSettings.Language,
                         x.UserSettings.Currency,
                         x.UserSettings.Theme,

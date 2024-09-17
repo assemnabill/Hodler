@@ -51,4 +51,16 @@ public class PortfolioController : ControllerBase
 
         return Ok(result);
     }
+    
+    // TODO
+    [HttpGet("summary")]
+    public async Task<IActionResult> GetSummary([FromBody] Guid userId, [FromQuery] CryptoExchange exchangeName)
+    {
+        var result = await _mediator.Send(new SyncWithExchangeCommand(new UserId(userId), exchangeName));
+ // todo
+ // var service = app.Services.GetRequiredService<ITransactionsQueryService>();
+ //   var summaryReport = await service.GetTransactionsSummaryReportAsync(default);
+  //  return summaryReport;
+        return Ok(result);
+    }
 }

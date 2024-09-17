@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Portfolio.Ports.Repositories;
 using Hodler.Domain.Portfolio.Services;

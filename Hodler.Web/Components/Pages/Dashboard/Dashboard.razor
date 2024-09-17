@@ -29,7 +29,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _transactionReport = await HodlerApi.GetTransactionsSummaryReportAsync();
+        const string userId = "a315dad9-a26f-4047-b1c0-0133efe30d6f";
+        try
+        {
+            _transactionReport = await HodlerApi.GetTransactionsSummaryReportAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
 }
