@@ -1,6 +1,6 @@
 @using System.Globalization
 @using Hodler.Contracts.Portfolio
-@using TransactionViewModel = Hodler.Web.TransactionViewModel
+@using Hodler.Contracts.Portfolio.PortfolioSummary
 @inject HodlerApiClient HodlerApi
 
 <RadzenStack Gap="0" class="rz-p-0 rz-p-md-6 rz-p-lg-12">
@@ -27,7 +27,7 @@
 </RadzenStack>
 
 @code {
-    private TransactionViewModel[]? _transactions;
+    private TransactionInfoDto[]? _transactions;
     private bool _smooth = true;
     private bool _sharedTooltip = false;
     private bool _showDataLabels = false;
@@ -38,7 +38,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _transactions = (await HodlerApi.GetTransactionsAsync()!)?
+        const string userId = "a315dad9-a26f-4047-b1c0-0133efe30d6f";
+
+        _transactions = (await HodlerApi.GetTransactionsAsync(userId)!)?
+            .Transactions
             .OrderBy(t => t.Timestamp)
             .ToArray();
 
@@ -51,7 +54,7 @@
             .ToArray()!;
     }
 
-    private double GetPortfolioValue(TransactionViewModel transaction)
+    private double GetPortfolioValue(TransactionInfoDto transaction)
     {
         var transactions = _transactions
             .TakeWhile(t => t.Timestamp <= transaction.Timestamp)

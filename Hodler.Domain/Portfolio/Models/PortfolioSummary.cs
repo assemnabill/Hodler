@@ -1,6 +1,6 @@
 ﻿namespace Hodler.Domain.Portfolio.Models;
 
-public class TransactionsSummaryReport
+public class PortfolioSummary
 {
     public double NetInvestedFiat { get; }
     public double TotalBtcInvestment { get; }
@@ -12,7 +12,7 @@ public class TransactionsSummaryReport
     public double TaxFreeBtcInvestment { get; }
     public double TaxFreeProfitPercentage { get; }
 
-    public TransactionsSummaryReport(
+    public PortfolioSummary(
         double netInvestedFiat,
         double totalBtcInvestment, 
         double currentBtcPrice, 

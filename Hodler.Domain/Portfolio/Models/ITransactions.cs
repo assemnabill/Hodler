@@ -5,7 +5,7 @@ namespace Hodler.Domain.Portfolio.Models;
 
 public interface ITransactions : IReadOnlyCollection<Transaction>
 {
-    Task<TransactionsSummaryReport> GetSummaryReportAsync(
+    Task<PortfolioSummary> GetSummaryReportAsync(
         ICurrentPriceProvider currentPriceProvider,
         CancellationToken cancellationToken);
 

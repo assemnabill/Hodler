@@ -1,6 +1,6 @@
 @using System.Globalization
+@using Hodler.Contracts.Portfolio.PortfolioSummary
 @using Hodler.Web.Components.Shared
-@using TransactionsSummaryReport = Hodler.Web.TransactionsSummaryReport
 
 
 @{
@@ -8,36 +8,36 @@
     var cultureInfo = CultureInfo.CreateSpecificCulture(culture);
 
 <div class="metrics">
-    @{ var totalBtcInvestment = $"{TransactionsSummaryReport.TotalBtcInvestment} BTC"; }
+    @{ var totalBtcInvestment = $"{PortfolioSummary.TotalBtcInvestment} BTC"; }
     <MetricComponent Title="Total BTC"
                      Value="@totalBtcInvestment"
                      Tooltip="The total amount of Bitcoin in your portfolio"/>
     
     <MetricComponent Title="Total P/L"
-                     Value="@TransactionsSummaryReport.ProfitLossInFiat.ToString("C", cultureInfo)"
-                     PercentageChange="(decimal?)TransactionsSummaryReport.ProfitLossInFiatPercentage"
+                     Value="@PortfolioSummary.ProfitLossInFiat.ToString("C", cultureInfo)"
+                     PercentageChange="(decimal?)PortfolioSummary.ProfitLossInFiatPercentage"
                      Tooltip="The total profit you have made from your Bitcoin investments"/>
 
     <MetricComponent Title="Tax-Free Amount"
-                     Value="@TransactionsSummaryReport.TaxFreeBtcInvestment.ToString("C", cultureInfo)"
-                     PercentageChange="(decimal?)TransactionsSummaryReport.TaxFreeProfitPercentage * 100"
+                     Value="@PortfolioSummary.TaxFreeBtcInvestment.ToString("C", cultureInfo)"
+                     PercentageChange="(decimal?)PortfolioSummary.TaxFreeProfitPercentage * 100"
                      Tooltip="The profit you have made from your tax-free Bitcoin investments"/>
 
     <MetricComponent Title="Net Investment"
-                     Value="@TransactionsSummaryReport.NetInvestedFiat.ToString("C", cultureInfo)"
+                     Value="@PortfolioSummary.NetInvestedFiat.ToString("C", cultureInfo)"
                      Tooltip="The total amount of money you have invested in Bitcoin"/>
 
     <MetricComponent Title="Current BTC Price"
-                     Value="@TransactionsSummaryReport.CurrentBtcPrice.ToString("C", cultureInfo)"
+                     Value="@PortfolioSummary.CurrentBtcPrice.ToString("C", cultureInfo)"
                      Tooltip="The current price of Bitcoin in USD"/>
 
     <MetricComponent Title="Average BTC Price"
-                     Value="@TransactionsSummaryReport.AverageBtcPrice.ToString("C", cultureInfo)"
+                     Value="@PortfolioSummary.AverageBtcPrice.ToString("C", cultureInfo)"
                      Tooltip="The average price you have paid for one Bitcoin"/>
 </div>}
 
 @code {
-    [Parameter] public required TransactionsSummaryReport TransactionsSummaryReport { get; set; }
+    [Parameter] public required PortfolioSummaryDto PortfolioSummary { get; set; }
 }
 
 <style>

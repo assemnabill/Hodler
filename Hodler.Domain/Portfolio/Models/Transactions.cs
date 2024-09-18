@@ -44,7 +44,7 @@ public class Transactions : ITransactions
         return new SyncResult<ITransactions>(changed, new Transactions(currentTransactions));
     }
 
-    public async Task<TransactionsSummaryReport> GetSummaryReportAsync(
+    public async Task<PortfolioSummary> GetSummaryReportAsync(
         ICurrentPriceProvider currentPriceProvider,
         CancellationToken cancellationToken)
     {
@@ -66,7 +66,7 @@ public class Transactions : ITransactions
         var taxFreeTotalBtcInvestment = taxFreeTransactions.Sum(t => t.BtcAmount.Amount);
         var taxFreeProfit = taxFreeTotalBtcInvestment * currentBtcPrice;
 
-        return new TransactionsSummaryReport(
+        return new PortfolioSummary(
             netInvestedFiat,
             totalBtcInvestment,
             currentBtcPrice,

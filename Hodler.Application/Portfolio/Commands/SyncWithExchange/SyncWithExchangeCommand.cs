@@ -3,7 +3,7 @@ using Hodler.Domain.Shared.Models;
 using Hodler.Domain.User.Models;
 using MediatR;
 
-namespace Hodler.Application.Portfolio.SyncWithExchange;
+namespace Hodler.Application.Portfolio.Commands.SyncWithExchange;
 
 public class SyncWithExchangeCommand : IRequest<IPortfolio>
 {

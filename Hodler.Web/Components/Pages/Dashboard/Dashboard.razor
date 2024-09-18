@@ -4,13 +4,13 @@
 @inject HodlerApiClient HodlerApi
 @attribute [StreamRendering(true)]
 @attribute [OutputCache(Duration = 5)]
+@using Hodler.Contracts.Portfolio.PortfolioSummary
 @using Hodler.Web.Components.Layout
 @using Hodler.Web.Components.Shared
-@using TransactionsSummaryReport = Hodler.Web.TransactionsSummaryReport
 
 <PageTitle>Dashboard</PageTitle>
 
-@if (_transactionReport == null)
+@if (_portfolioSummaryDto == null)
 {
     <LoadingComponent></LoadingComponent>
 }
@@ -20,19 +20,19 @@ else
         <div class="container">
             <PortifolioValueChartComponent></PortifolioValueChartComponent>
         </div>
-        <PortifolioMetricsComponent TransactionsSummaryReport="_transactionReport"></PortifolioMetricsComponent>
+        <PortifolioMetricsComponent PortfolioSummary="_portfolioSummaryDto"></PortifolioMetricsComponent>
     </div>
 }
 
 @code {
-    private TransactionsSummaryReport? _transactionReport;
+    private PortfolioSummaryDto? _portfolioSummaryDto;
 
     protected override async Task OnInitializedAsync()
     {
         const string userId = "a315dad9-a26f-4047-b1c0-0133efe30d6f";
         try
         {
-            _transactionReport = await HodlerApi.GetTransactionsSummaryReportAsync();
+            _portfolioSummaryDto = await HodlerApi.GetPortfolioSummaryAsync(userId);
         }
         catch (Exception e)
         {

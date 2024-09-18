@@ -3,7 +3,7 @@ using Hodler.Domain.Portfolio.Services.Sync;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hodler.Application.Portfolio.SyncWithExchange;
+namespace Hodler.Application.Portfolio.Commands.SyncWithExchange;
 
 public class SyncWithExchangeCommandHandler : IRequestHandler<SyncWithExchangeCommand, IPortfolio>
 {

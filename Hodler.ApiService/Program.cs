@@ -1,16 +1,17 @@
 using Hodler.ApiService;
 using Hodler.Application;
 using Hodler.Domain;
-using Hodler.Domain.Portfolio.Services;
 using Hodler.Integration.Repositories;
 using Hodler.Integration.ExternalApis;
 using Hodler.Integration.Repositories.User.Entities;
 using Hodler.ServiceDefaults;
+using Mapster;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
+TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 
 // Hodler Service Layers.
 builder.Services
@@ -21,10 +22,7 @@ builder.Services
 
 // Hodler Service Core
 builder.Services
-    .AddMediatR(cfg =>
-    {
-        cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
-    })
+    .AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); })
     .AddProblemDetails()
     .AddMvcCore()
     .AddApiExplorer();
@@ -52,13 +50,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// TODO: Move to portfolio controller        
-app.MapGet("/transactions-summary-report", async () =>
-{
-    var service = app.Services.GetRequiredService<ITransactionsQueryService>();
-    var summaryReport = await service.GetTransactionsSummaryReportAsync(default);
-    return summaryReport;
-});
 
 app.MapDefaultEndpoints();
 app.MapControllers();

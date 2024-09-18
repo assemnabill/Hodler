@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Hodler.Domain.Portfolio.Models;
+using Hodler.Domain.User.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Hodler.Domain.Portfolio.Services;
@@ -23,9 +24,11 @@ public class TransactionsQueryService : ITransactionsQueryService
         _currentPriceProvider = currentPriceProvider;
     }
 
-    public async Task<TransactionsSummaryReport> GetTransactionsSummaryReportAsync(CancellationToken cancellationToken)
+    public async Task<PortfolioSummary> GetPortfolioSummaryAsync(
+        UserId userId,
+        CancellationToken cancellationToken)
     {
-        
+        // todo: get from portfolio repository
         var transactions = new Transactions(
             ParseBitPandaTransactions()
                 .Concat(ParseKrakenTransactions())
@@ -33,6 +36,7 @@ public class TransactionsQueryService : ITransactionsQueryService
                 .ToList()
         );
 
+        // todo: call GetSummaryReportAsync on portfolio
         var summaryReport = await transactions.GetSummaryReportAsync(_currentPriceProvider, cancellationToken);
 
         return summaryReport;
@@ -51,7 +55,7 @@ public class TransactionsQueryService : ITransactionsQueryService
 
     private ITransactions ParseBitPandaTransactions()
     {
-        var transactionsStream = GetResourceAsStream("Hodler.Domain.Transactions.Resources.bitpanda.csv");
+        var transactionsStream = GetResourceAsStream("Hodler.Domain.Portfolio.Resources.bitpanda.csv");
         var transactionRecords = ReadTransactionsStream(transactionsStream!);
 
         return _bitPandaTransactionParser.ParseTransactions(transactionRecords);
@@ -59,7 +63,7 @@ public class TransactionsQueryService : ITransactionsQueryService
 
     private ITransactions ParseKrakenTransactions()
     {
-        var transactionsStream = GetResourceAsStream("Hodler.Domain.Transactions.Resources.kraken.csv");
+        var transactionsStream = GetResourceAsStream("Hodler.Domain.Portfolio.Resources.kraken.csv");
         var transactionRecords = ReadTransactionsStream(transactionsStream!);
 
         return _krakenTransactionParser.ParseTransactions(transactionRecords);

@@ -1,42 +1,25 @@
 using Hodler.Contracts.Portfolio;
+using Hodler.Contracts.Portfolio.PortfolioSummary;
 
 namespace Hodler.Web;
 
 public class HodlerApiClient(HttpClient httpClient)
 {
-    public async Task<TransactionsSummaryReport?> GetTransactionsSummaryReportAsync(int maxItems = 10,
+    public async Task<PortfolioSummaryDto?> GetPortfolioSummaryAsync(
+        string userId,
         CancellationToken cancellationToken = default)
     {
-        return await httpClient
-            .GetFromJsonAsync<TransactionsSummaryReport>(
-                "/transactions-summary-report",
-                cancellationToken);
+        return await httpClient.GetFromJsonAsync<PortfolioSummaryDto>(
+            $"api/Portfolio/{userId}/summary",
+            cancellationToken);
     }
-    
-    public async Task<TransactionViewModel[]?> GetTransactionsAsync(int maxItems = 10,
+
+    public async Task<PortfolioInfoDto?> GetTransactionsAsync(
+        string userId,
         CancellationToken cancellationToken = default)
     {
-        return await httpClient
-            .GetFromJsonAsync<TransactionViewModel[]>(
-                "/transactions",
-                cancellationToken);
+        return await httpClient.GetFromJsonAsync<PortfolioInfoDto>(
+            $"api/Portfolio/{userId}",
+            cancellationToken);
     }
 }
-
-public record TransactionsSummaryReport(
-    double NetInvestedFiat,
-    double TotalBtcInvestment,
-    double CurrentBtcPrice,
-    double CurrentValue,
-    double ProfitLossInFiat,
-    double ProfitLossInFiatPercentage,
-    double AverageBtcPrice,
-    double TaxFreeBtcInvestment,
-    double TaxFreeProfitPercentage);
-    
-public record TransactionViewModel(
-    TransactionType Type,
-    double FiatAmount,
-    double BtcAmount,
-    double MarketPrice,
-    DateTimeOffset Timestamp);

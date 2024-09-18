@@ -1,6 +1,6 @@
 using Hodler.Domain.Portfolio.Models;
 
-namespace Hodler.Application.Portfolio.AddTransaction;
+namespace Hodler.Application.Portfolio.Commands.AddTransaction;
 
 public class AddTransactionRequestContract
 {

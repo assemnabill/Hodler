@@ -1,7 +1,7 @@
 using Hodler.Domain.Portfolio.Models;
 using MediatR;
 
-namespace Hodler.Application.Portfolio.AddTransaction;
+namespace Hodler.Application.Portfolio.Commands.AddTransaction;
 
 public class AddTransactionCommand : IRequest
 {

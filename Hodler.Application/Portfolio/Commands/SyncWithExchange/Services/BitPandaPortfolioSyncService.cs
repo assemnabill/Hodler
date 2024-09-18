@@ -5,7 +5,7 @@ using Hodler.Domain.Portfolio.Services;
 using Hodler.Domain.Portfolio.Services.Sync;
 using Hodler.Domain.User.Models;
 
-namespace Hodler.Application.Portfolio.SyncWithExchange.Services;
+namespace Hodler.Application.Portfolio.Commands.SyncWithExchange.Services;
 
 public class BitPandaPortfolioSyncService : IPortfolioSyncService
 {

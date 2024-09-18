@@ -1,4 +1,4 @@
-﻿using Hodler.Application.Portfolio.SyncWithExchange.Services;
+﻿using Hodler.Application.Portfolio.Commands.SyncWithExchange.Services;
 using Hodler.Domain.Portfolio.Services;
 using Hodler.Domain.Portfolio.Services.Sync;
 using Hodler.Domain.Shared.Models;

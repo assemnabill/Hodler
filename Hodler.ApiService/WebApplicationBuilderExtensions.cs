@@ -26,7 +26,7 @@ public static class WebApplicationBuilderExtensions
             });
 
         builder.Services
-            .AddIdentityCore<Hodler.Integration.Repositories.User.Entities.User>()
+            .AddIdentityCore<Integration.Repositories.User.Entities.User>()
             .AddEntityFrameworkStores<UserDbContext>()
             .AddApiEndpoints();
 
