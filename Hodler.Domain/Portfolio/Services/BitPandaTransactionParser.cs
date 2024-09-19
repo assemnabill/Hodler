@@ -9,12 +9,12 @@ public class BitPandaTransactionParser : IBitPandaTransactionParser
     public ITransactions ParseTransactions(IEnumerable<string[]> lines) =>
         new Transactions(
             lines
-                .Select(ParseTransaction)
+                .Select(line => ParseTransaction(line, new PortfolioId(Guid.NewGuid())))
                 .Where(x => x is not null)
                 .ToList()!
         );
 
-    public Transaction? ParseTransaction(string[] line)
+    public Transaction? ParseTransaction(string[] line, PortfolioId portfolioId)
     {
         var transactionType = line[2].ToLower() switch
         {
@@ -32,8 +32,9 @@ public class BitPandaTransactionParser : IBitPandaTransactionParser
         var btcAmount = double.Parse(line[6], NumberStyles.Float, CultureInfo.InvariantCulture);
         var marketPrice = double.Parse(line[8], NumberStyles.Float, CultureInfo.InvariantCulture);
         var timestamp = DateTimeOffset.Parse(line[1]);
-
+;
         return new Transaction(
+            portfolioId,
             transactionType,
             new FiatAmount(fiatAmount, FiatCurrency.Euro),
             new BitcoinAmount(btcAmount),

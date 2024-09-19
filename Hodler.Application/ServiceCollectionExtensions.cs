@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
 
         services.AddKeyedTransient<
             IPortfolioSyncService,
-            BitPandaPortfolioSyncService>(CryptoExchange.BitPanda.Name);
+            BitPandaPortfolioSyncService>(CryptoExchange.BitPanda);
 
         return services;
     }

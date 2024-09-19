@@ -3,7 +3,7 @@ using Hodler.Application.Portfolio.Commands.SyncWithExchange;
 using Hodler.Application.Portfolio.Queries.PortfolioByUserId;
 using Hodler.Application.Portfolio.Queries.PortfolioSummary;
 using Hodler.Contracts.Portfolio.PortfolioSummary;
-using Hodler.Domain.Shared.Models;
+using Hodler.Contracts.Shared;
 using Hodler.Domain.User.Models;
 using Mapster;
 using MediatR;
@@ -24,10 +24,11 @@ public class PortfolioController : ControllerBase
 
     // TODO: Add authentication
     [HttpGet("{userId}")]
-    public async Task<IActionResult> GetPortfolioByUserId(Guid userId)
+    public async Task<IActionResult> GetPortfolioByUserId(string userId, CancellationToken cancellationToken)
     {
-        var portfolio = await _mediator.Send(new PortfolioByUserIdQuery(new UserId(userId)));
-        var dto = portfolio.Adapt<PortfolioInfoDto>();
+        var request = new PortfolioByUserIdQuery(new UserId(Guid.Parse(userId)));
+        var response = await _mediator.Send(request, cancellationToken);
+        var dto = response.Adapt<PortfolioInfoDto>();
 
         return Ok(dto);
     }
@@ -35,30 +36,41 @@ public class PortfolioController : ControllerBase
     // TODO: Add authentication and implementation
     [HttpPost("transaction")]
     public async Task<IActionResult> AddTransaction(
-        [FromBody] AddTransactionRequestContract addTransactionRequestContract)
+        [FromBody] AddTransactionRequestContract addTransactionRequestContract,
+        CancellationToken cancellationToken)
     {
-        await _mediator.Send(new AddTransactionCommand(
+        var request = new AddTransactionCommand(
             addTransactionRequestContract.UserId,
             addTransactionRequestContract.Date,
             addTransactionRequestContract.Amount,
             addTransactionRequestContract.Price,
             addTransactionRequestContract.Type
-        ));
+        );
+
+        await _mediator.Send(request, cancellationToken);
 
         return Ok();
     }
 
     // TODO: Add authentication
     [HttpPost("sync/{exchangeName}")]
-    public async Task<IActionResult> SyncWithExchange(
-        [FromBody] Guid userId,
-        [FromQuery] CryptoExchange exchangeName,
+    public async Task<IActionResult> SyncWithExchange(CryptoExchange exchangeName,
+        [FromBody] string userId,
         CancellationToken cancellationToken
     )
     {
-        var result = await _mediator.Send(new SyncWithExchangeCommand(new UserId(userId), exchangeName), cancellationToken);
+        ArgumentNullException.ThrowIfNull(exchangeName);
+        ArgumentNullException.ThrowIfNull(userId);
+        
+        var request = new SyncWithExchangeCommand(
+            new UserId(Guid.Parse(userId)),
+            (Domain.Shared.Models.CryptoExchange)exchangeName
+        );
 
-        return Ok(result);
+        var result = await _mediator.Send(request, cancellationToken);
+        var dto = result.Adapt<PortfolioInfoDto>();
+
+        return Ok(dto);
     }
 
     [HttpGet("{userId}/summary")]

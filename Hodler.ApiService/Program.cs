@@ -28,7 +28,7 @@ builder.Services
     .AddApiExplorer();
 
 // Hodler Service Infrastructure
-builder.AddRedisDistributedCache("cache");
+builder.AddRedisDistributedCache(ServiceConstants.RedisCache);
 builder.AddAuthentication(builder.Configuration);
 builder.AddDbContexts();
 builder.AddSwagger();

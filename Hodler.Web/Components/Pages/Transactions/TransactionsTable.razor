@@ -1,4 +1,5 @@
 @rendermode InteractiveServer
+@using Hodler.Contracts.Portfolio.PortfolioSummary
 @using Transaction = Hodler.Web.Components.Pages.Transactions.TransactionViewModel
 
 <div class="container">
@@ -14,27 +15,27 @@
         </MatTableHeader>
 
         <MatTableRow>
-            <td>@context.Date.ToString()</td>
+            <td>@context.Timestamp.ToString()</td>
             <td>@context.Type</td>
-            <td>@context.Amount BTC</td>
-            <td>€@context.Price</td>
-            <td>€@context.Total</td>
+            <td>@context.BtcAmount BTC</td>
+            <td>€@context.FiatAmount</td>
+            <td>€@context.MarketPrice</td>
         </MatTableRow>
 
     </MatTable >
 </div>
 
 @code {
-    Transaction[] _sortedData = [];
-    [Parameter] public List<Transaction> Transactions { get; set; } = [];
+    List<TransactionInfoDto> _sortedData = [];
+    [Parameter] public IReadOnlyCollection<TransactionInfoDto> Transactions { get; set; } = [];
 
     void SortData(MatSortChangedEvent sort)
     {
-        _sortedData = Transactions.ToArray();
 
         if (sort is null || sort.Direction == MatSortDirection.None || string.IsNullOrEmpty(sort.SortId))
             return;
 
+        _sortedData = Transactions?.ToList();
         Comparison<Transaction>? comparison = sort.SortId switch
         {
             "date" => (s1, s2) => s1.Date.CompareTo(s2.Date),
@@ -47,11 +48,16 @@
 
         if (comparison != null)
         {
-            Array.Sort(
-                _sortedData,
-                sort.Direction == MatSortDirection.Desc
+            // Array.Sort(
+            //     _sortedData,
+            //     sort.Direction == MatSortDirection.Desc
+            //         ? (s1, s2) => -1 * comparison(s1, s2)
+            //         : comparison
+            // );
+            _sortedData.Sort(
+                (Comparison<TransactionInfoDto>)(sort.Direction == MatSortDirection.Desc
                     ? (s1, s2) => -1 * comparison(s1, s2)
-                    : comparison
+                    : comparison)
             );
         }
     }

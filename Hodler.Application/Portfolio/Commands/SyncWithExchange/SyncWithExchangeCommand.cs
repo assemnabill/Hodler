@@ -5,14 +5,14 @@ using MediatR;
 
 namespace Hodler.Application.Portfolio.Commands.SyncWithExchange;
 
-public class SyncWithExchangeCommand : IRequest<IPortfolio>
+public class SyncWithExchangeCommand : IRequest<PortfolioInfo>
 {
-    public CryptoExchange ExchangeName { get; }
+    public CryptoExchange CryptoExchange { get; }
     public UserId UserId { get; }
 
-    public SyncWithExchangeCommand(UserId userId, CryptoExchange exchangeName)
+    public SyncWithExchangeCommand(UserId userId, CryptoExchange cryptoExchange)
     {
         UserId = userId;
-        ExchangeName = exchangeName;
+        CryptoExchange = cryptoExchange;
     }
 }

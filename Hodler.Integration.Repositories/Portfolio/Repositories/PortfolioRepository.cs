@@ -33,43 +33,54 @@ internal class PortfolioRepository : IPortfolioRepository
         if (_dbContext.Database.CurrentTransaction is null)
             _logger.LogWarning
             (
-                $"No active database transaction found while storing teacher ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}."
+                $"No active database transaction found while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}."
             );
 
         try
         {
-            var existingDbEntity = await IncludeAggregate()
+            var existingDbEntity = await _dbContext.Portfolios
+                .AsNoTracking()
+                .AsSingleQuery()
+                .Include(x => x.Transactions)
                 .FirstOrDefaultAsync(t => t.PortfolioId == aggregateRoot.Id, cancellationToken);
 
             var entity = aggregateRoot.Adapt<IPortfolio, Portfolio.Entities.Portfolio>();
-
             if (existingDbEntity is null)
-                _dbContext.Portfolios.Add(entity);
+            {
+                await _dbContext.AddAsync(entity, cancellationToken);
+            }
             else
-                _dbContext.Portfolios.Update(entity);
-
-            ChangeTransactions(aggregateRoot, entity);
+            {
+                _dbContext.Entry(existingDbEntity).CurrentValues.SetValues(entity);
+                _dbContext.Entry(existingDbEntity).State = EntityState.Modified;
+            }
+            // _dbContext.Portfolios.Update(entity);
+            // todo
+            // ChangeTransactions(aggregateRoot, entity);
 
             int rows = await _dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Error while storing teacher ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}.");
+            _logger.LogError(e, $"Error while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}.");
         }
     }
 
     private void ChangeTransactions(IPortfolio aggregateRoot, Portfolio.Entities.Portfolio entity)
     {
+        var existingTransactions = entity.Transactions;
         var transactions = aggregateRoot.Transactions
             .Select(x => x.Adapt<Transaction, Portfolio.Entities.Transaction>());
 
-        if (transactions.Equals(entity.Transactions))
+        foreach (var transaction in transactions)
         {
-            return;
+            var existingTransaction = existingTransactions.FirstOrDefault(x => x.Equals(transaction));
+
+            if (existingTransaction is null)
+                _dbContext.Transactions.Add(transaction);
         }
 
-        entity.Transactions.Clear();
-        _dbContext.Transactions.AddRange(transactions);
+        // _dbContext.Transactions.AddRange(transactions);
     }
 
     public async Task StoreAsync(IPortfolio aggregateRoot, CancellationToken cancellationToken)
@@ -95,7 +106,8 @@ internal class PortfolioRepository : IPortfolioRepository
     private IIncludableQueryable<Entities.Portfolio, ICollection<Entities.Transaction>> IncludeAggregate()
     {
         return _dbContext.Portfolios
-            .AsSingleQuery()
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(x => x.Transactions);
     }
 }

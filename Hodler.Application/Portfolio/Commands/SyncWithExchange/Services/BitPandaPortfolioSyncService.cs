@@ -4,6 +4,7 @@ using Hodler.Domain.Portfolio.Ports.Repositories;
 using Hodler.Domain.Portfolio.Services;
 using Hodler.Domain.Portfolio.Services.Sync;
 using Hodler.Domain.User.Models;
+using Mapster;
 
 namespace Hodler.Application.Portfolio.Commands.SyncWithExchange.Services;
 
@@ -28,10 +29,13 @@ public class BitPandaPortfolioSyncService : IPortfolioSyncService
         CancellationToken cancellationToken
     )
     {
-        var transactions = await _bitPandaApiClient.GetTransactionsAsync(userId, cancellationToken);
-
+        var transactionInfos = await _bitPandaApiClient.GetTransactionsAsync(userId, cancellationToken);
+        
         var portfolio = await _portfolioQueryService.GetByUserIdAsync(userId, cancellationToken)
                         ?? Domain.Portfolio.Models.Portfolio.Create(userId);
+        
+        var transactions = transactionInfos
+            .Select(info => (portfolio.Id, info).Adapt<Transaction>());
 
         var syncResult = portfolio.SyncTransactions(transactions);
 

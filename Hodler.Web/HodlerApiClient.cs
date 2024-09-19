@@ -1,5 +1,6 @@
 using Hodler.Contracts.Portfolio;
 using Hodler.Contracts.Portfolio.PortfolioSummary;
+using Hodler.Contracts.Shared;
 
 namespace Hodler.Web;
 
@@ -14,12 +15,29 @@ public class HodlerApiClient(HttpClient httpClient)
             cancellationToken);
     }
 
-    public async Task<PortfolioInfoDto?> GetTransactionsAsync(
+    public async Task<PortfolioInfoDto?> GetPortfolioInfoAsync(
         string userId,
         CancellationToken cancellationToken = default)
     {
         return await httpClient.GetFromJsonAsync<PortfolioInfoDto>(
             $"api/Portfolio/{userId}",
             cancellationToken);
+    }
+
+    public async Task<PortfolioInfoDto?> SyncWithExchangeAsync(
+        CryptoExchange exchangeName,
+        string userId,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await httpClient.PostAsJsonAsync(
+            $"api/Portfolio/sync/{(int)exchangeName}",
+            userId,
+            cancellationToken);
+
+        var portfolioInfo = result.IsSuccessStatusCode
+            ? await result.Content.ReadFromJsonAsync<PortfolioInfoDto>(cancellationToken)
+            : null;
+        
+        return portfolioInfo;
     }
 }

@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddTransient<IPortfolioRepository, PortfolioRepository>();
+        services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 
         TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceCollectionExtensions).Assembly);
 

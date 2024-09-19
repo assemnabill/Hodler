@@ -12,5 +12,6 @@ public class PortfolioDbContext(DbContextOptions options) : DbContext(options)
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new PortfolioConfiguration());
+        modelBuilder.ApplyConfiguration(new TransactionConfiguration());
     }
 }

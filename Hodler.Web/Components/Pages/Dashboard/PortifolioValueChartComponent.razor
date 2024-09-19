@@ -40,7 +40,7 @@
     {
         const string userId = "a315dad9-a26f-4047-b1c0-0133efe30d6f";
 
-        _transactions = (await HodlerApi.GetTransactionsAsync(userId)!)?
+        _transactions = (await HodlerApi.GetPortfolioInfoAsync(userId)!)?
             .Transactions
             .OrderBy(t => t.Timestamp)
             .ToArray();

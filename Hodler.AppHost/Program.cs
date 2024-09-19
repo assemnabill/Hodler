@@ -16,7 +16,8 @@ var hodlerDb = postgresComponent.AddDatabase(dbName);
 
 var apiService = builder
     .AddProject<Projects.Hodler_ApiService>(apiServiceName)
-    .WithReference(hodlerDb);
+    .WithReference(hodlerDb)
+    .WithReference(cache);
 
 builder
     .AddProject<Projects.Hodler_Web>(webFrontendName)

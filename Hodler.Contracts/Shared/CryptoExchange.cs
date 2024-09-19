@@ -1,5 +1,5 @@
 
-namespace Hodler.Domain.Shared.Models;
+namespace Hodler.Contracts.Shared;
 
 public enum CryptoExchange
 {

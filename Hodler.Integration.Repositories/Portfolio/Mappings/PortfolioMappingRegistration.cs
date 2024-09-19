@@ -27,18 +27,20 @@ public class PortfolioMappingRegistration : IRegister
         config
             .NewConfig<Entities.Transaction, Transaction>()
             .MapWith(transaction => new Transaction(
+                new PortfolioId(transaction.PortfolioId),
                 (TransactionType)transaction.Type,
                 new FiatAmount(transaction.FiatAmount,
                     FiatCurrency.AsEnumerable().FirstOrDefault(x => x.Id == transaction.FiatCurrency)!),
                 new BitcoinAmount(transaction.BtcAmount),
                 transaction.MarketPrice,
                 transaction.Timestamp,
-                CryptoExchange.AsEnumerable().FirstOrDefault(x => x.Id == transaction.CryptoExchange)
+                (CryptoExchange)transaction.CryptoExchange
             ));
 
         config
             .NewConfig<Transaction, Entities.Transaction>()
-            .Map(dest => dest.Type, src => src.Type)
+            .Map(dest => dest.Type, src => (int)src.Type)
+            .Map(dest => dest.PortfolioId, src => src.PortfolioId.Value)
             .Map(dest => dest.FiatAmount, src => src.FiatAmount.Amount)
             .Map(dest => dest.FiatCurrency, src => src.FiatAmount.FiatCurrency.Id)
             .Map(dest => dest.BtcAmount, src => src.BtcAmount.Amount)

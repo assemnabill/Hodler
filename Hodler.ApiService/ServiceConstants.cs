@@ -4,4 +4,5 @@ public static class ServiceConstants
 {
     public const string DatabaseName = "hodler-db";
     public const string ApiVersion = "v1";
+    public const string RedisCache = "cache";
 }

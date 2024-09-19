@@ -32,16 +32,16 @@ public class BitPandaApiClient : IBitPandaApiClient
         _cache = cache;
     }
 
-    public async Task<ITransactions> GetTransactionsAsync(UserId userId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<TransactionInfo>> GetTransactionsAsync(UserId userId, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userId);
 
         var trades = await GetTradesAsync(userId, cancellationToken);
         var transactions = trades
-            .Select(x => x.Adapt<TradeAttributes, Transaction>())
+            .Select(x => x.Adapt<TradeAttributes, TransactionInfo>())
             .ToList();
 
-        return new Transactions(transactions);
+        return transactions;
     }
 
     private async Task<List<TradeAttributes>> GetTradesAsync(UserId userId, CancellationToken cancellationToken)

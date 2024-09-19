@@ -21,6 +21,7 @@ public class KrakenTransactionParser : IKrakenTransactionParser
                 var marketPrice = Math.Abs(spendingTransaction!.Amount / receivingTransaction!.Amount);
 
                 return new Transaction(
+                    new PortfolioId(Guid.NewGuid()),
                     TransactionType.Buy,
                     new FiatAmount(spendingTransaction.Amount, FiatCurrency.Euro),
                     new BitcoinAmount(receivingTransaction.Amount),
@@ -34,7 +35,7 @@ public class KrakenTransactionParser : IKrakenTransactionParser
         return new Transactions(transactions);
     }
 
-    public Transaction? ParseTransaction(string[] line) => throw new NotImplementedException();
+    public Transaction? ParseTransaction(string[] line, PortfolioId portfolioId) => throw new NotImplementedException();
 
 
     private static KrakenTransactionRow ParseKrakenTransactionRow(string[] line)
