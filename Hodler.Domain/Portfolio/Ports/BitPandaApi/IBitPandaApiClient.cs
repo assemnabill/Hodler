@@ -5,5 +5,5 @@ namespace Hodler.Domain.Portfolio.Ports.BitPandaApi;
 
 public interface IBitPandaApiClient 
 {
-    Task<ITransactions> GetTransactionsAsync(UserId userId, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<TransactionInfo>> GetTransactionsAsync(UserId userId, CancellationToken cancellationToken);
 }
