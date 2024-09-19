@@ -33,7 +33,7 @@ public class TradeAttributesMappingRegisteration : IRegister
                     FiatCurrency.AsEnumerable().FirstOrDefault(x => x.Id.ToString() == src.Fiat_id, FiatCurrency.Euro)),
                 new BitcoinAmount(Convert.ToDouble(src.Amount_cryptocoin)),
                 Convert.ToDouble(src.Price),
-                DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(src.Time.Unix))
+                src.Time.Date_iso8601
             ));
     }
 }

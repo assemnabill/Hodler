@@ -54,33 +54,45 @@ internal class PortfolioRepository : IPortfolioRepository
                 _dbContext.Entry(existingDbEntity).CurrentValues.SetValues(entity);
                 _dbContext.Entry(existingDbEntity).State = EntityState.Modified;
             }
-            // _dbContext.Portfolios.Update(entity);
-            // todo
-            // ChangeTransactions(aggregateRoot, entity);
+                  await ChangeTransactions(aggregateRoot, entity, cancellationToken);
 
             int rows = await _dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Error while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}.");
+            _logger.LogError(e,
+                $"Error while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}.");
         }
     }
 
-    private void ChangeTransactions(IPortfolio aggregateRoot, Portfolio.Entities.Portfolio entity)
+    private async Task ChangeTransactions(IPortfolio aggregateRoot, Entities.Portfolio entity,
+        CancellationToken cancellationToken)
     {
-        var existingTransactions = entity.Transactions;
+        var existingTransactions = _dbContext.Transactions
+            .Where(x => x.PortfolioId == entity.PortfolioId)
+            .ToList();
+
         var transactions = aggregateRoot.Transactions
             .Select(x => x.Adapt<Transaction, Portfolio.Entities.Transaction>());
 
         foreach (var transaction in transactions)
         {
-            var existingTransaction = existingTransactions.FirstOrDefault(x => x.Equals(transaction));
+            var existingTransaction = existingTransactions
+                .FirstOrDefault(x => x.Timestamp == transaction.Timestamp
+                                     && x.Type == transaction.Type
+                                     && x.FiatCurrency == transaction.FiatCurrency
+                                     && x.PortfolioId == transaction.PortfolioId
+                                     && x.CryptoExchange == transaction.CryptoExchange
+                                     && x.FiatAmount == transaction.FiatAmount
+                                     && x.BtcAmount == transaction.BtcAmount
+                                     && x.MarketPrice == transaction.MarketPrice
+                );
 
             if (existingTransaction is null)
-                _dbContext.Transactions.Add(transaction);
+            {
+                await _dbContext.AddAsync(transaction, cancellationToken);
+            }
         }
-
-        // _dbContext.Transactions.AddRange(transactions);
     }
 
     public async Task StoreAsync(IPortfolio aggregateRoot, CancellationToken cancellationToken)

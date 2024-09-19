@@ -48,6 +48,13 @@ public class Transactions : ITransactions
         ICurrentPriceProvider currentPriceProvider,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(currentPriceProvider);
+
+        if (_transactions.Count == 0)
+        {
+            return new PortfolioSummary(0, 0, 0, 0, 0, 0, 0, 0, 0);
+        }
+
         var netInvestedFiat = _transactions.Sum(t => t.FiatAmount.Amount);
         var totalBtcInvestment = _transactions.Sum(t => t.BtcAmount.Amount);
 
@@ -56,9 +63,7 @@ public class Transactions : ITransactions
         var totalProfitFiat = currentValue - netInvestedFiat;
         var totalProfitPercentage = (totalProfitFiat / netInvestedFiat) * 100;
 
-
         var avgBtcPrice = _transactions.Average(x => x.MarketPrice);
-
 
         var taxFreeTransactions = _transactions
             .Where(t => t.Timestamp <= DateTimeOffset.UtcNow.AddYears(-1));

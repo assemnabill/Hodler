@@ -14,7 +14,7 @@ public class PortfolioMappingRegistration : IRegister
             .MapWith((portfolio => new Domain.Portfolio.Models.Portfolio(
                 new PortfolioId(portfolio.PortfolioId),
                 new Transactions(portfolio.Transactions.Select(x => x.Adapt<Entities.Transaction, Transaction>())),
-                new UserId(portfolio.PortfolioId)
+                new UserId(Guid.Parse(portfolio.UserId))
             )));
 
         config
@@ -45,6 +45,6 @@ public class PortfolioMappingRegistration : IRegister
             .Map(dest => dest.FiatCurrency, src => src.FiatAmount.FiatCurrency.Id)
             .Map(dest => dest.BtcAmount, src => src.BtcAmount.Amount)
             .Map(dest => dest.MarketPrice, src => src.MarketPrice)
-            .Map(dest => dest.Timestamp, src => src.Timestamp);
+            .Map(dest => dest.Timestamp, src => src.Timestamp.UtcDateTime);
     }
 }

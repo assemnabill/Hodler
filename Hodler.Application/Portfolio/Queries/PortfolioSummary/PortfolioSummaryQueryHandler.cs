@@ -20,7 +20,7 @@ public class PortfolioSummaryQueryHandler : IRequestHandler<PortfolioSummaryQuer
         var service = _serviceScopeFactory
             .CreateScope()
             .ServiceProvider
-            .GetRequiredService<ITransactionsQueryService>();
+            .GetRequiredService<IPortfolioQueryService>();
 
         var summaryReport = await service.GetPortfolioSummaryAsync(request.UserId, cancellationToken);
         
