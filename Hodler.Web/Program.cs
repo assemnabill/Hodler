@@ -1,6 +1,7 @@
 using Hodler.ServiceDefaults;
 using Hodler.Web;
 using Hodler.Web.Components;
+using Hodler.Web.Components.Shared.Services;
 using Microsoft.AspNetCore.Identity;
 using Radzen;
 
@@ -27,6 +28,8 @@ builder.Services.AddHttpClient<HodlerApiClient>(client =>
     // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
     client.BaseAddress = new("https+http://hodler-api");
 });
+
+builder.Services.AddScoped<ISessionService, SessionService>();
 
 // ConfigureServices(builder.Services);
 var app = builder.Build();

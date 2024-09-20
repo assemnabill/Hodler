@@ -3,9 +3,11 @@
 @using System.ComponentModel.DataAnnotations
 @using Hodler.Contracts.Portfolio.PortfolioSummary
 @using Hodler.Contracts.Shared
+@using Hodler.Web.Components.Shared.Services
 @rendermode InteractiveServer
 @using Transaction = Hodler.Web.Components.Pages.Transactions.TransactionViewModel
 @inject HodlerApiClient HodlerApi
+@inject ISessionService SessionService
 
 <PageTitle>Transactions</PageTitle>
 
@@ -59,31 +61,37 @@
 
     // CryptoExchange _value;
     IEnumerable _cryptoExchangeNames;
-    CryptoExchange _value;
-
-    const string userId = "a315dad9-a26f-4047-b1c0-0133efe30d6f";
+    CryptoExchange _selectedCryptoExchange;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
         _cryptoExchangeNames = Enum.GetValues(typeof(CryptoExchange));
+        var userId = SessionService.GetCurrentUserId();
+
         var portfolioInfoDto = await HodlerApi.GetPortfolioInfoAsync(userId);
-        _transactions = portfolioInfoDto?.Transactions ?? [];
+        _transactions = portfolioInfoDto?.Transactions
+            .OrderByDescending(x => x.Timestamp)
+            .ToList() ?? [];
     }
 
     private async void OnCryptoExchangeSelected(object args)
     {
         Console.Write(args);
 
-        _value = Enum.GetValues(typeof(CryptoExchange))
+        _selectedCryptoExchange = Enum.GetValues(typeof(CryptoExchange))
             .Cast<CryptoExchange>()
             .FirstOrDefault(x => x.ToString() == args.ToString());
 
-        var portfolioInfoDto = await HodlerApi.SyncWithExchangeAsync(_value, userId);
+        var userId = SessionService.GetCurrentUserId();
+
+        var portfolioInfoDto = await HodlerApi.SyncWithExchangeAsync(_selectedCryptoExchange, userId);
 
         if (portfolioInfoDto?.Transactions != null)
-            _transactions = portfolioInfoDto.Transactions;
+            _transactions = portfolioInfoDto.Transactions
+                .OrderByDescending(t => t.Timestamp)
+                .ToList();
 
         StateHasChanged();
     }

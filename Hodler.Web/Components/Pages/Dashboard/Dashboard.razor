@@ -1,12 +1,15 @@
 @page "/"
 @layout MainLayout
 @rendermode InteractiveServer
-@inject HodlerApiClient HodlerApi
 @attribute [StreamRendering(true)]
 @attribute [OutputCache(Duration = 5)]
+@using System.Globalization
 @using Hodler.Contracts.Portfolio.PortfolioSummary
 @using Hodler.Web.Components.Layout
 @using Hodler.Web.Components.Shared
+@using Hodler.Web.Components.Shared.Services
+@inject HodlerApiClient HodlerApi
+@inject ISessionService SessionService
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -18,6 +21,12 @@ else
 {
     <div class="padding-window">
         <div class="container">
+            <div style="font-size: 30px;">
+                <b>Hello, Hodler!</b>
+            </div>
+            <br/>
+            <RadzenLabel Style="font-weight: lighter; font-size: 20px;" Text="Portfolio Value"></RadzenLabel>
+            <RadzenText Style="font-size: 35px;" Text="@_portfolioSummaryDto.CurrentValue.ToString("C", CultureInfo.CurrentCulture)"></RadzenText>
             <PortifolioValueChartComponent></PortifolioValueChartComponent>
         </div>
         <PortifolioMetricsComponent PortfolioSummary="_portfolioSummaryDto"></PortifolioMetricsComponent>
@@ -29,9 +38,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        const string userId = "a315dad9-a26f-4047-b1c0-0133efe30d6f";
         try
         {
+            var userId = SessionService.GetCurrentUserId();
             _portfolioSummaryDto = await HodlerApi.GetPortfolioSummaryAsync(userId);
         }
         catch (Exception e)

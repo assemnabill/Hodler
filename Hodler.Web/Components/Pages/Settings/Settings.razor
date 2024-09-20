@@ -1,0 +1,36 @@
+@page "/settings"
+@using Hodler.Web.Components.Shared.Services
+@rendermode InteractiveServer
+@inject HodlerApiClient HodlerApi
+@inject ISessionService SessionService
+
+<PageTitle>Settings</PageTitle>
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var userId = SessionService.GetCurrentUserId();
+    }
+}
+
+<style>
+    .action-buttons  {
+        display: flex;
+        justify-content: end;
+    }
+    .action-buttons button {
+        margin-left: 10px;
+        justify-items: end;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+</style>

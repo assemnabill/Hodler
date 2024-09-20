@@ -18,4 +18,8 @@
     <PackageReference Include="Radzen.Blazor" Version="5.1.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="Components\Pages\Settings\Settings.razor" />
+  </ItemGroup>
+
 </Project>

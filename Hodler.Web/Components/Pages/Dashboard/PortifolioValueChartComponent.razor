@@ -1,15 +1,11 @@
 @using System.Globalization
 @using Hodler.Contracts.Portfolio
 @using Hodler.Contracts.Portfolio.PortfolioSummary
+@using Hodler.Web.Components.Shared.Services
 @inject HodlerApiClient HodlerApi
+@inject ISessionService SessionService
 
 <RadzenStack Gap="0" class="rz-p-0 rz-p-md-6 rz-p-lg-12">
-    <div style="font-size: 30px;">
-        <b>Hello, Hodler!</b>
-    </div>
-    <br/>
-    <RadzenLabel Style="font-weight: lighter; font-size: 20px;" Text="Portfolio Value"></RadzenLabel>
-    <RadzenText Style="font-size: 35px;" Text="@_portfolioOverallValue.ToString("C", CultureInfo.CurrentCulture)"></RadzenText>
     <RadzenChart TooltipTolerance="100">
         <RadzenChartTooltipOptions Shared="@_sharedTooltip"/>
         <RadzenAreaSeries Smooth="@_smooth"
@@ -22,7 +18,7 @@
             <RadzenLegend Visible="@_showLegend"></RadzenLegend>
         </RadzenAreaSeries>
         <RadzenValueAxis Visible="false"></RadzenValueAxis>
-        <RadzenCategoryAxis Visible="false" Padding="20"/>
+        <RadzenCategoryAxis Visible="false"/>
     </RadzenChart>
 </RadzenStack>
 
@@ -31,33 +27,74 @@
     private bool _smooth = true;
     private bool _sharedTooltip = false;
     private bool _showDataLabels = false;
-    private bool _showMarkers = false;
+    private bool _showMarkers = true;
     private bool _showLegend = false;
-    private double _portfolioOverallValue = 0.0;
     DataItem[] _portfolioPositions = [];
 
     protected override async Task OnInitializedAsync()
     {
-        const string userId = "a315dad9-a26f-4047-b1c0-0133efe30d6f";
+        var userId = SessionService.GetCurrentUserId();
+        var portfolioInfo = await HodlerApi.GetPortfolioInfoAsync(userId);
 
-        _transactions = (await HodlerApi.GetPortfolioInfoAsync(userId))?
+        _transactions = portfolioInfo?
             .Transactions
-            .OrderByDescending(t => t.Timestamp)
-            .ToArray();
-
+            .ToArray() ?? [];
+        
+        // todo: use to implement different time intervals for visualization
+        var step = TimeSpan.FromDays(3 * 30);
+        // _portfolioPositions = _transactions
+        //     .GroupBy(t => t.Timestamp.Ticks / step.Ticks)
+        //     .Select(g => g.Last())
+        //     .Select(t =>
+        //     {
+        //         var date = t.Timestamp.ToLocalTime().Date.ToShortDateString();
+        //
+        //         return new DataItem
+        //         {
+        //             Date = date,
+        //             Revenue = CalculatePortfolioValueAtTransactionTimePoint(t)
+        //         };
+        //     })
+        //     .ToArray();
+        
         _portfolioPositions = _transactions?
             .Select(t => new DataItem
             {
-                Date = t.Timestamp.ToString("R"),
-                Revenue = GetPortfolioValue(t)
+                Date = t.Timestamp.ToLocalTime().Date.ToShortDateString(),
+                Revenue = CalculatePortfolioValueAtTransactionTimePoint(t)
             })
             .ToArray()!;
     }
 
-    private double GetPortfolioValue(TransactionInfoDto transaction)
+    private double CalculatePortfolioValueAtTransactionTimePoint(DateTimeOffset timePoint)
+    {
+        if (_transactions is null)
+        {
+            return 0;
+        }
+
+        var transactions = _transactions
+            .Where(t => t.Timestamp <= timePoint)
+            .OrderBy(x => x.Timestamp)
+            .ToArray();
+
+        var bought = transactions
+            .Where(t => t.Type == TransactionType.Buy)
+            .Sum(t => t.BtcAmount);
+
+        var sold = transactions
+            .Where(t => t.Type == TransactionType.Sell)
+            .Sum(t => t.BtcAmount);
+
+        var positionValue = (bought - sold) * transactions.Last().MarketPrice;
+
+        return positionValue;
+    }
+
+    private double CalculatePortfolioValueAtTransactionTimePoint(TransactionInfoDto transaction)
     {
         var transactions = _transactions
-            .TakeWhile(t => t.Timestamp <= transaction.Timestamp)
+            .Where(t => t.Timestamp <= transaction.Timestamp)
             .ToArray();
 
         var bought = transactions
@@ -70,9 +107,7 @@
 
         var positionValue = (bought - sold) * transaction.MarketPrice;
 
-        _portfolioOverallValue = positionValue;
-
-        return _portfolioOverallValue;
+        return positionValue;
     }
 
     record DataItem
@@ -85,7 +120,7 @@
 
 <style>
     .rz-scheme-pastel .rz-series-0 {
-        fill: #26b050;
-        stroke: #26b050
+        fill: #27d15217;
+        stroke: #27d17f;
     }
 </style>
