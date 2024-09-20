@@ -5,7 +5,6 @@ using Hodler.Domain.User.Models;
 using Hodler.Integration.Repositories.Portfolio.Context;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 
 namespace Hodler.Integration.Repositories.Portfolio.Repositories;
@@ -39,8 +38,8 @@ internal class PortfolioRepository : IPortfolioRepository
         try
         {
             var existingDbEntity = await _dbContext.Portfolios
-                .AsNoTracking()
-                .AsSingleQuery()
+                // .AsNoTracking()
+                // .AsSingleQuery()
                 .Include(x => x.Transactions)
                 .FirstOrDefaultAsync(t => t.PortfolioId == aggregateRoot.Id, cancellationToken);
 
@@ -54,7 +53,8 @@ internal class PortfolioRepository : IPortfolioRepository
                 _dbContext.Entry(existingDbEntity).CurrentValues.SetValues(entity);
                 _dbContext.Entry(existingDbEntity).State = EntityState.Modified;
             }
-                  await ChangeTransactions(aggregateRoot, entity, cancellationToken);
+
+            await ChangeTransactions(aggregateRoot, entity, cancellationToken);
 
             int rows = await _dbContext.SaveChangesAsync(cancellationToken);
         }
@@ -68,29 +68,29 @@ internal class PortfolioRepository : IPortfolioRepository
     private async Task ChangeTransactions(IPortfolio aggregateRoot, Entities.Portfolio entity,
         CancellationToken cancellationToken)
     {
-        var existingTransactions = _dbContext.Transactions
+        var existingEntities = _dbContext.Transactions
             .Where(x => x.PortfolioId == entity.PortfolioId)
             .ToList();
 
-        var transactions = aggregateRoot.Transactions
+        var newEntities = aggregateRoot.Transactions
             .Select(x => x.Adapt<Transaction, Portfolio.Entities.Transaction>());
 
-        foreach (var transaction in transactions)
+        foreach (var newEntity in newEntities)
         {
-            var existingTransaction = existingTransactions
-                .FirstOrDefault(x => x.Timestamp == transaction.Timestamp
-                                     && x.Type == transaction.Type
-                                     && x.FiatCurrency == transaction.FiatCurrency
-                                     && x.PortfolioId == transaction.PortfolioId
-                                     && x.CryptoExchange == transaction.CryptoExchange
-                                     && x.FiatAmount == transaction.FiatAmount
-                                     && x.BtcAmount == transaction.BtcAmount
-                                     && x.MarketPrice == transaction.MarketPrice
+            var existingEntity = existingEntities
+                .FirstOrDefault(x => x.Timestamp == newEntity.Timestamp
+                                     && x.Type == newEntity.Type
+                                     && x.FiatCurrency == newEntity.FiatCurrency
+                                     && x.PortfolioId == newEntity.PortfolioId
+                                     && x.CryptoExchange == newEntity.CryptoExchange
+                                     && x.FiatAmount == newEntity.FiatAmount
+                                     && x.BtcAmount == newEntity.BtcAmount
+                                     && x.MarketPrice == newEntity.MarketPrice
                 );
 
-            if (existingTransaction is null)
+            if (existingEntity is null)
             {
-                await _dbContext.AddAsync(transaction, cancellationToken);
+                await _dbContext.AddAsync(newEntity, cancellationToken);
             }
         }
     }
@@ -99,8 +99,6 @@ internal class PortfolioRepository : IPortfolioRepository
     {
         aggregateRoot.OnBeforeStore();
         await SaveChangesAsync(aggregateRoot, cancellationToken);
-        // TODO: Validation        
-        // await this._domainEventDispatcher.PublishEventsOfAsync(aggregateRoot.DomainEventQueue, cancellationToken);
         aggregateRoot.OnAfterStore();
     }
 
@@ -115,7 +113,7 @@ internal class PortfolioRepository : IPortfolioRepository
         return entity?.Adapt<Portfolio.Entities.Portfolio, IPortfolio>();
     }
 
-    private IIncludableQueryable<Entities.Portfolio, ICollection<Entities.Transaction>> IncludeAggregate()
+    private IQueryable<Entities.Portfolio> IncludeAggregate()
     {
         return _dbContext.Portfolios
             .AsNoTracking()

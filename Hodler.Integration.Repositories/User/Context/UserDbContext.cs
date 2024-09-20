@@ -9,7 +9,7 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) :
     IdentityDbContext<Entities.User>(options)
 {
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
-    public DbSet<UserSettings> ApiKeys => Set<UserSettings>();
+    public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,12 +22,14 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) :
 
     private void ConfigureUserSettings(EntityTypeBuilder<UserSettings> modelBuilder)
     {
+        modelBuilder.ToTable("UserSettings");
         modelBuilder.HasKey(x => x.UserSettingsId);
         modelBuilder.HasIndex(x => x.UserId);
     }
 
     private void ConfigureApiKey(EntityTypeBuilder<ApiKey> modelBuilder)
     {
+        modelBuilder.ToTable("ApiKeys");
         modelBuilder.HasKey(x => x.ApiKeyId);
         modelBuilder.HasIndex(x => x.UserId);
     }

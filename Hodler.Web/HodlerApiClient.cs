@@ -1,4 +1,3 @@
-using Hodler.Contracts.Portfolio;
 using Hodler.Contracts.Portfolio.PortfolioSummary;
 using Hodler.Contracts.Shared;
 

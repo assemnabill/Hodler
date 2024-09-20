@@ -1,5 +1,4 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
-using Hodler.Domain.User.Models;
 
 namespace Hodler.Domain.Portfolio.Models;
 

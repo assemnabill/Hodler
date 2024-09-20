@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Bitpanda.RestClient;
 using Corz.DomainDriven.Abstractions.Exceptions;
+using Corz.Extensions.Enumeration;
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Portfolio.Ports.BitPandaApi;
 using Hodler.Domain.Shared.Models;
@@ -32,7 +33,9 @@ public class BitPandaApiClient : IBitPandaApiClient
         _cache = cache;
     }
 
-    public async Task<IReadOnlyCollection<TransactionInfo>> GetTransactionsAsync(UserId userId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<TransactionInfo>> GetTransactionsAsync(
+    UserId userId,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userId);
 
@@ -54,12 +57,13 @@ public class BitPandaApiClient : IBitPandaApiClient
             return RetrieveBitcoinTrades(tradesFromCache);
         }
 
-        var userApiKey = await _userSettingsQueryService.GetBitPandaApiKeyAsync(userId, cancellationToken);
+        var userApiKey = await _userSettingsQueryService
+            .GetApiKeyAsync(userId, ApiName.BitPanda, cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(userApiKey))
-            throw DomainException.CreateFrom(new NoApiKeyProvidedFailure("BitPanda"));
+        if (userApiKey is null)
+            throw DomainException.CreateFrom(new NoApiKeyProvidedFailure(ApiName.BitPanda.GetDescription()));
 
-        _httpClient.DefaultRequestHeaders.Add(ApiKeyHeaderName, userApiKey);
+        _httpClient.DefaultRequestHeaders.Add(ApiKeyHeaderName, userApiKey.Value);
         var tradesClient = new TradesClient(_httpClient);
         var tradeResult = await tradesClient.GetAsync(page_size: 100, cancellationToken: cancellationToken);
 
@@ -72,12 +76,12 @@ public class BitPandaApiClient : IBitPandaApiClient
         .Where(x => x.Cryptocoin_id == CryptoCurrency.Bitcoin.Id.ToString())
         .ToList() ?? [];
 
-    private static string CacheKey(UserId userId) => $"{userId}-Trades-BitPanda";
+    private static string CacheKey(UserId userId) => $"{userId}-Trades-{ApiName.BitPanda.GetDescription()}";
 
     private async Task CacheTradesAsync(TradesResult tradeResult, UserId userId, CancellationToken cancellationToken)
     {
         var cachingLifeDuration = TimeSpan.FromMinutes(60);
-        
+
         await _cache.SetAsync(
             CacheKey(userId),
             Encoding.UTF8.GetBytes(JsonSerializer.Serialize(tradeResult)),

@@ -1,11 +1,12 @@
+using Corz.Extensions.Enumeration;
 using Hodler.Domain.User.Models;
 using Mapster;
+using Mapster.Utils;
 
 namespace Hodler.Integration.Repositories.User.Mappings;
 
 public class UserMappingRegistration : IRegister
 {
-    // TODO
     public void Register(TypeAdapterConfig config)
     {
         config.ForType<UserSettings, Entities.UserSettings>()
@@ -26,32 +27,42 @@ public class UserMappingRegistration : IRegister
                 x.Region));
 
         config.ForType<Entities.User, IUser>()
-            .MapWith(x => new Domain.User.Models.User(
-                new UserId(Guid.Parse(x.Id)),
-                x.UserSettings != null
-                    ? new UserSettings(
-                        x.UserSettings.UserSettingsId,
-                        new UserId(Guid.Parse(x.UserSettings.UserId)),
-                        x.UserSettings.Language,
-                        x.UserSettings.Currency,
-                        x.UserSettings.Theme,
-                        x.UserSettings.Region)
-                    : null,
-                x.ApiKeys
-                    .Select(y => new ApiKey(y.ApiName, y.Key))
-                    .ToList())
+            .MapWith(x =>
+                new Domain.User.Models.User(
+                    new UserId(Guid.Parse(x.Id)),
+                    x.UserSettings != null
+                        ? new UserSettings(
+                            x.UserSettings.UserSettingsId,
+                            new UserId(Guid.Parse(x.UserSettings.UserId)),
+                            x.UserSettings.Language,
+                            x.UserSettings.Currency,
+                            x.UserSettings.Theme,
+                            x.UserSettings.Region)
+                        : null,
+                    x.ApiKeys
+                        .Select(y => x.Adapt<ApiKey>())
+                        .ToList()
+                )
             );
 
         config
             .NewConfig<Entities.ApiKey, ApiKey>()
-            .MapWith(x => new ApiKey(x.ApiName, x.Key));
+            .MapWith(x => new ApiKey(
+                    new ApiKeyId(x.ApiKeyId),
+                    Enum<ApiName>.Parse(x.ApiName),
+                    x.Value,
+                    new UserId(Guid.Parse(x.UserId))
+                )
+            );
 
         config
             .NewConfig<ApiKey, Entities.ApiKey>()
             .MapWith(x => new Entities.ApiKey
             {
-                ApiName = x.ApiName,
-                Key = x.Key
+                ApiKeyId = x.ApiKeyId.Value,
+                UserId = x.UserId.ToString(),
+                ApiName = x.ApiName.GetDescription(),
+                Value = x.Value
             });
     }
 }

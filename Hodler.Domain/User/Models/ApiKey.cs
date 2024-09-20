@@ -2,15 +2,23 @@ namespace Hodler.Domain.User.Models;
 
 public class ApiKey
 {
-    public string ApiName { get; }
-    public string Key { get; }
-    public ApiKey(string apiName, string key)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(apiName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+    public ApiKeyId ApiKeyId { get; }
+    public UserId UserId { get; }
+    public ApiName ApiName { get; }
+    public string Value { get; }
 
+    public ApiKey(ApiKeyId apiKeyId, ApiName apiName, string value, UserId userId)
+    {
+        ArgumentNullException.ThrowIfNull(apiKeyId);
+        ArgumentNullException.ThrowIfNull(apiName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        ArgumentNullException.ThrowIfNull(userId);
+
+        ApiKeyId = apiKeyId;
         ApiName = apiName;
-        Key = key;
+        Value = value;
+        UserId = userId;
     }
 
+    public override string ToString() => Value;
 }

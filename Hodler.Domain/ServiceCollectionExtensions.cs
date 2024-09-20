@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IKrakenTransactionParser, KrakenTransactionParser>();
 
         services.AddTransient<IUserSettingsQueryService, UserSettingsQueryService>();
+        services.AddTransient<IUserSettingsService, UserSettingsService>();
 
         return services;
     }

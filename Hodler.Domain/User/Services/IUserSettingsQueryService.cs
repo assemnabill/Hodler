@@ -1,6 +1,8 @@
+using Hodler.Domain.User.Models;
+
 namespace Hodler.Domain.User.Services;
 
 public interface IUserSettingsQueryService
 {
-    Task<string> GetBitPandaApiKeyAsync(Guid userId, CancellationToken cancellationToken);
+    Task<ApiKey?> GetApiKeyAsync(UserId userId, ApiName apiName, CancellationToken cancellationToken);
 }
