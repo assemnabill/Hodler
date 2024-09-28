@@ -1,4 +1,5 @@
 using Corz.Extensions.Enumeration;
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.User.Models;
 using Mapster;
 using Mapster.Utils;
@@ -49,7 +50,7 @@ public class UserMappingRegistration : IRegister
             .NewConfig<Entities.ApiKey, ApiKey>()
             .MapWith(x => new ApiKey(
                     new ApiKeyId(x.ApiKeyId),
-                    Enum<ApiName>.Parse(x.ApiName),
+                    Enum<ApiKeyName>.Parse(x.ApiKeyName),
                     x.Value,
                     new UserId(Guid.Parse(x.UserId))
                 )
@@ -61,7 +62,7 @@ public class UserMappingRegistration : IRegister
             {
                 ApiKeyId = x.ApiKeyId.Value,
                 UserId = x.UserId.ToString(),
-                ApiName = x.ApiName.GetDescription(),
+                ApiKeyName = x.ApiKeyName.GetDescription(),
                 Value = x.Value
             });
     }

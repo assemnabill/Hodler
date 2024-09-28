@@ -2,7 +2,7 @@
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.Portfolio.Services;
+namespace Hodler.Domain.CryptoExchange.Services;
 
 public class BitPandaTransactionParser : IBitPandaTransactionParser
 {
@@ -40,7 +40,7 @@ public class BitPandaTransactionParser : IBitPandaTransactionParser
             new BitcoinAmount(btcAmount),
             marketPrice,
             timestamp,
-            CryptoExchange.BitPanda
+            Models.CryptoExchangeNames.BitPanda
         );
     }
 }

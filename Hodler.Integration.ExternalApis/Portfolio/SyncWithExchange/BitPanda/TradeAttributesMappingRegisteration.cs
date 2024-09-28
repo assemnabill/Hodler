@@ -1,4 +1,5 @@
 using Bitpanda.RestClient;
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Shared.Models;
 using Mapster;
@@ -21,7 +22,7 @@ public class TradeAttributesMappingRegisteration : IRegister
                 new BitcoinAmount(Convert.ToDouble(src.Amount_cryptocoin)),
                 Convert.ToDouble(src.Price),
                 DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(src.Time.Unix)),
-                CryptoExchange.BitPanda
+                CryptoExchangeNames.BitPanda
             ));
         
         config

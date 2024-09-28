@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using Hodler.Domain.Portfolio.Services;
+using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolio.Models;
@@ -45,10 +46,10 @@ public class Transactions : ITransactions
     }
 
     public async Task<PortfolioSummary> GetSummaryReportAsync(
-        ICurrentPriceProvider currentPriceProvider,
+        ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(currentPriceProvider);
+        ArgumentNullException.ThrowIfNull(currentBitcoinPriceProvider);
 
         if (_transactions.Count == 0)
         {
@@ -58,8 +59,8 @@ public class Transactions : ITransactions
         var netInvestedFiat = _transactions.Sum(t => t.FiatAmount.Amount);
         var totalBtcInvestment = _transactions.Sum(t => t.BtcAmount.Amount);
 
-        var currentBtcPrice = await currentPriceProvider.GetCurrentPriceAsync(cancellationToken);
-        var currentValue = totalBtcInvestment * currentBtcPrice;
+        var currentBtcPrice = await currentBitcoinPriceProvider.GetCurrentBitcoinPriceInAmericanDollarsAsync(cancellationToken);
+        var currentValue = totalBtcInvestment * currentBtcPrice.Amount;
         var totalProfitFiat = currentValue - netInvestedFiat;
         var totalProfitPercentage = (totalProfitFiat / netInvestedFiat) * 100;
 
@@ -69,12 +70,12 @@ public class Transactions : ITransactions
             .Where(t => t.Timestamp <= DateTimeOffset.UtcNow.AddYears(-1));
 
         var taxFreeTotalBtcInvestment = taxFreeTransactions.Sum(t => t.BtcAmount.Amount);
-        var taxFreeProfit = taxFreeTotalBtcInvestment * currentBtcPrice;
+        var taxFreeProfit = taxFreeTotalBtcInvestment * currentBtcPrice.Amount;
 
         return new PortfolioSummary(
             netInvestedFiat,
             totalBtcInvestment,
-            currentBtcPrice,
+            currentBtcPrice.Amount,
             currentValue,
             totalProfitFiat,
             totalProfitPercentage,

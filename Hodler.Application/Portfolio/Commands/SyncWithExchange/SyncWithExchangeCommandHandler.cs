@@ -1,5 +1,5 @@
 using Hodler.Domain.Portfolio.Models;
-using Hodler.Domain.Portfolio.Services.Sync;
+using Hodler.Domain.Portfolio.Services;
 using Mapster;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +20,7 @@ public class SyncWithExchangeCommandHandler : IRequestHandler<SyncWithExchangeCo
         CancellationToken cancellationToken)
     {
         var domainService = _serviceProvider
-            .GetRequiredKeyedService<IPortfolioSyncService>(request.CryptoExchange);
+            .GetRequiredKeyedService<IPortfolioSyncService>(request.CryptoExchangeNames);
 
         var portfolio = await domainService.SyncWithExchangeAsync(request.UserId, cancellationToken);
         

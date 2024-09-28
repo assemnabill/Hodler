@@ -1,6 +1,6 @@
 ﻿using Hodler.Application.Portfolio.Commands.SyncWithExchange.Services;
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.Portfolio.Services;
-using Hodler.Domain.Portfolio.Services.Sync;
 using Hodler.Domain.Shared.Models;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
 
         services.AddKeyedTransient<
             IPortfolioSyncService,
-            BitPandaPortfolioSyncService>(CryptoExchange.BitPanda);
+            BitPandaPortfolioSyncService>(CryptoExchangeNames.BitPanda);
 
         return services;
     }

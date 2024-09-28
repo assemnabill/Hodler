@@ -2,7 +2,6 @@ using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Portfolio.Ports.BitPandaApi;
 using Hodler.Domain.Portfolio.Ports.Repositories;
 using Hodler.Domain.Portfolio.Services;
-using Hodler.Domain.Portfolio.Services.Sync;
 using Hodler.Domain.User.Models;
 using Mapster;
 

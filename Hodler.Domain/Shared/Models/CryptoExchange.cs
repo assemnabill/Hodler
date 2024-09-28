@@ -1,8 +1,0 @@
-
-namespace Hodler.Domain.Shared.Models;
-
-public enum CryptoExchange
-{
-    BitPanda = 1,
-    Kraken = 2
-}

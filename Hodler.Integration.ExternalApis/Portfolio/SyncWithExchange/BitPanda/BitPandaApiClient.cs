@@ -1,10 +1,13 @@
-﻿using System.Text;
+﻿using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using Bitpanda.RestClient;
 using Corz.DomainDriven.Abstractions.Exceptions;
 using Corz.Extensions.Enumeration;
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Portfolio.Ports.BitPandaApi;
+using Hodler.Domain.PriceCatalog.Models;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.User.Models;
 using Hodler.Domain.User.Services;
@@ -34,7 +37,7 @@ public class BitPandaApiClient : IBitPandaApiClient
     }
 
     public async Task<IReadOnlyCollection<TransactionInfo>> GetTransactionsAsync(
-    UserId userId,
+        UserId userId,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userId);
@@ -45,6 +48,41 @@ public class BitPandaApiClient : IBitPandaApiClient
             .ToList();
 
         return transactions;
+    }
+
+    public async Task<IFiatAmountCatalog> GetBitcoinPriceCatalogAsync(CancellationToken cancellationToken)
+    {
+        // TODO: Test and refactor to get from configuration
+        const string tickerUri = "https://api.bitpanda.com/v1/ticker";
+        IReadOnlyCollection<FiatCurrency> supportedFiatCurrencies =
+        [
+            FiatCurrency.Euro,
+            FiatCurrency.UsDollar,
+            FiatCurrency.SwissFranc,
+            FiatCurrency.BritishPound,
+            FiatCurrency.TurkishLira,
+            FiatCurrency.PolishZloty,
+            FiatCurrency.HungarianForint,
+            FiatCurrency.CzechKoruna,
+            FiatCurrency.SwedishKrona,
+            FiatCurrency.DanishKrone
+        ];
+
+        var response = await _httpClient
+            .GetFromJsonAsync<Dictionary<string, Dictionary<string, double>>>(tickerUri, cancellationToken)!;
+
+        if (!response.TryGetValue(CryptoCurrency.Bitcoin.Symbol, out var bitcoinPrice))
+        {
+            throw new ApplicationException("Bitcoin price not found in API response.");
+        }
+
+        var bitcoinPriceCatalog = new FiatAmountCatalog(
+            supportedFiatCurrencies
+                .Select(fiatCurrency => new FiatAmount(bitcoinPrice[fiatCurrency.Ticker], fiatCurrency))
+                .ToList()
+        );
+
+        return bitcoinPriceCatalog;
     }
 
     private async Task<List<TradeAttributes>> GetTradesAsync(UserId userId, CancellationToken cancellationToken)
@@ -58,10 +96,11 @@ public class BitPandaApiClient : IBitPandaApiClient
         }
 
         var userApiKey = await _userSettingsQueryService
-            .GetApiKeyAsync(userId, ApiName.BitPanda, cancellationToken);
+            .GetApiKeyAsync(userId, ApiKeyName.BitPandaApiKey, cancellationToken);
 
         if (userApiKey is null)
-            throw DomainException.CreateFrom(new NoApiKeyProvidedFailure(ApiName.BitPanda.GetDescription()));
+            throw DomainException.CreateFrom(
+                new NoApiKeyProvidedFailure(ApiKeyName.BitPandaApiKey.GetDescription()));
 
         _httpClient.DefaultRequestHeaders.Add(ApiKeyHeaderName, userApiKey.Value);
         var tradesClient = new TradesClient(_httpClient);
@@ -76,7 +115,8 @@ public class BitPandaApiClient : IBitPandaApiClient
         .Where(x => x.Cryptocoin_id == CryptoCurrency.Bitcoin.Id.ToString())
         .ToList() ?? [];
 
-    private static string CacheKey(UserId userId) => $"{userId}-Trades-{ApiName.BitPanda.GetDescription()}";
+    private static string CacheKey(UserId userId) =>
+        $"{userId}-Trades-{ApiKeyName.BitPandaApiKey.GetDescription()}";
 
     private async Task CacheTradesAsync(TradesResult tradeResult, UserId userId, CancellationToken cancellationToken)
     {

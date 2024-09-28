@@ -2,6 +2,7 @@
 
 public class PortfolioSummary
 {
+    // TODO: use currency amount types
     public double NetInvestedFiat { get; }
     public double TotalBtcInvestment { get; }
     public double CurrentBtcPrice { get; }

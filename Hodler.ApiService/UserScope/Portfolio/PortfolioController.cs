@@ -53,18 +53,18 @@ public class PortfolioController : ControllerBase
     }
 
     // TODO: Add authentication
-    [HttpPost("sync/{exchangeName}")]
-    public async Task<IActionResult> SyncWithExchange(CryptoExchange exchangeName,
+    [HttpPost("sync/{exchangeNamesName}")]
+    public async Task<IActionResult> SyncWithExchange(CryptoExchangeNames exchangeNamesName,
         [FromBody] string userId,
         CancellationToken cancellationToken
     )
     {
-        ArgumentNullException.ThrowIfNull(exchangeName);
+        ArgumentNullException.ThrowIfNull(exchangeNamesName);
         ArgumentNullException.ThrowIfNull(userId);
         
         var request = new SyncWithExchangeCommand(
             new UserId(Guid.Parse(userId)),
-            (Domain.Shared.Models.CryptoExchange)exchangeName
+            (Domain.CryptoExchange.Models.CryptoExchangeNames)exchangeNamesName
         );
 
         var result = await _mediator.Send(request, cancellationToken);

@@ -1,4 +1,5 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
+using Hodler.Domain.CryptoExchange.Models;
 
 namespace Hodler.Domain.User.Models;
 
@@ -8,5 +9,5 @@ public interface IUser : IAggregateRoot<IUser>
     UserSettings UserSettings { get; }
     IReadOnlyCollection<ApiKey> ApiKeys { get; }
     
-    bool AddApiKey(ApiName apiName, string value);
+    bool AddApiKey(ApiKeyName apiKeyName, string value);
 }

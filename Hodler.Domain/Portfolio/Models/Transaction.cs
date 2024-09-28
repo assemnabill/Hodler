@@ -1,3 +1,4 @@
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolio.Models;
@@ -9,4 +10,4 @@ public record Transaction(
     BitcoinAmount BtcAmount,
     double MarketPrice,
     DateTimeOffset Timestamp,
-    CryptoExchange? CryptoExchange = null);
+    CryptoExchangeNames? CryptoExchange = null);

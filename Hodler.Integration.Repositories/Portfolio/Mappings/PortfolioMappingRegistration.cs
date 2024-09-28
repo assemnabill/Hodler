@@ -1,3 +1,4 @@
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.User.Models;
@@ -34,7 +35,7 @@ public class PortfolioMappingRegistration : IRegister
                 new BitcoinAmount(transaction.BtcAmount),
                 transaction.MarketPrice,
                 transaction.Timestamp,
-                (CryptoExchange)transaction.CryptoExchange
+                (CryptoExchangeNames)transaction.CryptoExchange
             ));
 
         config

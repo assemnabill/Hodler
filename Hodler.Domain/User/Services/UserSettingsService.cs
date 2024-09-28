@@ -1,3 +1,4 @@
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.User.Models;
 using Hodler.Domain.User.Ports;
 
@@ -13,12 +14,12 @@ public class UserSettingsService : IUserSettingsService
     }
 
     public async Task<bool> AddApiKeyAsync(
-        ApiName apiName,
+        ApiKeyName apiKeyName,
         string value,
         UserId userId,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(apiName);
+        ArgumentNullException.ThrowIfNull(apiKeyName);
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         ArgumentNullException.ThrowIfNull(userId);
 
@@ -27,7 +28,7 @@ public class UserSettingsService : IUserSettingsService
         if (user == null)
             throw new InvalidOperationException($"User with id {userId} not found.");
 
-        var changed = user.AddApiKey(apiName, value);
+        var changed = user.AddApiKey(apiKeyName, value);
 
         if (changed)
             await _userRepository.StoreAsync(user, cancellationToken);

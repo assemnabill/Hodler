@@ -1,21 +1,23 @@
+using Hodler.Domain.CryptoExchange.Models;
+
 namespace Hodler.Domain.User.Models;
 
 public class ApiKey
 {
     public ApiKeyId ApiKeyId { get; }
     public UserId UserId { get; }
-    public ApiName ApiName { get; }
+    public ApiKeyName ApiKeyName { get; }
     public string Value { get; }
 
-    public ApiKey(ApiKeyId apiKeyId, ApiName apiName, string value, UserId userId)
+    public ApiKey(ApiKeyId apiKeyId, ApiKeyName apiKeyName, string value, UserId userId)
     {
         ArgumentNullException.ThrowIfNull(apiKeyId);
-        ArgumentNullException.ThrowIfNull(apiName);
+        ArgumentNullException.ThrowIfNull(apiKeyName);
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         ArgumentNullException.ThrowIfNull(userId);
 
         ApiKeyId = apiKeyId;
-        ApiName = apiName;
+        ApiKeyName = apiKeyName;
         Value = value;
         UserId = userId;
     }

@@ -1,6 +1,10 @@
 ﻿using System.Reflection;
+ using Hodler.Domain.CryptoExchange.Services;
 using Hodler.Domain.Portfolio.Models;
+using Hodler.Domain.PriceCatalog.Models;
+using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.User.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Hodler.Domain.Portfolio.Services;
@@ -10,18 +14,19 @@ public class TransactionsQueryService : ITransactionsQueryService
     private readonly ILogger<TransactionsQueryService> _logger;
     private readonly IBitPandaTransactionParser _bitPandaTransactionParser;
     private readonly IKrakenTransactionParser _krakenTransactionParser;
-    private readonly ICurrentPriceProvider _currentPriceProvider;
+    private readonly ICurrentBitcoinPriceProvider _currentBitcoinPriceProvider;
 
     public TransactionsQueryService(
         ILogger<TransactionsQueryService> logger,
         IBitPandaTransactionParser bitPandaTransactionParser,
         IKrakenTransactionParser krakenTransactionParser,
-        ICurrentPriceProvider currentPriceProvider)
+        [FromKeyedServices(BitcoinPriceProvider.BitPandaTicker)]
+        ICurrentBitcoinPriceProvider currentBitcoinPriceProvider)
     {
         _logger = logger;
         _bitPandaTransactionParser = bitPandaTransactionParser;
         _krakenTransactionParser = krakenTransactionParser;
-        _currentPriceProvider = currentPriceProvider;
+        _currentBitcoinPriceProvider = currentBitcoinPriceProvider;
     }
 
     public async Task<PortfolioSummary> GetPortfolioSummaryAsync(
@@ -37,7 +42,7 @@ public class TransactionsQueryService : ITransactionsQueryService
         );
 
         // todo: call GetSummaryReportAsync on portfolio
-        var summaryReport = await transactions.GetSummaryReportAsync(_currentPriceProvider, cancellationToken);
+        var summaryReport = await transactions.GetSummaryReportAsync(_currentBitcoinPriceProvider, cancellationToken);
 
         return summaryReport;
     }

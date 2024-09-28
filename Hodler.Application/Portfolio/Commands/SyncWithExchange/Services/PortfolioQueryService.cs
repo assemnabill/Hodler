@@ -1,22 +1,26 @@
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Portfolio.Ports.Repositories;
 using Hodler.Domain.Portfolio.Services;
+using Hodler.Domain.PriceCatalog.Models;
+using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.User.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Hodler.Application.Portfolio.Commands.SyncWithExchange.Services;
 
 internal class PortfolioQueryService : IPortfolioQueryService
 {
     private readonly IPortfolioRepository _portfolioRepository;
-    private readonly ICurrentPriceProvider _currentPriceProvider;
+    private readonly ICurrentBitcoinPriceProvider _currentBitcoinPriceProvider;
 
     public PortfolioQueryService(
         IPortfolioRepository portfolioRepository,
-        ICurrentPriceProvider currentPriceProvider
+        [FromKeyedServices(BitcoinPriceProvider.BitPandaTicker)]
+        ICurrentBitcoinPriceProvider currentBitcoinPriceProvider
     )
     {
         _portfolioRepository = portfolioRepository;
-        _currentPriceProvider = currentPriceProvider;
+        _currentBitcoinPriceProvider = currentBitcoinPriceProvider;
     }
 
     public async Task<IPortfolio> GetByUserIdAsync(UserId userId, CancellationToken cancellationToken)
@@ -34,12 +38,14 @@ internal class PortfolioQueryService : IPortfolioQueryService
 
         var portfolio = await GetByUserIdAsync(userId, cancellationToken);
 
-        var summary = await portfolio.Transactions.GetSummaryReportAsync(_currentPriceProvider, cancellationToken)!;
+        var summary =  await portfolio.Transactions
+        .GetSummaryReportAsync(_currentBitcoinPriceProvider, cancellationToken)!;
 
         return summary;
     }
 
-    private async Task<IPortfolio> FindOrCreatePortfolioByUserIdAsync(UserId userId, CancellationToken cancellationToken)
+    private async Task<IPortfolio> FindOrCreatePortfolioByUserIdAsync(UserId userId,
+        CancellationToken cancellationToken)
     {
         var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);
 

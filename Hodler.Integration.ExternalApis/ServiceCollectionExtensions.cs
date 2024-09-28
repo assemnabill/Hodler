@@ -1,7 +1,7 @@
 ﻿using Hodler.Domain.Portfolio.Ports.BitPandaApi;
 using Hodler.Domain.Shared.Ports.DiaDataApi;
 using Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.BitPanda;
-using Hodler.Integration.ExternalApis.PriceFeed;
+using Hodler.Integration.ExternalApis.PriceCatalog;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 

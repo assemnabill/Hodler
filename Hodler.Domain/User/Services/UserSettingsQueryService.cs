@@ -1,3 +1,4 @@
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.User.Models;
 using Hodler.Domain.User.Ports;
 
@@ -12,7 +13,7 @@ public class UserSettingsQueryService : IUserSettingsQueryService
         _userRepository = userRepository;
     }
 
-    public async Task<ApiKey?> GetApiKeyAsync(UserId userId, ApiName apiName, CancellationToken cancellationToken)
+    public async Task<ApiKey?> GetApiKeyAsync(UserId userId, ApiKeyName apiKeyName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userId);
 
@@ -22,7 +23,7 @@ public class UserSettingsQueryService : IUserSettingsQueryService
             throw new InvalidOperationException($"User with id {userId} not found.");
         
 
-        var apiKey = user.ApiKeys.FirstOrDefault(x => x.ApiName == apiName);
+        var apiKey = user.ApiKeys.FirstOrDefault(x => x.ApiKeyName == apiKeyName);
 
         return apiKey;
     }

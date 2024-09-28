@@ -18,7 +18,7 @@ public class AddApiKeyCommandHandler : IRequestHandler<AddApiKeyCommand, bool>
         var domainService = _serviceProvider.GetRequiredService<IUserSettingsService>();
 
         var result = await domainService.AddApiKeyAsync(
-            request.ApiName,
+            request.ApiKeyName,
             request.Value,
             request.UserId,
             cancellationToken

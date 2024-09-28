@@ -1,6 +1,7 @@
 using Corz.DomainDriven.Abstractions.Exceptions;
 using Hodler.Application.User.Commands.AddApiKey;
 using Hodler.Contracts.User.AddApiKey;
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.User.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ public class UserSettingsController : ControllerBase
         try
         {
             var request = new AddApiKeyCommand(
-                    Enum.Parse<ApiName>(addApiKeyRequestContract.ApiName),
+                    Enum.Parse<ApiKeyName>(addApiKeyRequestContract.ApiName),
                     addApiKeyRequestContract.ApiKey,
                     new UserId(addApiKeyRequestContract.UserId)
             );

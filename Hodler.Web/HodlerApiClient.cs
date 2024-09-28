@@ -24,12 +24,12 @@ public class HodlerApiClient(HttpClient httpClient)
     }
 
     public async Task<PortfolioInfoDto?> SyncWithExchangeAsync(
-        CryptoExchange exchangeName,
+        CryptoExchangeNames exchangeNamesName,
         string userId,
         CancellationToken cancellationToken = default)
     {
         var result = await httpClient.PostAsJsonAsync(
-            $"api/Portfolio/sync/{(int)exchangeName}",
+            $"api/Portfolio/sync/{(int)exchangeNamesName}",
             userId,
             cancellationToken);
 

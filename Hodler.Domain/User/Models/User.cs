@@ -1,4 +1,5 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
+using Hodler.Domain.CryptoExchange.Models;
 
 namespace Hodler.Domain.User.Models;
 
@@ -8,25 +9,27 @@ public class User : AggregateRoot<User>, IUser
     public UserSettings UserSettings { get; private set; }
     public IReadOnlyCollection<ApiKey>? ApiKeys { get; private set; }
 
-    public bool AddApiKey(ApiName apiName, string value)
+    public bool AddApiKey(ApiKeyName apiKeyName, string value)
     {
-        ArgumentNullException.ThrowIfNull(apiName);
+        ArgumentNullException.ThrowIfNull(apiKeyName);
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
         ApiKeys ??= new List<ApiKey>();
+        var changed = false;
 
-        if (ApiKeys.Any(x => x.ApiName == apiName && x.Value == value))
+        if (ApiKeys.Any(x => x.ApiKeyName == apiKeyName && x.Value == value))
         {
-            return false;
+            return changed;
         }
 
-        var apiKey = new ApiKey(new ApiKeyId(Guid.NewGuid()), apiName, value, Id);
+        var apiKey = new ApiKey(new ApiKeyId(Guid.NewGuid()), apiKeyName, value, Id);
 
         ApiKeys = ApiKeys
             .Append(apiKey)
             .ToList();
 
-        return true;
+        changed = true;
+        return changed;
     }
 
 

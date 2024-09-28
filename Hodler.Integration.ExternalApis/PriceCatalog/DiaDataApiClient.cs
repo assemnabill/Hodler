@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Hodler.Domain.Shared.Ports.DiaDataApi;
 
-namespace Hodler.Integration.ExternalApis.PriceFeed;
+namespace Hodler.Integration.ExternalApis.PriceCatalog;
 
 public class DiaDataApiClient : IDiaDataApiClient
 {
@@ -12,6 +12,7 @@ public class DiaDataApiClient : IDiaDataApiClient
         _httpClient = httpClient;
     }
 
+    // TODO: Get from IConfiguration
     const string BitCoinAssetQuotationEndpoint =
         "https://api.diadata.org/v1/assetQuotation/Bitcoin/0x0000000000000000000000000000000000000000";
 

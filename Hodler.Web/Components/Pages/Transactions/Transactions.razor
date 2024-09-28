@@ -27,7 +27,7 @@
                      JustifyContent="JustifyContent.Center"
                      Gap="0.5rem" class="rz-p-12">
             <RadzenLabel Text="Import Transaction" Component="DropDownDataGridChangeEvent"/>
-            <RadzenDropDownDataGrid TValue="CryptoExchange"
+            <RadzenDropDownDataGrid TValue="CryptoExchangeNames"
                                     Data=@_cryptoExchangeNames
                                     Change="@(OnCryptoExchangeSelected)"
                                     Name="DropDownDataGridChangeEvent"/>
@@ -61,13 +61,13 @@
 
     // CryptoExchange _value;
     IEnumerable _cryptoExchangeNames;
-    CryptoExchange _selectedCryptoExchange;
+    CryptoExchangeNames _selectedCryptoExchangeNames;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        _cryptoExchangeNames = Enum.GetValues(typeof(CryptoExchange));
+        _cryptoExchangeNames = Enum.GetValues(typeof(CryptoExchangeNames));
         var userId = SessionService.GetCurrentUserId();
 
         var portfolioInfoDto = await HodlerApi.GetPortfolioInfoAsync(userId);
@@ -80,13 +80,13 @@
     {
         Console.Write(args);
 
-        _selectedCryptoExchange = Enum.GetValues(typeof(CryptoExchange))
-            .Cast<CryptoExchange>()
+        _selectedCryptoExchangeNames = Enum.GetValues(typeof(CryptoExchangeNames))
+            .Cast<CryptoExchangeNames>()
             .FirstOrDefault(x => x.ToString() == args.ToString());
 
         var userId = SessionService.GetCurrentUserId();
 
-        var portfolioInfoDto = await HodlerApi.SyncWithExchangeAsync(_selectedCryptoExchange, userId);
+        var portfolioInfoDto = await HodlerApi.SyncWithExchangeAsync(_selectedCryptoExchangeNames, userId);
 
         if (portfolioInfoDto?.Transactions != null)
             _transactions = portfolioInfoDto.Transactions

@@ -1,8 +1,9 @@
 ﻿using System.Globalization;
 using Hodler.Domain.Portfolio.Models;
+using Hodler.Domain.Portfolio.Services;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.Portfolio.Services;
+namespace Hodler.Domain.CryptoExchange.Services;
 
 public interface IKrakenTransactionParser : ITransactionParser;
 
@@ -27,7 +28,7 @@ public class KrakenTransactionParser : IKrakenTransactionParser
                     new BitcoinAmount(receivingTransaction.Amount),
                     marketPrice,
                     spendingTransaction.Timestamp,
-                    CryptoExchange.Kraken
+                    Models.CryptoExchangeNames.Kraken
                 );
             })
             .ToList();

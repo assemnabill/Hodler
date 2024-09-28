@@ -1,7 +1,7 @@
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.User.Models;
 
-namespace Hodler.Domain.Portfolio.Services.Sync;
+namespace Hodler.Domain.Portfolio.Services;
 
 public interface IPortfolioSyncService
 {

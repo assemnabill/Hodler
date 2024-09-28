@@ -1,4 +1,5 @@
 ﻿using Hodler.Domain.Portfolio.Services;
+using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolio.Models;
@@ -6,7 +7,7 @@ namespace Hodler.Domain.Portfolio.Models;
 public interface ITransactions : IReadOnlyCollection<Transaction>
 {
     Task<PortfolioSummary> GetSummaryReportAsync(
-        ICurrentPriceProvider currentPriceProvider,
+        ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,
         CancellationToken cancellationToken);
 
     SyncResult<ITransactions> Sync(IEnumerable<Transaction> transactions);

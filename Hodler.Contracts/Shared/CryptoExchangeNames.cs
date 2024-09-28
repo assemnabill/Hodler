@@ -1,7 +1,7 @@
 
 namespace Hodler.Contracts.Shared;
 
-public enum CryptoExchange
+public enum CryptoExchangeNames
 {
     BitPanda = 1,
     Kraken = 2
