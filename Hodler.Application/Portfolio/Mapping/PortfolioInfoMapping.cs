@@ -1,3 +1,4 @@
+using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Shared.Models;
 using Mapster;
@@ -16,7 +17,9 @@ public class PortfolioInfoMapping : IRegister
             ));
 
         config
-            .NewConfig<(PortfolioId portfolioId, TransactionInfo transactionInfo), Transaction>()
+            .NewConfig<
+                (PortfolioId portfolioId, TransactionInfo transactionInfo),
+                Transaction>()
             .MapWith(src => new Transaction(
                 src.portfolioId,
                 src.transactionInfo.Type,
@@ -24,11 +27,11 @@ public class PortfolioInfoMapping : IRegister
                 src.transactionInfo.BtcAmount,
                 src.transactionInfo.MarketPrice,
                 src.transactionInfo.Timestamp,
-                null
+                src.transactionInfo.CryptoExchange
             ));
 
         config
-            .NewConfig<FiatAmount, double>()
+            .NewConfig<FiatAmount, decimal>()
             .MapWith(src => src.Amount);
     }
 }

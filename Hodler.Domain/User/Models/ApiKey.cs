@@ -8,8 +8,15 @@ public class ApiKey
     public UserId UserId { get; }
     public ApiKeyName ApiKeyName { get; }
     public string Value { get; }
+    public string? Secret { get; }
 
-    public ApiKey(ApiKeyId apiKeyId, ApiKeyName apiKeyName, string value, UserId userId)
+    public ApiKey(
+        ApiKeyId apiKeyId,
+        ApiKeyName apiKeyName,
+        string value,
+        UserId userId,
+        string? secret = null
+    )
     {
         ArgumentNullException.ThrowIfNull(apiKeyId);
         ArgumentNullException.ThrowIfNull(apiKeyName);
@@ -20,6 +27,23 @@ public class ApiKey
         ApiKeyName = apiKeyName;
         Value = value;
         UserId = userId;
+        Secret = secret;
+        
+        EnsureSecretIsPresentWhenRequired();
+    }
+
+    private void EnsureSecretIsPresentWhenRequired()
+    {
+        var isSecretRequired = ApiKeyName switch
+        {
+            ApiKeyName.Kraken => true,
+            _ => false
+        };
+        
+        if (isSecretRequired && string.IsNullOrWhiteSpace(Secret))
+        {
+            throw new ArgumentException($"Secret is required for this Api ({ApiKeyName})");
+        }
     }
 
     public override string ToString() => Value;

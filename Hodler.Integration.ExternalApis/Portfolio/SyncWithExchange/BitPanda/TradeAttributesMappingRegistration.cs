@@ -7,7 +7,7 @@ using TransactionType = Hodler.Domain.Portfolio.Models.TransactionType;
 
 namespace Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.BitPanda;
 
-public class TradeAttributesMappingRegisteration : IRegister
+public class TradeAttributesMappingRegistration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
@@ -16,25 +16,22 @@ public class TradeAttributesMappingRegisteration : IRegister
             .MapWith(src => new Transaction(
                 new PortfolioId(Guid.NewGuid()),
                 src.Type == TradeType.Buy ? TransactionType.Buy : TransactionType.Sell,
-                new FiatAmount(
-                    Convert.ToDouble(src.Amount_fiat),
-                    FiatCurrency.AsEnumerable().FirstOrDefault(x => x.Id.ToString() == src.Fiat_id, FiatCurrency.Euro)),
-                new BitcoinAmount(Convert.ToDouble(src.Amount_cryptocoin)),
-                Convert.ToDouble(src.Price),
-                DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(src.Time.Unix)),
+                new FiatAmount(src.Amount_fiat, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
+                new BitcoinAmount(src.Amount_cryptocoin),
+                new FiatAmount(src.Price, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
+                DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(src.Time.Unix)).ToUniversalTime(),
                 CryptoExchangeNames.BitPanda
             ));
-        
+
         config
             .NewConfig<TradeAttributes, TransactionInfo>()
             .MapWith(src => new TransactionInfo(
                 src.Type == TradeType.Buy ? TransactionType.Buy : TransactionType.Sell,
-                new FiatAmount(
-                    Convert.ToDouble(src.Amount_fiat),
-                    FiatCurrency.AsEnumerable().FirstOrDefault(x => x.Id.ToString() == src.Fiat_id, FiatCurrency.Euro)),
-                new BitcoinAmount(Convert.ToDouble(src.Amount_cryptocoin)),
-                Convert.ToDouble(src.Price),
-                src.Time.Date_iso8601
+                new FiatAmount(src.Amount_fiat, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
+                new BitcoinAmount(src.Amount_cryptocoin),
+                new FiatAmount(src.Price, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
+                src.Time.Date_iso8601.ToUniversalTime(),
+                CryptoExchangeNames.BitPanda
             ));
     }
 }

@@ -28,9 +28,10 @@ public class UserSettingsController : ControllerBase
         try
         {
             var request = new AddApiKeyCommand(
-                    Enum.Parse<ApiKeyName>(addApiKeyRequestContract.ApiName),
-                    addApiKeyRequestContract.ApiKey,
-                    new UserId(addApiKeyRequestContract.UserId)
+                    Enum.Parse<ApiKeyName>(addApiKeyRequestContract.ApiKeyName),
+                    addApiKeyRequestContract.ApiKeyValue,
+                    new UserId(addApiKeyRequestContract.UserId),
+                    addApiKeyRequestContract.Secret
             );
 
             var success = await _mediator.Send(request, cancellationToken);

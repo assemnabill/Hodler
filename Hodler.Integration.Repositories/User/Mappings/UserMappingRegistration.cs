@@ -10,7 +10,8 @@ public class UserMappingRegistration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.ForType<UserSettings, Entities.UserSettings>()
+        config
+            .ForType<UserSettings, Entities.UserSettings>()
             .Map(dest => dest.UserSettingsId, src => src.UserSettingsId)
             .Map(dest => dest.UserId, src => src.UserId)
             .Map(dest => dest.Language, src => src.Language)
@@ -18,7 +19,8 @@ public class UserMappingRegistration : IRegister
             .Map(dest => dest.Theme, src => src.Theme)
             .Map(dest => dest.Region, src => src.Region);
 
-        config.ForType<Entities.UserSettings, UserSettings>()
+        config
+            .ForType<Entities.UserSettings, UserSettings>()
             .MapWith(x => new UserSettings(
                 x.UserSettingsId,
                 new UserId(Guid.Parse(x.UserId)),
@@ -27,7 +29,8 @@ public class UserMappingRegistration : IRegister
                 x.Theme,
                 x.Region));
 
-        config.ForType<Entities.User, IUser>()
+        config
+            .ForType<Entities.User, IUser>()
             .MapWith(x =>
                 new Domain.User.Models.User(
                     new UserId(Guid.Parse(x.Id)),
@@ -41,29 +44,31 @@ public class UserMappingRegistration : IRegister
                             x.UserSettings.Region)
                         : null,
                     x.ApiKeys
-                        .Select(y => x.Adapt<ApiKey>())
+                        .Select(y => y.Adapt<ApiKey>())
                         .ToList()
                 )
             );
 
         config
-            .NewConfig<Entities.ApiKey, ApiKey>()
+            .ForType<Entities.ApiKey, ApiKey>()
             .MapWith(x => new ApiKey(
                     new ApiKeyId(x.ApiKeyId),
                     Enum<ApiKeyName>.Parse(x.ApiKeyName),
                     x.Value,
-                    new UserId(Guid.Parse(x.UserId))
+                    new UserId(Guid.Parse(x.UserId)),
+                    x.Secret
                 )
             );
 
         config
-            .NewConfig<ApiKey, Entities.ApiKey>()
+            .ForType<ApiKey, Entities.ApiKey>()
             .MapWith(x => new Entities.ApiKey
             {
                 ApiKeyId = x.ApiKeyId.Value,
                 UserId = x.UserId.ToString(),
                 ApiKeyName = x.ApiKeyName.GetDescription(),
-                Value = x.Value
+                Value = x.Value,
+                Secret = x.Secret
             });
     }
 }

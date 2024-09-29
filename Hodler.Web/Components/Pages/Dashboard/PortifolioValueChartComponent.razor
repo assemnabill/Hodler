@@ -1,4 +1,3 @@
-@using System.Globalization
 @using Hodler.Contracts.Portfolio
 @using Hodler.Contracts.Portfolio.PortfolioSummary
 @using Hodler.Web.Components.Shared.Services
@@ -66,7 +65,7 @@
             .ToArray()!;
     }
 
-    private double CalculatePortfolioValueAtTransactionTimePoint(DateTimeOffset timePoint)
+    private decimal CalculatePortfolioValueAtTransactionTimePoint(DateTimeOffset timePoint)
     {
         if (_transactions is null)
         {
@@ -91,7 +90,7 @@
         return positionValue;
     }
 
-    private double CalculatePortfolioValueAtTransactionTimePoint(TransactionInfoDto transaction)
+    private decimal CalculatePortfolioValueAtTransactionTimePoint(TransactionInfoDto transaction)
     {
         var transactions = _transactions
             .Where(t => t.Timestamp <= transaction.Timestamp)
@@ -113,7 +112,7 @@
     record DataItem
     {
         public string Date { get; set; }
-        public double Revenue { get; set; }
+        public decimal Revenue { get; set; }
     }
 
 }

@@ -21,6 +21,7 @@ public class AddApiKeyCommandHandler : IRequestHandler<AddApiKeyCommand, bool>
             request.ApiKeyName,
             request.Value,
             request.UserId,
+            request.Secret,
             cancellationToken
         );
 

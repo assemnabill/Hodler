@@ -38,18 +38,18 @@ internal class PortfolioRepository : IPortfolioRepository
         try
         {
             var existingDbEntity = await _dbContext.Portfolios
-                // .AsNoTracking()
-                // .AsSingleQuery()
                 .Include(x => x.Transactions)
                 .FirstOrDefaultAsync(t => t.PortfolioId == aggregateRoot.Id, cancellationToken);
 
             var entity = aggregateRoot.Adapt<IPortfolio, Portfolio.Entities.Portfolio>();
             if (existingDbEntity is null)
             {
+                entity.CreatedAt = DateTimeOffset.UtcNow;
                 await _dbContext.AddAsync(entity, cancellationToken);
             }
             else
             {
+                entity.UpdatedAt = DateTimeOffset.UtcNow;
                 _dbContext.Entry(existingDbEntity).CurrentValues.SetValues(entity);
                 _dbContext.Entry(existingDbEntity).State = EntityState.Modified;
             }
@@ -65,7 +65,9 @@ internal class PortfolioRepository : IPortfolioRepository
         }
     }
 
-    private async Task ChangeTransactions(IPortfolio aggregateRoot, Entities.Portfolio entity,
+    private async Task ChangeTransactions(
+        IPortfolio aggregateRoot,
+        Entities.Portfolio entity,
         CancellationToken cancellationToken)
     {
         var existingEntities = _dbContext.Transactions
@@ -90,6 +92,7 @@ internal class PortfolioRepository : IPortfolioRepository
 
             if (existingEntity is null)
             {
+                newEntity.CreatedAt = DateTimeOffset.UtcNow;
                 await _dbContext.AddAsync(newEntity, cancellationToken);
             }
         }

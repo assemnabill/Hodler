@@ -5,5 +5,10 @@ namespace Hodler.Domain.User.Services;
 
 public interface IUserSettingsService
 {
-    Task<bool> AddApiKeyAsync(ApiKeyName apiKeyName, string value, UserId userId, CancellationToken cancellationToken);
+    Task<bool> AddApiKeyAsync(
+        ApiKeyName apiKeyName,
+        string value,
+        UserId userId,
+        string? secret,
+        CancellationToken cancellationToken);
 }

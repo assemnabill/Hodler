@@ -1,27 +1,29 @@
-﻿namespace Hodler.Domain.Portfolio.Models;
+﻿using Hodler.Domain.Shared.Models;
+
+namespace Hodler.Domain.Portfolio.Models;
 
 public class PortfolioSummary
 {
-    // TODO: use currency amount types
-    public double NetInvestedFiat { get; }
-    public double TotalBtcInvestment { get; }
-    public double CurrentBtcPrice { get; }
-    public double CurrentValue { get; }
-    public double ProfitLossInFiat { get; }
+
+    public FiatAmount NetInvestedFiat { get; }
+    public BitcoinAmount TotalBtcInvestment { get; }
+    public FiatAmount CurrentBtcPrice { get; }
+    public FiatAmount CurrentValue { get; }
+    public FiatAmount ProfitLossInFiat { get; }
     public double ProfitLossInFiatPercentage { get; }
-    public double AverageBtcPrice { get; }
-    public double TaxFreeBtcInvestment { get; }
+    public FiatAmount AverageBtcPrice { get; }
+    public FiatAmount TaxFreeBtcInvestment { get; }
     public double TaxFreeProfitPercentage { get; }
 
     public PortfolioSummary(
-        double netInvestedFiat,
-        double totalBtcInvestment, 
-        double currentBtcPrice, 
-        double currentValue,
-        double profitLossInFiat, 
+        FiatAmount netInvestedFiat,
+        BitcoinAmount totalBtcInvestment, 
+        FiatAmount currentBtcPrice, 
+        FiatAmount currentValue,
+        FiatAmount profitLossInFiat, 
         double profitLossInFiatPercentage, 
-        double averageBtcPrice, 
-        double taxFreeBtcInvestment,
+        FiatAmount averageBtcPrice, 
+        FiatAmount taxFreeBtcInvestment,
         double taxFreeProfitPercentage)
     {
         NetInvestedFiat = netInvestedFiat;

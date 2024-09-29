@@ -1,4 +1,4 @@
-﻿using Hodler.Domain.Portfolio.Ports.BitPandaApi;
+﻿using Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
 using Hodler.Domain.PriceCatalog.Models;
 using Hodler.Domain.Shared.Models;
 

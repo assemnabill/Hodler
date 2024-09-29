@@ -1,12 +1,12 @@
 ﻿namespace Hodler.Contracts.Portfolio.PortfolioSummary;
 
 public record PortfolioSummaryDto(
-    double NetInvestedFiat,
-    double TotalBtcInvestment,
-    double CurrentBtcPrice,
-    double CurrentValue,
-    double ProfitLossInFiat,
+    decimal NetInvestedFiat,
+    decimal TotalBtcInvestment,
+    decimal CurrentBtcPrice,
+    decimal CurrentValue,
+    decimal ProfitLossInFiat,
     double ProfitLossInFiatPercentage,
-    double AverageBtcPrice,
-    double TaxFreeBtcInvestment,
+    decimal AverageBtcPrice,
+    decimal TaxFreeBtcInvestment,
     double TaxFreeProfitPercentage);

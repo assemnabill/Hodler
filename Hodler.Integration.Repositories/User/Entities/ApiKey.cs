@@ -6,4 +6,5 @@ public class ApiKey : Entity
     public string UserId { get; init; }
     public string ApiKeyName { get; init; }
     public string Value { get; init; }
+    public string? Secret { get; init; }
 }

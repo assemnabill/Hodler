@@ -5,7 +5,7 @@ public record AssetQuotation (
     string Name,
     string Address,
     string Blockchain,
-    double Price,
+    decimal Price,
     double PriceYesterday,
     double VolumeYesterdayUSD,
     DateTime Time,

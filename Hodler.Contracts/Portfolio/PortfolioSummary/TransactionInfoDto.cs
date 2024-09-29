@@ -2,7 +2,7 @@ namespace Hodler.Contracts.Portfolio.PortfolioSummary;
 
 public record TransactionInfoDto(
     TransactionType Type,
-    double FiatAmount,
-    double BtcAmount,
-    double MarketPrice,
+    decimal FiatAmount,
+    decimal BtcAmount,
+    decimal MarketPrice,
     DateTimeOffset Timestamp);

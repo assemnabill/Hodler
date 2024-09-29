@@ -6,7 +6,7 @@ using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.User.Models;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hodler.Application.Portfolio.Commands.SyncWithExchange.Services;
+namespace Hodler.Application.Portfolio.Services;
 
 internal class PortfolioQueryService : IPortfolioQueryService
 {
@@ -38,13 +38,14 @@ internal class PortfolioQueryService : IPortfolioQueryService
 
         var portfolio = await GetByUserIdAsync(userId, cancellationToken);
 
-        var summary =  await portfolio.Transactions
-        .GetSummaryReportAsync(_currentBitcoinPriceProvider, cancellationToken)!;
+        var summary = await portfolio.Transactions
+            .GetSummaryReportAsync(_currentBitcoinPriceProvider, cancellationToken)!;
 
         return summary;
     }
 
-    private async Task<IPortfolio> FindOrCreatePortfolioByUserIdAsync(UserId userId,
+    private async Task<IPortfolio> FindOrCreatePortfolioByUserIdAsync(
+        UserId userId,
         CancellationToken cancellationToken)
     {
         var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);

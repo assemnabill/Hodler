@@ -23,4 +23,41 @@ public class FiatCurrency : TypeSafeEnum<FiatCurrency>
         Ticker = ticker;
         Symbol = symbol;
     }
+
+
+    public static FiatCurrency GetByTicker(string ticker)
+    {
+        return ticker switch
+        {
+            "EUR" => Euro,
+            "USD" => UsDollar,
+            "CHF" => SwissFranc,
+            "GBP" => BritishPound,
+            "TRY" => TurkishLira,
+            "PLN" => PolishZloty,
+            "HUF" => HungarianForint,
+            "CZK" => CzechKoruna,
+            "SEK" => SwedishKrona,
+            "DKK" => DanishKrone,
+            _ => throw new ArgumentOutOfRangeException(nameof(ticker), ticker, null)
+        };
+    }
+
+    public static FiatCurrency GetById(int id)
+    {
+        return id switch
+        {
+            1 => Euro,
+            2 => UsDollar,
+            3 => SwissFranc,
+            4 => BritishPound,
+            5 => TurkishLira,
+            6 => PolishZloty,
+            7 => HungarianForint,
+            8 => CzechKoruna,
+            15 => SwedishKrona,
+            17 => DanishKrone,
+            _ => throw new ArgumentOutOfRangeException(nameof(id), id, null)
+        };
+    }
 }

@@ -12,11 +12,11 @@ public class PortfolioMappingRegistration : IRegister
     {
         config
             .NewConfig<Entities.Portfolio, IPortfolio>()
-            .MapWith((portfolio => new Domain.Portfolio.Models.Portfolio(
+            .MapWith(portfolio => new Domain.Portfolio.Models.Portfolio(
                 new PortfolioId(portfolio.PortfolioId),
                 new Transactions(portfolio.Transactions.Select(x => x.Adapt<Entities.Transaction, Transaction>())),
                 new UserId(Guid.Parse(portfolio.UserId))
-            )));
+            ));
 
         config
             .NewConfig<IPortfolio, Entities.Portfolio>()
@@ -30,11 +30,10 @@ public class PortfolioMappingRegistration : IRegister
             .MapWith(transaction => new Transaction(
                 new PortfolioId(transaction.PortfolioId),
                 (TransactionType)transaction.Type,
-                new FiatAmount(transaction.FiatAmount,
-                    FiatCurrency.AsEnumerable().FirstOrDefault(x => x.Id == transaction.FiatCurrency)!),
+                new FiatAmount(transaction.FiatAmount, FiatCurrency.GetById(transaction.FiatCurrency)!),
                 new BitcoinAmount(transaction.BtcAmount),
-                transaction.MarketPrice,
-                transaction.Timestamp,
+                new FiatAmount(transaction.MarketPrice, FiatCurrency.GetById(transaction.FiatCurrency)!),
+                transaction.Timestamp.ToUniversalTime(),
                 (CryptoExchangeNames)transaction.CryptoExchange
             ));
 
@@ -46,6 +45,7 @@ public class PortfolioMappingRegistration : IRegister
             .Map(dest => dest.FiatCurrency, src => src.FiatAmount.FiatCurrency.Id)
             .Map(dest => dest.BtcAmount, src => src.BtcAmount.Amount)
             .Map(dest => dest.MarketPrice, src => src.MarketPrice)
-            .Map(dest => dest.Timestamp, src => src.Timestamp.UtcDateTime);
+            .Map(dest => dest.Timestamp, src => src.Timestamp.UtcDateTime)
+            .Map(dest => dest.CryptoExchange, src => src.CryptoExchange);
     }
 }

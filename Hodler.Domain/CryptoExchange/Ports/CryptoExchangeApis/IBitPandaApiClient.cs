@@ -2,7 +2,7 @@ using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.PriceCatalog.Models;
 using Hodler.Domain.User.Models;
 
-namespace Hodler.Domain.Portfolio.Ports.BitPandaApi;
+namespace Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
 
 public interface IBitPandaApiClient 
 {

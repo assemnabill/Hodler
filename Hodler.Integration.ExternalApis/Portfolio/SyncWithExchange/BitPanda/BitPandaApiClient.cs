@@ -5,8 +5,8 @@ using Bitpanda.RestClient;
 using Corz.DomainDriven.Abstractions.Exceptions;
 using Corz.Extensions.Enumeration;
 using Hodler.Domain.CryptoExchange.Models;
+using Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
 using Hodler.Domain.Portfolio.Models;
-using Hodler.Domain.Portfolio.Ports.BitPandaApi;
 using Hodler.Domain.PriceCatalog.Models;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.User.Models;
@@ -69,7 +69,7 @@ public class BitPandaApiClient : IBitPandaApiClient
         ];
 
         var response = await _httpClient
-            .GetFromJsonAsync<Dictionary<string, Dictionary<string, double>>>(tickerUri, cancellationToken)!;
+            .GetFromJsonAsync<Dictionary<string, Dictionary<string, decimal>>>(tickerUri, cancellationToken)!;
 
         if (!response.TryGetValue(CryptoCurrency.Bitcoin.Symbol, out var bitcoinPrice))
         {
@@ -96,11 +96,11 @@ public class BitPandaApiClient : IBitPandaApiClient
         }
 
         var userApiKey = await _userSettingsQueryService
-            .GetApiKeyAsync(userId, ApiKeyName.BitPandaApiKey, cancellationToken);
+            .GetApiKeyAsync(userId, ApiKeyName.BitPanda, cancellationToken);
 
         if (userApiKey is null)
             throw DomainException.CreateFrom(
-                new NoApiKeyProvidedFailure(ApiKeyName.BitPandaApiKey.GetDescription()));
+                new NoApiKeyProvidedFailure(CryptoExchangeNames.BitPanda.GetDescription()));
 
         _httpClient.DefaultRequestHeaders.Add(ApiKeyHeaderName, userApiKey.Value);
         var tradesClient = new TradesClient(_httpClient);
@@ -116,7 +116,7 @@ public class BitPandaApiClient : IBitPandaApiClient
         .ToList() ?? [];
 
     private static string CacheKey(UserId userId) =>
-        $"{userId}-Trades-{ApiKeyName.BitPandaApiKey.GetDescription()}";
+        $"{userId}-Trades-{CryptoExchangeNames.BitPanda.GetDescription()}";
 
     private async Task CacheTradesAsync(TradesResult tradeResult, UserId userId, CancellationToken cancellationToken)
     {

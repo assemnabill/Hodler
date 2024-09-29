@@ -13,10 +13,10 @@ public class UserSettingsService : IUserSettingsService
         _userRepository = userRepository;
     }
 
-    public async Task<bool> AddApiKeyAsync(
-        ApiKeyName apiKeyName,
+    public async Task<bool> AddApiKeyAsync(ApiKeyName apiKeyName,
         string value,
         UserId userId,
+        string? secret,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(apiKeyName);
@@ -28,7 +28,7 @@ public class UserSettingsService : IUserSettingsService
         if (user == null)
             throw new InvalidOperationException($"User with id {userId} not found.");
 
-        var changed = user.AddApiKey(apiKeyName, value);
+        var changed = user.AddApiKey(apiKeyName, value, secret);
 
         if (changed)
             await _userRepository.StoreAsync(user, cancellationToken);

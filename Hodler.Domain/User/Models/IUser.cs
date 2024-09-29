@@ -9,5 +9,5 @@ public interface IUser : IAggregateRoot<IUser>
     UserSettings UserSettings { get; }
     IReadOnlyCollection<ApiKey> ApiKeys { get; }
     
-    bool AddApiKey(ApiKeyName apiKeyName, string value);
+    bool AddApiKey(ApiKeyName apiKeyName, string value, string? secret);
 }
