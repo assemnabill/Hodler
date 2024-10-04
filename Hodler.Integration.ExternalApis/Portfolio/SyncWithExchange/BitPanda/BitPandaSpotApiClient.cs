@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Bitpanda.RestClient;
 using Corz.DomainDriven.Abstractions.Exceptions;
@@ -7,7 +6,6 @@ using Corz.Extensions.Enumeration;
 using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
 using Hodler.Domain.Portfolio.Models;
-using Hodler.Domain.PriceCatalog.Models;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.User.Models;
 using Hodler.Domain.User.Services;
@@ -17,7 +15,7 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.BitPanda;
 
-public class BitPandaApiClient : IBitPandaApiClient
+public class BitPandaSpotApiClient : IBitPandaSpotApiClient
 {
     private const string ApiKeyHeaderName = "X-API-KEY";
 
@@ -25,7 +23,7 @@ public class BitPandaApiClient : IBitPandaApiClient
     private readonly IDistributedCache _cache;
     private readonly IUserSettingsQueryService _userSettingsQueryService;
 
-    public BitPandaApiClient(
+    public BitPandaSpotApiClient(
         HttpClient httpClient,
         IDistributedCache cache,
         IUserSettingsQueryService userSettingsQueryService
@@ -48,41 +46,6 @@ public class BitPandaApiClient : IBitPandaApiClient
             .ToList();
 
         return transactions;
-    }
-
-    public async Task<IFiatAmountCatalog> GetBitcoinPriceCatalogAsync(CancellationToken cancellationToken)
-    {
-        // TODO: Test and refactor to get from configuration
-        const string tickerUri = "https://api.bitpanda.com/v1/ticker";
-        IReadOnlyCollection<FiatCurrency> supportedFiatCurrencies =
-        [
-            FiatCurrency.Euro,
-            FiatCurrency.UsDollar,
-            FiatCurrency.SwissFranc,
-            FiatCurrency.BritishPound,
-            FiatCurrency.TurkishLira,
-            FiatCurrency.PolishZloty,
-            FiatCurrency.HungarianForint,
-            FiatCurrency.CzechKoruna,
-            FiatCurrency.SwedishKrona,
-            FiatCurrency.DanishKrone
-        ];
-
-        var response = await _httpClient
-            .GetFromJsonAsync<Dictionary<string, Dictionary<string, decimal>>>(tickerUri, cancellationToken)!;
-
-        if (!response.TryGetValue(CryptoCurrency.Bitcoin.Symbol, out var bitcoinPrice))
-        {
-            throw new ApplicationException("Bitcoin price not found in API response.");
-        }
-
-        var bitcoinPriceCatalog = new FiatAmountCatalog(
-            supportedFiatCurrencies
-                .Select(fiatCurrency => new FiatAmount(bitcoinPrice[fiatCurrency.Ticker], fiatCurrency))
-                .ToList()
-        );
-
-        return bitcoinPriceCatalog;
     }
 
     private async Task<List<TradeAttributes>> GetTradesAsync(UserId userId, CancellationToken cancellationToken)

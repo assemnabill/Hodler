@@ -1,4 +1,3 @@
-using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Shared.Models;
 using Mapster;

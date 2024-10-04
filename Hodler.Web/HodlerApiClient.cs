@@ -7,6 +7,8 @@ public class HodlerApiClient : IHodlerApiClient
 {
     private readonly HttpClient _httpClient;
 
+    public string BaseUri => _httpClient.BaseAddress!.ToString();
+
     public HodlerApiClient(IHttpClientFactory factory)
     {
         var httpClient = factory.CreateClient(nameof(HodlerApiClient));

@@ -1,12 +1,9 @@
 using Hodler.Domain.Portfolio.Models;
-using Hodler.Domain.PriceCatalog.Models;
 using Hodler.Domain.User.Models;
 
 namespace Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
 
-public interface IBitPandaApiClient 
+public interface IBitPandaSpotApiClient 
 {
     Task<IReadOnlyCollection<TransactionInfo>> GetTransactionsAsync(UserId userId, CancellationToken cancellationToken);
-    
-    Task<IFiatAmountCatalog> GetBitcoinPriceCatalogAsync(CancellationToken cancellationToken);
 }

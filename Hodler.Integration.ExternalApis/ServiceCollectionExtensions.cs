@@ -1,8 +1,8 @@
 ﻿using Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
-using Hodler.Domain.Shared.Ports.DiaDataApi;
+using Hodler.Domain.PriceCatalog.Ports;
 using Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.BitPanda;
 using Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.Kraken;
-using Hodler.Integration.ExternalApis.PriceCatalog;
+using Hodler.Integration.ExternalApis.PriceCatalog.CurrentBitcoinPrice;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,8 +14,8 @@ public static class ServiceCollectionExtensions
     {
         TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceCollectionExtensions).Assembly);
 
-        services.AddTransient<IDiaDataApiClient, DiaDataApiClient>();
-        services.AddTransient<IBitPandaApiClient, BitPandaApiClient>();
+        services.AddSingleton<IBitPandaTickerApiClient, BitPandaSpotTickerApiClient>();
+        services.AddTransient<IBitPandaSpotApiClient, BitPandaSpotApiClient>();
         services.AddTransient<IKrakenApiClient, KrakenApiClient>();
         services.AddCryptoClients();
 

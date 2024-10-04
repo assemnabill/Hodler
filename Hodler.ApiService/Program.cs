@@ -1,4 +1,5 @@
 using Hodler.ApiService;
+using Hodler.ApiService.Hubs;
 using Hodler.Application;
 using Hodler.Domain;
 using Hodler.Integration.Repositories;
@@ -6,6 +7,7 @@ using Hodler.Integration.ExternalApis;
 using Hodler.Integration.Repositories.User.Entities;
 using Hodler.ServiceDefaults;
 using Mapster;
+using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,8 +35,19 @@ builder.AddAuthentication(builder.Configuration);
 builder.AddDbContexts();
 builder.AddSwagger();
 
-var app = builder.Build();
+builder.Services.AddHostedService<PriceCatalogBroadcastService>();
 
+// SignalR
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]);
+});
+builder.Services.AddCors();
+
+var app = builder.Build();
+// SignalR
+app.UseResponseCompression();
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
@@ -56,4 +69,5 @@ app.MapControllers();
 app.MapIdentityApi<User>();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHub<PriceCatalogHub>("/priceCatalog");
 app.Run();

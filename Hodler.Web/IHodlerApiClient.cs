@@ -5,6 +5,8 @@ namespace Hodler.Web;
 
 public interface IHodlerApiClient
 {
+    string BaseUri { get; }
+    
     Task<PortfolioInfoDto?> SyncWithExchangeAsync(
         CryptoExchangeNames exchangeNamesName,
         string userId,
@@ -17,4 +19,5 @@ public interface IHodlerApiClient
     Task<PortfolioSummaryDto?> GetPortfolioSummaryAsync(
         string userId,
         CancellationToken cancellationToken = default);
+
 }

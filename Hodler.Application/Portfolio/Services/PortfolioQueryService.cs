@@ -1,10 +1,8 @@
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Portfolio.Ports.Repositories;
 using Hodler.Domain.Portfolio.Services;
-using Hodler.Domain.PriceCatalog.Models;
 using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.User.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Hodler.Application.Portfolio.Services;
 
@@ -15,7 +13,6 @@ internal class PortfolioQueryService : IPortfolioQueryService
 
     public PortfolioQueryService(
         IPortfolioRepository portfolioRepository,
-        [FromKeyedServices(BitcoinPriceProvider.BitPandaTicker)]
         ICurrentBitcoinPriceProvider currentBitcoinPriceProvider
     )
     {

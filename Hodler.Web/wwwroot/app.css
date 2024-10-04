@@ -45,3 +45,31 @@ h1:focus {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+@keyframes flash-green {
+    0% { color: #08b042; }
+    50% { color: black; }
+    100% { color: #08b042; }
+}
+
+@keyframes flash-red {
+    0% { color: red; }
+    50% { color: black; }
+    100% { color: red; }
+}
+
+.flash-green {
+    animation: flash-green 2s ease;
+}
+
+.flash-red {
+    animation: flash-red 2s ease;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    /*padding: 20px;*/
+    font-family: Arial, sans-serif;
+}

@@ -1,7 +1,6 @@
 using Hodler.ServiceDefaults;
 using Hodler.Web;
 using Hodler.Web.Components;
-using Hodler.Web.Components.Pages.Dashboard;
 using Hodler.Web.Components.Shared.Services;
 using Hodler.Web.Services.Portfolio;
 using Microsoft.AspNetCore.Identity;

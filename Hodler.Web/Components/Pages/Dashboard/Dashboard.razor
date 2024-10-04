@@ -4,6 +4,7 @@
 @attribute [StreamRendering(true)]
 @attribute [OutputCache(Duration = 5)]
 @using System.Globalization
+@using Hodler.Contracts.Portfolio.PortfolioSummary
 @using Hodler.Web.Components.Layout
 @using Hodler.Web.Services.Portfolio
 @using Hodler.Web.Components.Shared.Components
@@ -24,13 +25,15 @@ else
                 <b>Hello, Hodler!</b>
             </div>
             <br/>
-            <RadzenLabel Style="font-weight: lighter; font-size: 20px;" Text="Portfolio Value"></RadzenLabel>
+            <p style="font-weight: lighter; font-size: 25px; margin: 0px;">Portfolio Value</p>
 
             @{
-                var portfolioValue = PortfolioServiceViewService.PortfolioSummary?.CurrentValue
+                var portfolioValue = PortfolioServiceViewService.PortfolioSummary?.PortfolioValue?.Amount
                     .ToString("C", CultureInfo.CurrentCulture);
             }
-            <RadzenText Style="font-size: 35px;" Text="@portfolioValue"></RadzenText>
+            <p style="font-size: 50px;">
+                <span class="@_cssClass">@portfolioValue</span>
+            </p>
             <PortifolioValueChartComponent></PortifolioValueChartComponent>
         </div>
         <PortifolioMetricsComponent PortfolioSummary="PortfolioServiceViewService.PortfolioSummary"></PortifolioMetricsComponent>
@@ -39,30 +42,60 @@ else
 
 @code
 {
-    [Inject] private IPortfolioServiceViewService _viewService { get; set; }
+    [Inject] private IPortfolioServiceViewService ViewService { get; set; }
 
-    private bool IsLoading => _viewService.PortfolioSummary is null;
+    private string _cssClass = string.Empty;
+    private PortfolioSummaryDto _summary;
+    private bool IsLoading => ViewService.PortfolioSummary is null;
 
     protected override async Task OnInitializedAsync()
     {
-        await _viewService.InitPortfolioSummaryAsync();
-        _viewService.PortfolioSummaryChanged += OnPortfolioSummaryChanged;
+        await ViewService.InitPortfolioSummaryAsync();
+
+        if (ViewService.PortfolioSummary != null)
+        {
+            _summary = ViewService.PortfolioSummary;
+        }
+
+        ViewService.PortfolioSummaryChanged += OnPortfolioSummaryChanged;
 
         await base.OnInitializedAsync();
     }
 
     private void OnPortfolioSummaryChanged(object? sender, EventArgs e)
-        => InvokeAsync(StateHasChanged);
+    {
+        if (sender is null)
+            return;
+
+        var summary = (PortfolioSummaryDto)sender;
+        var newPrice = summary.CurrentBitcoinPrice.Amount;
+        var oldPrice = _summary.CurrentBitcoinPrice.Amount;
+
+        if (newPrice == oldPrice)
+            return;
+
+        var increased = newPrice > oldPrice;
+        FlashPriceChange(increased);
+        _summary = summary;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void FlashPriceChange(bool increased)
+    {
+        _cssClass = increased ? "flash-green" : "flash-red";
+
+        // Remove the class after the animation duration (1 second) to reset it for future flashes
+        var classLifeTimeInSeconds = 2;
+        Task.Delay(classLifeTimeInSeconds * 1000).ContinueWith(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                _cssClass = string.Empty;
+                StateHasChanged();
+            });
+        });
+    }
 
     public void Dispose()
-        => _viewService.PortfolioSummaryChanged -= OnPortfolioSummaryChanged;
+        => ViewService.PortfolioSummaryChanged -= OnPortfolioSummaryChanged;
 }
-
-<style>
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        font-family: Arial, sans-serif;
-    }
-</style>

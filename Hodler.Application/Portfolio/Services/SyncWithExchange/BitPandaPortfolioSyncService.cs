@@ -9,16 +9,16 @@ namespace Hodler.Application.Portfolio.Services.SyncWithExchange;
 
 public class BitPandaPortfolioSyncService : IPortfolioSyncService
 {
-    private readonly IBitPandaApiClient _bitPandaApiClient;
+    private readonly IBitPandaSpotApiClient _bitPandaSpotApiClient;
     private readonly IPortfolioQueryService _portfolioQueryService;
     private readonly IPortfolioRepository _portfolioRepository;
 
     public BitPandaPortfolioSyncService(
-        IBitPandaApiClient bitPandaApiClient,
+        IBitPandaSpotApiClient bitPandaSpotApiClient,
         IPortfolioQueryService portfolioQueryService,
         IPortfolioRepository portfolioRepository)
     {
-        _bitPandaApiClient = bitPandaApiClient;
+        _bitPandaSpotApiClient = bitPandaSpotApiClient;
         _portfolioQueryService = portfolioQueryService;
         _portfolioRepository = portfolioRepository;
     }
@@ -28,7 +28,7 @@ public class BitPandaPortfolioSyncService : IPortfolioSyncService
         CancellationToken cancellationToken
     )
     {
-        var transactionInfos = await _bitPandaApiClient.GetTransactionsAsync(userId, cancellationToken);
+        var transactionInfos = await _bitPandaSpotApiClient.GetTransactionsAsync(userId, cancellationToken);
         
         var portfolio = await _portfolioQueryService.GetByUserIdAsync(userId, cancellationToken);
         

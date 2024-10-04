@@ -8,32 +8,33 @@
     var cultureInfo = CultureInfo.CreateSpecificCulture(culture);
 
 <div class="metrics">
-    @{ var totalBtcInvestment = $"{PortfolioSummary.TotalBtcInvestment} BTC"; }
+    @{ var totalBtcInvestment = $"{PortfolioSummary.TotalBitcoin} BTC"; }
     <MetricComponent Title="Total BTC"
                      Value="@totalBtcInvestment"
                      Tooltip="The total amount of Bitcoin in your portfolio"/>
-    
+
     <MetricComponent Title="Total P/L"
-                     Value="@PortfolioSummary.ProfitLossInFiat.ToString("C", cultureInfo)"
-                     PercentageChange="(decimal?)PortfolioSummary.ProfitLossInFiatPercentage"
+                     Value="@PortfolioSummary.FiatReturnOnInvestment.Amount.ToString("C", cultureInfo)"
+                     PercentageChange="(decimal?)PortfolioSummary.FiatReturnOnInvestmentPercentage"
                      Tooltip="The total profit you have made from your Bitcoin investments"/>
 
     <MetricComponent Title="Tax-Free Amount"
-                     Value="@PortfolioSummary.TaxFreeBtcInvestment.ToString("C", cultureInfo)"
-                     PercentageChange="(decimal?)PortfolioSummary.TaxFreeProfitPercentage * 100"
+                     Value="@PortfolioSummary.TaxFreeFiatReturnOnInvestment.Amount.ToString("C", cultureInfo)"
+                     PercentageChange="(decimal?)PortfolioSummary.TaxFreeFiatReturnOnInvestmentPercentage * 100"
                      Tooltip="The profit you have made from your tax-free Bitcoin investments"/>
 
     <MetricComponent Title="Net Investment"
-                     Value="@PortfolioSummary.NetInvestedFiat.ToString("C", cultureInfo)"
+                     Value="@PortfolioSummary.FiatNetInvested.Amount.ToString("C", cultureInfo)"
                      Tooltip="The total amount of money you have invested in Bitcoin"/>
 
     <MetricComponent Title="Current BTC Price"
-                     Value="@PortfolioSummary.CurrentBtcPrice.ToString("C", cultureInfo)"
+                     Value="@PortfolioSummary.CurrentBitcoinPrice.Amount.ToString("C", cultureInfo)"
                      Tooltip="The current price of Bitcoin in USD"/>
 
     <MetricComponent Title="Average BTC Price"
-                     Value="@PortfolioSummary.AverageBtcPrice.ToString("C", cultureInfo)"
+                     Value="@PortfolioSummary.AverageBitcoinPrice.Amount.ToString("C", cultureInfo)"
                      Tooltip="The average price you have paid for one Bitcoin"/>
+
 </div>}
 
 @code {

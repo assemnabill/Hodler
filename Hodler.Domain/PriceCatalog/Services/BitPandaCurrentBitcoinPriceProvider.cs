@@ -1,16 +1,16 @@
-﻿using Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
-using Hodler.Domain.PriceCatalog.Models;
+﻿using Hodler.Domain.PriceCatalog.Models;
+using Hodler.Domain.PriceCatalog.Ports;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.PriceCatalog.Services;
 
 public class BitPandaCurrentBitcoinPriceProvider : ICurrentBitcoinPriceProvider
 {
-    private readonly IBitPandaApiClient _bitPandaApiClient;
+    private readonly IBitPandaTickerApiClient _bitPandaTickerApiClient;
 
-    public BitPandaCurrentBitcoinPriceProvider(IBitPandaApiClient bitPandaApiClient)
+    public BitPandaCurrentBitcoinPriceProvider(IBitPandaTickerApiClient bitPandaTickerApiClient)
     {
-        _bitPandaApiClient = bitPandaApiClient;
+        _bitPandaTickerApiClient = bitPandaTickerApiClient;
     }
 
     public async Task<FiatAmount> GetCurrentBitcoinPriceInAmericanDollarsAsync(CancellationToken cancellationToken)
@@ -22,6 +22,6 @@ public class BitPandaCurrentBitcoinPriceProvider : ICurrentBitcoinPriceProvider
 
     public async Task<IFiatAmountCatalog> GetBitcoinPriceCatalogAsync(CancellationToken cancellationToken)
     {
-        return await _bitPandaApiClient.GetBitcoinPriceCatalogAsync(cancellationToken);
+        return await _bitPandaTickerApiClient.GetBitcoinPriceCatalogAsync(cancellationToken);
     }
 }

@@ -7,7 +7,7 @@ using TransactionType = Hodler.Domain.Portfolio.Models.TransactionType;
 
 namespace Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.BitPanda;
 
-public class TradeAttributesMappingRegistration : IRegister
+public class TradeAttributesRegistration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
