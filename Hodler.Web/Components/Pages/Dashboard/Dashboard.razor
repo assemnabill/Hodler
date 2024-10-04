@@ -4,16 +4,15 @@
 @attribute [StreamRendering(true)]
 @attribute [OutputCache(Duration = 5)]
 @using System.Globalization
-@using Hodler.Contracts.Portfolio.PortfolioSummary
 @using Hodler.Web.Components.Layout
-@using Hodler.Web.Components.Shared
-@using Hodler.Web.Components.Shared.Services
-@inject HodlerApiClient HodlerApi
-@inject ISessionService SessionService
+@using Hodler.Web.Services.Portfolio
+@using Hodler.Web.Components.Shared.Components
+@inject IPortfolioServiceViewService PortfolioServiceViewService
+@implements IDisposable
 
 <PageTitle>Dashboard</PageTitle>
 
-@if (_portfolioSummaryDto == null)
+@if (IsLoading)
 {
     <LoadingComponent></LoadingComponent>
 }
@@ -26,29 +25,37 @@ else
             </div>
             <br/>
             <RadzenLabel Style="font-weight: lighter; font-size: 20px;" Text="Portfolio Value"></RadzenLabel>
-            <RadzenText Style="font-size: 35px;" Text="@_portfolioSummaryDto.CurrentValue.ToString("C", CultureInfo.CurrentCulture)"></RadzenText>
+
+            @{
+                var portfolioValue = PortfolioServiceViewService.PortfolioSummary?.CurrentValue
+                    .ToString("C", CultureInfo.CurrentCulture);
+            }
+            <RadzenText Style="font-size: 35px;" Text="@portfolioValue"></RadzenText>
             <PortifolioValueChartComponent></PortifolioValueChartComponent>
         </div>
-        <PortifolioMetricsComponent PortfolioSummary="_portfolioSummaryDto"></PortifolioMetricsComponent>
+        <PortifolioMetricsComponent PortfolioSummary="PortfolioServiceViewService.PortfolioSummary"></PortifolioMetricsComponent>
     </div>
 }
 
-@code {
-    private PortfolioSummaryDto? _portfolioSummaryDto;
+@code
+{
+    [Inject] private IPortfolioServiceViewService _viewService { get; set; }
+
+    private bool IsLoading => _viewService.PortfolioSummary is null;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            var userId = SessionService.GetCurrentUserId();
-            _portfolioSummaryDto = await HodlerApi.GetPortfolioSummaryAsync(userId);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
+        await _viewService.InitPortfolioSummaryAsync();
+        _viewService.PortfolioSummaryChanged += OnPortfolioSummaryChanged;
+
+        await base.OnInitializedAsync();
     }
 
+    private void OnPortfolioSummaryChanged(object? sender, EventArgs e)
+        => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+        => _viewService.PortfolioSummaryChanged -= OnPortfolioSummaryChanged;
 }
 
 <style>

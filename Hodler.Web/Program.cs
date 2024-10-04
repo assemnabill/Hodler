@@ -1,7 +1,9 @@
 using Hodler.ServiceDefaults;
 using Hodler.Web;
 using Hodler.Web.Components;
+using Hodler.Web.Components.Pages.Dashboard;
 using Hodler.Web.Components.Shared.Services;
+using Hodler.Web.Services.Portfolio;
 using Microsoft.AspNetCore.Identity;
 using Radzen;
 
@@ -22,14 +24,10 @@ builder.Services
     .AddAuthentication(IdentityConstants.ApplicationScheme)
     .AddIdentityCookies();
 
-builder.Services.AddHttpClient<HodlerApiClient>(client =>
-{
-    // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-    // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-    client.BaseAddress = new("https+http://hodler-api");
-});
-
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IHodlerApiClient, HodlerApiClient>();
 builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<IPortfolioServiceViewService, PortfolioServiceViewService>();
 
 // ConfigureServices(builder.Services);
 var app = builder.Build();
@@ -53,11 +51,3 @@ app.MapDefaultEndpoints();
 
 app.Run();
 
-// todo: auth
-// void ConfigureServices(IServiceCollection services)
-// {
-//     services.AddBlazoredLocalStorage();
-//     services.AddAuthorizationCore();
-//     // services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
-//     services.AddScoped<IAuthService, AuthService>();
-// }
