@@ -9,24 +9,26 @@ const string dbName = $"{serviceName}-db";
 
 var postgresComponent = builder
     .AddPostgres("postgres")
-    .WithDataVolume()
-    .WithPgWeb();
+    .WithDataVolume();
 
 var hodlerDb = postgresComponent.AddDatabase(dbName);
 
 var apiService = builder
     .AddProject<Projects.Hodler_ApiService>(apiServiceName)
     .WithReference(hodlerDb)
-    .WithReference(cache);
+    .WithReference(cache)
+    .WaitFor(hodlerDb);
 
 builder
     .AddProject<Projects.Hodler_Web>(webFrontendName)
     .WithExternalHttpEndpoints()
     .WithReference(cache)
-    .WithReference(apiService);
+    .WithReference(apiService)
+    .WaitFor(apiService);
 
 builder
     .AddProject<Projects.Hodler_Integration_DbMigration>($"{serviceName}-db-manager")
-    .WithReference(hodlerDb);
+    .WithReference(hodlerDb)
+    .WaitFor(hodlerDb);
 
 builder.Build().Run();
