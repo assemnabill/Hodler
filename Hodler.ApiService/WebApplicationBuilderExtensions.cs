@@ -12,8 +12,13 @@ public static class WebApplicationBuilderExtensions
         IConfiguration configuration)
     {
         builder.Services
-            .AddAuthentication(IdentityConstants.ApplicationScheme)
-            .AddIdentityCookies();
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+            })
+            .AddCookie(IdentityConstants.ApplicationScheme)
+            .AddCookie("Identity.Bearer");
 
         builder.Services.AddAuthorizationBuilder();
 
@@ -28,6 +33,7 @@ public static class WebApplicationBuilderExtensions
         builder.Services
             .AddIdentityCore<Integration.Repositories.User.Entities.User>()
             .AddEntityFrameworkStores<UserDbContext>()
+            .AddDefaultTokenProviders()
             .AddApiEndpoints();
 
         return builder;
