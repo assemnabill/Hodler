@@ -12,7 +12,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Hodler.ApiService\Hodler.ApiService.csproj" />
     <ProjectReference Include="..\Hodler.Integration.DbMigration\Hodler.Integration.DbMigration.csproj" />
-    <ProjectReference Include="..\Hodler.Web\Hodler.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

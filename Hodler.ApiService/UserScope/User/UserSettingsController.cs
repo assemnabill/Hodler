@@ -4,13 +4,12 @@ using Hodler.Contracts.User.AddApiKey;
 using Hodler.Domain.CryptoExchange.Models;
 using Hodler.Domain.User.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hodler.ApiService.UserScope.User;
 
-[ApiController]
-[Route("api/[controller]")]
-public class UserSettingsController : ControllerBase
+public class UserSettingsController : ApiController
 {
     private readonly IMediator _mediator;
 
@@ -28,10 +27,10 @@ public class UserSettingsController : ControllerBase
         try
         {
             var request = new AddApiKeyCommand(
-                    Enum.Parse<ApiKeyName>(addApiKeyRequestContract.ApiKeyName),
-                    addApiKeyRequestContract.ApiKeyValue,
-                    new UserId(addApiKeyRequestContract.UserId),
-                    addApiKeyRequestContract.Secret
+                Enum.Parse<ApiKeyName>(addApiKeyRequestContract.ApiKeyName),
+                addApiKeyRequestContract.ApiKeyValue,
+                UserId,
+                addApiKeyRequestContract.Secret
             );
 
             var success = await _mediator.Send(request, cancellationToken);
@@ -43,11 +42,4 @@ public class UserSettingsController : ControllerBase
             return HandleException(e);
         }
     }
-
-    private IActionResult HandleException(Exception exception) =>
-        exception switch
-        {
-            DomainException domainException => BadRequest(domainException.Message),
-            _ => StatusCode(StatusCodes.Status500InternalServerError)
-        };
 }

@@ -1,10 +1,7 @@
-using Hodler.Domain.Portfolio.Models;
-
-namespace Hodler.Application.Portfolio.Commands.AddTransaction;
+namespace Hodler.Contracts.Portfolio.AddTransaction;
 
 public class AddTransactionRequestContract
 {
-    public Guid UserId { get; set; }
     public DateTime Date { get; set; }
     public decimal Amount { get; set; }
     public decimal Price { get; set; }

@@ -35,7 +35,8 @@ builder.AddAuthentication(builder.Configuration);
 builder.AddDbContexts();
 builder.AddSwagger();
 
-builder.Services.AddHostedService<PriceCatalogBroadcastService>();
+// TODO: NEED A RETRY POLICY
+// builder.Services.AddHostedService<PriceCatalogBroadcastService>();
 
 // SignalR
 builder.Services.AddSignalR();
@@ -69,5 +70,6 @@ app.MapControllers();
 app.MapIdentityApi<User>();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHub<PriceCatalogHub>("/priceCatalog");
+// TODO: NEED A RETRY POLICY
+// app.MapHub<PriceCatalogHub>("/priceCatalog");
 app.Run();
