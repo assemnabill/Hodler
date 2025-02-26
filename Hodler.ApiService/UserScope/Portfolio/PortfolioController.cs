@@ -71,7 +71,7 @@ public class PortfolioController : ApiController
         return Ok(dto);
     }
 
-    [HttpGet("/summary")]
+    [HttpGet("summary")]
     [ProducesResponseType(typeof(PortfolioSummaryDto), 200)]
     public async Task<IActionResult> GetPortfolioSummary(CancellationToken cancellationToken)
     {
