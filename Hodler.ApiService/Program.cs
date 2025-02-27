@@ -68,6 +68,7 @@ if (app.Environment.IsDevelopment())
 app.MapDefaultEndpoints();
 app.MapControllers();
 app.MapIdentityApi<User>();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 // TODO: NEED A RETRY POLICY

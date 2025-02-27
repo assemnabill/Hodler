@@ -14,14 +14,31 @@ public static class WebApplicationBuilderExtensions
         builder.Services
             .AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
+                options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
             })
-            .AddCookie(IdentityConstants.ApplicationScheme)
-            .AddCookie("Identity.Bearer");
+            .AddCookie(IdentityConstants.BearerScheme, options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                options.SlidingExpiration = true;
+            });
 
         builder.Services.AddAuthorizationBuilder();
-
+        
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials(); // Allow credentials (cookies)
+            });
+        });
+        
         builder.Services.AddDbContext<UserDbContext>(
             options =>
             {
