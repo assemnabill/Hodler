@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hodler.Integration.DbMigrat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hodler.Contracts", "Hodler.Contracts\Hodler.Contracts.csproj", "{FE7695E0-FBF9-4957-8975-5B5CE30985B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hodler.Integration.Auth", "Hodler.Integration.Auth\Hodler.Integration.Auth.csproj", "{B409C908-D217-4D26-B137-54B79A56CF8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{FE7695E0-FBF9-4957-8975-5B5CE30985B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE7695E0-FBF9-4957-8975-5B5CE30985B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE7695E0-FBF9-4957-8975-5B5CE30985B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B409C908-D217-4D26-B137-54B79A56CF8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B409C908-D217-4D26-B137-54B79A56CF8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B409C908-D217-4D26-B137-54B79A56CF8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B409C908-D217-4D26-B137-54B79A56CF8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,5 +95,6 @@ Global
 		{ADC80F45-9F76-418C-8915-ADBEE9749165} = {0FA427D1-98C2-492D-8191-73857A029AAA}
 		{43441AD3-4035-4122-91BD-5B44299B6C26} = {0FA427D1-98C2-492D-8191-73857A029AAA}
 		{FE7695E0-FBF9-4957-8975-5B5CE30985B8} = {F0F764F4-6467-4B11-8A28-88BAA2BB9654}
+		{B409C908-D217-4D26-B137-54B79A56CF8D} = {0FA427D1-98C2-492D-8191-73857A029AAA}
 	EndGlobalSection
 EndGlobal

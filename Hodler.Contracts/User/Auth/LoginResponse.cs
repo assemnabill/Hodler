@@ -1,6 +1,6 @@
-﻿namespace Hodler.Contracts.User
+﻿namespace Hodler.Contracts.User.Auth
 {
-    public class LoginResult
+    public class LoginResponse
     {
         public bool Successful { get; set; }
         public string Error { get; set; }

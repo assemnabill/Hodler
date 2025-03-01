@@ -1,57 +1,63 @@
-﻿using Hodler.Integration.Repositories.Portfolio.Context;
+﻿using System.Text;
+using Hodler.Integration.Repositories.Portfolio.Context;
 using Hodler.Integration.Repositories.User.Context;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Hodler.ApiService;
 
 public static class WebApplicationBuilderExtensions
 {
-    public static WebApplicationBuilder AddAuthentication(
-        this WebApplicationBuilder builder,
-        IConfiguration configuration)
+    public static WebApplicationBuilder AddJwtBasedAuthentication(this WebApplicationBuilder builder)
     {
-        builder.Services
-            .AddAuthentication(options =>
+        var configuration = builder.Configuration;
+        var jwtSettings = configuration.GetSection("JwtSettings");
+        var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]);
+
+        builder.Services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
-                options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddCookie(IdentityConstants.BearerScheme, options =>
+            .AddJwtBearer(options =>
             {
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-                options.SlidingExpiration = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
             });
 
-        builder.Services.AddAuthorizationBuilder();
-        
+        builder.Services
+            .AddIdentity<Integration.Repositories.User.Entities.User, IdentityRole>()
+            .AddEntityFrameworkStores<UserDbContext>()
+            .AddDefaultTokenProviders();
+
+        builder.Services.AddAuthorization();
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowAll", policy =>
             {
                 policy
+                    .AllowAnyOrigin()
                     .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials(); // Allow credentials (cookies)
+                    .AllowAnyMethod();
             });
         });
-        
-        builder.Services.AddDbContext<UserDbContext>(
-            options =>
-            {
-                var connectionString = configuration.GetConnectionString(ServiceConstants.DatabaseName);
 
-                options.UseNpgsql(connectionString);
-            });
-
-        builder.Services
-            .AddIdentityCore<Integration.Repositories.User.Entities.User>()
-            .AddEntityFrameworkStores<UserDbContext>()
-            .AddDefaultTokenProviders()
-            .AddApiEndpoints();
+        builder.Services.AddDbContext<UserDbContext>(options =>
+        {
+            var connectionString = configuration.GetConnectionString(ServiceConstants.DatabaseName);
+            options.UseNpgsql(connectionString);
+        });
 
         return builder;
     }

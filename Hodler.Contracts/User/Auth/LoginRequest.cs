@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Hodler.Contracts.User
+namespace Hodler.Contracts.User.Auth
 {
-    public class LoginModel
+    public class LoginRequest
     {
         [Required]
         public string Email { get; set; }

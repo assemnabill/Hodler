@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Hodler.Contracts.User
+namespace Hodler.Contracts.User.Auth
 {
-    public class RegisterModel
+    public class RegisterRequest
     {
         [Required]
         [EmailAddress]

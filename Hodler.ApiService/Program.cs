@@ -2,6 +2,7 @@ using Hodler.ApiService;
 using Hodler.ApiService.Hubs;
 using Hodler.Application;
 using Hodler.Domain;
+using Hodler.Integration.Auth;
 using Hodler.Integration.Repositories;
 using Hodler.Integration.ExternalApis;
 using Hodler.Integration.Repositories.User.Entities;
@@ -20,7 +21,8 @@ builder.Services
     .AddDomain()
     .AddApplication()
     .AddExternalApis()
-    .AddRepositories();
+    .AddRepositories()
+    .AddAuthCore();
 
 // Hodler Service Core
 builder.Services
@@ -31,7 +33,7 @@ builder.Services
 
 // Hodler Service Infrastructure
 builder.AddRedisDistributedCache(ServiceConstants.RedisCache);
-builder.AddAuthentication(builder.Configuration);
+builder.AddJwtBasedAuthentication();
 builder.AddDbContexts();
 builder.AddSwagger();
 
@@ -44,13 +46,18 @@ builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]);
 });
-builder.Services.AddCors();
 
 var app = builder.Build();
 // SignalR
 app.UseResponseCompression();
+
 // Configure the HTTP request pipeline.
-app.UseExceptionHandler();
+// app.UseExceptionHandler();
+app.UseRouting(); // new
+
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
@@ -64,13 +71,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-
 app.MapDefaultEndpoints();
 app.MapControllers();
 app.MapIdentityApi<User>();
-app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
+
 // TODO: NEED A RETRY POLICY
 // app.MapHub<PriceCatalogHub>("/priceCatalog");
 app.Run();
