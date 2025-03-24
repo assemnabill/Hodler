@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Hodler.Domain.PriceCatalog.Ports;
 using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.Shared.Models;
 

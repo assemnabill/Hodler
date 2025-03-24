@@ -1,4 +1,5 @@
-﻿using Hodler.Domain.PriceCatalog.Services;
+﻿using Hodler.Domain.PriceCatalog.Ports;
+using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolio.Models;

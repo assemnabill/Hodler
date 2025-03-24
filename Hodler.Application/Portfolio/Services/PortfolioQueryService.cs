@@ -1,6 +1,7 @@
 using Hodler.Domain.Portfolio.Models;
 using Hodler.Domain.Portfolio.Ports.Repositories;
 using Hodler.Domain.Portfolio.Services;
+using Hodler.Domain.PriceCatalog.Ports;
 using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.User.Models;
 

@@ -9,6 +9,6 @@ public class FiatAmountCatalog : ReadOnlyCollection<FiatAmount>, IFiatAmountCata
     {
     }
 
-    public FiatAmount GetPrice(FiatCurrency usDollar) => 
-        this.First(fiatAmount => fiatAmount.FiatCurrency.Equals(usDollar));
+    public FiatAmount GetPrice(FiatCurrency currency) => 
+        this.First(fiatAmount => fiatAmount.FiatCurrency.Equals(currency));
 }

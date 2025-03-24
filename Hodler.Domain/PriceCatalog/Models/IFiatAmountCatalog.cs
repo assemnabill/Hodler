@@ -4,5 +4,27 @@ namespace Hodler.Domain.PriceCatalog.Models;
 
 public interface IFiatAmountCatalog : IReadOnlyCollection<FiatAmount>
 {
-    FiatAmount GetPrice(FiatCurrency usDollar);
+    static IReadOnlyCollection<FiatCurrency> SupportedFiatCurrencies
+    {
+        get
+        {
+            IReadOnlyCollection<FiatCurrency> supportedFiatCurrencies =
+            [
+                FiatCurrency.Euro,
+                FiatCurrency.UsDollar,
+                FiatCurrency.SwissFranc,
+                FiatCurrency.BritishPound,
+                FiatCurrency.TurkishLira,
+                FiatCurrency.PolishZloty,
+                FiatCurrency.HungarianForint,
+                FiatCurrency.CzechKoruna,
+                FiatCurrency.SwedishKrona,
+                FiatCurrency.DanishKrone
+            ];
+            
+            return supportedFiatCurrencies;
+        }
+    }
+
+    FiatAmount GetPrice(FiatCurrency currency);
 }

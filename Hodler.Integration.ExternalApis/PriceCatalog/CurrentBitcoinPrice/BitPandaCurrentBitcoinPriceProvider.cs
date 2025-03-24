@@ -1,8 +1,9 @@
 ﻿using Hodler.Domain.PriceCatalog.Models;
 using Hodler.Domain.PriceCatalog.Ports;
+using Hodler.Domain.PriceCatalog.Services;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.PriceCatalog.Services;
+namespace Hodler.Integration.ExternalApis.PriceCatalog.CurrentBitcoinPrice;
 
 public class BitPandaCurrentBitcoinPriceProvider : ICurrentBitcoinPriceProvider
 {

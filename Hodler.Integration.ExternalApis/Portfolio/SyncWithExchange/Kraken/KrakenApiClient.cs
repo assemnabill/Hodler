@@ -13,6 +13,7 @@ using Hodler.Domain.User.Services;
 using Hodler.Integration.ExternalApis.Failures;
 using Kraken.Net.Clients;
 using Kraken.Net.Enums;
+using Kraken.Net.Interfaces.Clients;
 using Kraken.Net.Objects.Models;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -22,14 +23,14 @@ public class KrakenApiClient : IKrakenApiClient
 {
     private readonly IDistributedCache _cache;
     private readonly IUserSettingsQueryService _userSettingsQueryService;
-    private KrakenRestClient? _apiClient;
+    private readonly IKrakenRestClient _krakenRestClient;
 
     public KrakenApiClient(
         IDistributedCache cache,
-        IUserSettingsQueryService userSettingsQueryService
-    )
+        IUserSettingsQueryService userSettingsQueryService, IKrakenRestClient krakenRestClient)
     {
         _userSettingsQueryService = userSettingsQueryService;
+        _krakenRestClient = krakenRestClient;
         _cache = cache;
     }
 
@@ -47,7 +48,7 @@ public class KrakenApiClient : IKrakenApiClient
             return tradesFromCache!;
         }
 
-        await CreateKrakenRestClientAsync(userId, cancellationToken);
+        await InitKrakenApiCredentialsAsync(userId, cancellationToken);
         var ledgerEntries = await LoadKrakenLedgerEntriesAsync(cancellationToken);
         var transactionInfos = ProcessLedgerInfoEntries(ledgerEntries);
 
@@ -64,7 +65,7 @@ public class KrakenApiClient : IKrakenApiClient
 
         for (var page = 0; page < pages; page++)
         {
-            var ledgerInfoPage = await _apiClient!.SpotApi.Account
+            var ledgerInfoPage = await _krakenRestClient.SpotApi.Account
                 .GetLedgerInfoAsync(resultOffset: page * pageSize, ct: cancellationToken);
 
             if (!ledgerInfoPage.Success)
@@ -82,11 +83,9 @@ public class KrakenApiClient : IKrakenApiClient
         return ledgerInfo;
     }
 
-    private async Task CreateKrakenRestClientAsync(UserId userId, CancellationToken cancellationToken)
+    // TODO: TEST if it is still working after refactoring
+    private async Task InitKrakenApiCredentialsAsync(UserId userId, CancellationToken cancellationToken)
     {
-        if (_apiClient is not null)
-            return;
-
         var apiKey = await _userSettingsQueryService.GetApiKeyAsync(userId, ApiKeyName.Kraken, cancellationToken);
 
         if (apiKey is null)
@@ -94,7 +93,7 @@ public class KrakenApiClient : IKrakenApiClient
 
         var apiCredentials = new ApiCredentials(apiKey.Value, apiKey.Secret!);
 
-        _apiClient = new KrakenRestClient(opt => opt.ApiCredentials = apiCredentials);
+        _krakenRestClient.SetApiCredentials(apiCredentials);
     }
 
     private List<TransactionInfo> ProcessLedgerInfoEntries(List<KrakenLedgerEntry> ledgerEntries)
@@ -117,16 +116,18 @@ public class KrakenApiClient : IKrakenApiClient
                 FiatAmount marketPrice;
                 FiatAmount fiatAmount;
                 BitcoinAmount bitcoinAmount;
-                
+
                 if (transactionType == TransactionType.Buy)
                 {
-                    marketPrice = new FiatAmount(Math.Abs(spendingEntry!.Quantity / receivingEntry!.Quantity), GetFiatCurrencyByTicker(spendingEntry));
+                    marketPrice = new FiatAmount(Math.Abs(spendingEntry!.Quantity / receivingEntry!.Quantity),
+                        GetFiatCurrencyByTicker(spendingEntry));
                     fiatAmount = new FiatAmount(spendingEntry.Quantity, GetFiatCurrencyByTicker(spendingEntry));
                     bitcoinAmount = new BitcoinAmount(receivingEntry.Quantity);
                 }
                 else
                 {
-                    marketPrice = new FiatAmount(Math.Abs(receivingEntry!.Quantity / spendingEntry!.Quantity), GetFiatCurrencyByTicker(receivingEntry));
+                    marketPrice = new FiatAmount(Math.Abs(receivingEntry!.Quantity / spendingEntry!.Quantity),
+                        GetFiatCurrencyByTicker(receivingEntry));
                     fiatAmount = new FiatAmount(receivingEntry.Quantity, GetFiatCurrencyByTicker(receivingEntry));
                     bitcoinAmount = new BitcoinAmount(spendingEntry.Quantity);
                 }

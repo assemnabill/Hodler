@@ -8,9 +8,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDomain(this IServiceCollection services)
     {
-        services
-            .AddSingleton<ICurrentBitcoinPriceProvider, BitPandaCurrentBitcoinPriceProvider>();
-        
+  
         services
             .AddTransient<IUserSettingsQueryService, UserSettingsQueryService>()
             .AddTransient<IUserSettingsService, UserSettingsService>();

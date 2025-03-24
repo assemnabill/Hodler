@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 using Hodler.Domain.PriceCatalog.Models;
-using Hodler.Domain.PriceCatalog.Ports;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Integration.ExternalApis.PriceCatalog.CurrentBitcoinPrice;
@@ -14,7 +13,6 @@ public class BitPandaSpotTickerApiClient : IBitPandaTickerApiClient
         _httpClient = httpClient;
     }
 
-
     public async Task<IFiatAmountCatalog> GetBitcoinPriceCatalogAsync(CancellationToken cancellationToken)
     {
         const string tickerUri = "https://api.bitpanda.com/v1/ticker";
@@ -27,32 +25,11 @@ public class BitPandaSpotTickerApiClient : IBitPandaTickerApiClient
         }
 
         var bitcoinPriceCatalog = new FiatAmountCatalog(
-            SupportedFiatCurrencies
+            IFiatAmountCatalog.SupportedFiatCurrencies
                 .Select(fiatCurrency => new FiatAmount(bitcoinPrice[fiatCurrency.Ticker], fiatCurrency))
                 .ToList()
         );
 
         return bitcoinPriceCatalog;
-    }
-
-    private static IReadOnlyCollection<FiatCurrency> SupportedFiatCurrencies
-    {
-        get
-        {
-            IReadOnlyCollection<FiatCurrency> supportedFiatCurrencies =
-            [
-                FiatCurrency.Euro,
-                FiatCurrency.UsDollar,
-                FiatCurrency.SwissFranc,
-                FiatCurrency.BritishPound,
-                FiatCurrency.TurkishLira,
-                FiatCurrency.PolishZloty,
-                FiatCurrency.HungarianForint,
-                FiatCurrency.CzechKoruna,
-                FiatCurrency.SwedishKrona,
-                FiatCurrency.DanishKrone
-            ];
-            return supportedFiatCurrencies;
-        }
     }
 }
