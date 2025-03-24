@@ -2,7 +2,7 @@
 
 #nullable disable
 
-using Hodler.Integration.Repositories.User.Context;
+using Hodler.Integration.Repositories.Users.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;

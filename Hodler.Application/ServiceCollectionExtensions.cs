@@ -1,7 +1,7 @@
-﻿using Hodler.Application.Portfolio.Services;
-using Hodler.Application.Portfolio.Services.SyncWithExchange;
-using Hodler.Domain.CryptoExchange.Models;
-using Hodler.Domain.Portfolio.Services;
+﻿using Hodler.Application.Portfolios.Services;
+using Hodler.Application.Portfolios.Services.SyncWithExchange;
+using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Portfolios.Services;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 

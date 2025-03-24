@@ -1,9 +1,9 @@
-﻿using Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
-using Hodler.Domain.PriceCatalog.Ports;
-using Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.BitPanda;
-using Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.Kraken;
-using Hodler.Integration.ExternalApis.PriceCatalog.CurrentBitcoinPrice;
-using Hodler.Integration.ExternalApis.PriceCatalog.HistoricalBticoinPrice;
+﻿using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
+using Hodler.Domain.PriceCatalogs.Ports;
+using Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.BitPanda;
+using Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.Kraken;
+using Hodler.Integration.ExternalApis.PriceCatalogs.CurrentBitcoinPrice;
+using Hodler.Integration.ExternalApis.PriceCatalogs.HistoricalBticoinPrice;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 

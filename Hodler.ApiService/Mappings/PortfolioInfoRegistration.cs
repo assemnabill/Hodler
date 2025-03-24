@@ -1,7 +1,7 @@
-using Hodler.Contracts.Portfolio.PortfolioSummary;
-using Hodler.Domain.Portfolio.Models;
+using Hodler.Contracts.Portfolios.PortfolioSummary;
+using Hodler.Domain.Portfolios.Models;
 using Mapster;
-using TransactionType = Hodler.Contracts.Portfolio.TransactionType;
+using TransactionType = Hodler.Contracts.Portfolios.TransactionType;
 
 namespace Hodler.ApiService.Mappings;
 

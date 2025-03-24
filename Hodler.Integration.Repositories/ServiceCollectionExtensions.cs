@@ -1,7 +1,7 @@
-﻿using Hodler.Domain.Portfolio.Ports.Repositories;
-using Hodler.Domain.User.Ports;
-using Hodler.Integration.Repositories.Portfolio.Repositories;
-using Hodler.Integration.Repositories.User.Repositories;
+﻿using Hodler.Domain.Portfolios.Ports.Repositories;
+using Hodler.Domain.Users.Ports;
+using Hodler.Integration.Repositories.Portfolios.Repositories;
+using Hodler.Integration.Repositories.Users.Repositories;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,0 +1,51 @@
+using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Shared.Models;
+using Hodler.Domain.Users.Models;
+using Mapster;
+
+namespace Hodler.Integration.Repositories.Portfolios.Mappings;
+
+public class PortfolioMappingRegistration : IRegister
+{
+    public void Register(TypeAdapterConfig config)
+    {
+        config
+            .NewConfig<Entities.Portfolio, IPortfolio>()
+            .MapWith(portfolio => new Portfolio(
+                new PortfolioId(portfolio.PortfolioId),
+                new Transactions(portfolio.Transactions.Select(x => x.Adapt<Entities.Transaction, Transaction>())),
+                new UserId(Guid.Parse(portfolio.UserId))
+            ));
+
+        config
+            .NewConfig<IPortfolio, Entities.Portfolio>()
+            .Map(dest => dest.PortfolioId, src => src.Id.Value)
+            .Map(dest => dest.UserId, src => src.UserId.Value)
+            .Map(dest => dest.Transactions,
+                src => src.Transactions.Select(x => x.Adapt<Transaction, Entities.Transaction>()).ToList());
+
+        config
+            .NewConfig<Entities.Transaction, Transaction>()
+            .MapWith(transaction => new Transaction(
+                new PortfolioId(transaction.PortfolioId),
+                (TransactionType)transaction.Type,
+                new FiatAmount(transaction.FiatAmount, FiatCurrency.GetById(transaction.FiatCurrency)!),
+                new BitcoinAmount(transaction.BtcAmount),
+                new FiatAmount(transaction.MarketPrice, FiatCurrency.GetById(transaction.FiatCurrency)!),
+                transaction.Timestamp.ToUniversalTime(),
+                (CryptoExchangeNames)transaction.CryptoExchange
+            ));
+
+        config
+            .NewConfig<Transaction, Entities.Transaction>()
+            .Map(dest => dest.Type, src => (int)src.Type)
+            .Map(dest => dest.PortfolioId, src => src.PortfolioId.Value)
+            .Map(dest => dest.FiatAmount, src => src.FiatAmount.Amount)
+            .Map(dest => dest.FiatCurrency, src => src.FiatAmount.FiatCurrency.Id)
+            .Map(dest => dest.BtcAmount, src => src.BtcAmount.Amount)
+            .Map(dest => dest.MarketPrice, src => src.MarketPrice)
+            .Map(dest => dest.Timestamp, src => src.Timestamp.UtcDateTime)
+            .Map(dest => dest.CryptoExchange, src => src.CryptoExchange);
+    }
+}

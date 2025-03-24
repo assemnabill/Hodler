@@ -1,7 +1,7 @@
+using Hodler.Contracts.Portfolios.PortfolioSummary;
 using Hodler.Contracts.Shared;
-using Hodler.Domain.Portfolio.Models;
+using Hodler.Domain.Portfolios.Models;
 using Mapster;
-using Hodler.Contracts.Portfolio.PortfolioSummary;
 
 namespace Hodler.ApiService.Mappings;
 
@@ -10,7 +10,7 @@ public class PortfolioSummaryRegistration : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config
-            .NewConfig<PortfolioSummary, PortfolioSummaryDto>()
+            .NewConfig<PortfolioSummaryInfo, PortfolioSummaryDto>()
             .MapWith(x => new PortfolioSummaryDto(
                 x.FiatNetInvested.Adapt<FiatAmountDto>(),
                 x.TotalBitcoin.Amount,
