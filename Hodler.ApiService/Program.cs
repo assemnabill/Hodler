@@ -1,9 +1,8 @@
 using Hodler.ApiService;
-using Hodler.ApiService.Hubs;
 using Hodler.Application;
 using Hodler.Domain;
-using Hodler.Integration.Repositories;
 using Hodler.Integration.ExternalApis;
+using Hodler.Integration.Repositories;
 using Hodler.Integration.Repositories.Users.Entities;
 using Hodler.ServiceDefaults;
 using Mapster;

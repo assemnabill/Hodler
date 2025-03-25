@@ -8,40 +8,54 @@ namespace Hodler.Application.Portfolios.Services;
 
 internal class PortfolioQueryService : IPortfolioQueryService
 {
-    private readonly IPortfolioRepository _portfolioRepository;
     private readonly ICurrentBitcoinPriceProvider _currentBitcoinPriceProvider;
+    private readonly IHistoricalBitcoinPriceProvider _historicalBitcoinPriceProvider;
+    private readonly IPortfolioRepository _portfolioRepository;
 
     public PortfolioQueryService(
         IPortfolioRepository portfolioRepository,
-        ICurrentBitcoinPriceProvider currentBitcoinPriceProvider
+        ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider
     )
     {
         _portfolioRepository = portfolioRepository;
         _currentBitcoinPriceProvider = currentBitcoinPriceProvider;
+        _historicalBitcoinPriceProvider = historicalBitcoinPriceProvider;
     }
 
-    public async Task<IPortfolio> GetByUserIdAsync(UserId userId, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(userId);
-
-        var portfolio = await FindOrCreatePortfolioByUserIdAsync(userId, cancellationToken);
-
-        return portfolio;
-    }
 
     public async Task<PortfolioSummaryInfo> GetPortfolioSummaryAsync(UserId userId, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userId);
 
-        var portfolio = await GetByUserIdAsync(userId, cancellationToken);
+        var portfolio = await FindOrCreatePortfolioAsync(userId, cancellationToken);
 
-        var summary = await portfolio.Transactions
-            .GetSummaryReportAsync(_currentBitcoinPriceProvider, cancellationToken)!;
+        var summary = await portfolio.GetSummaryReportAsync(_currentBitcoinPriceProvider, cancellationToken)!;
 
         return summary;
     }
 
-    private async Task<IPortfolio> FindOrCreatePortfolioByUserIdAsync(
+    public async Task<IReadOnlyCollection<ChartCandle>> CalculatePortfolioValueChartAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(userId);
+
+        var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);
+
+        if (portfolio is null)
+        {
+            return Array.Empty<ChartCandle>();
+        }
+
+        var chart = await portfolio
+            .CalculatePortfolioValueChartAsync(_historicalBitcoinPriceProvider, cancellationToken);
+
+        return chart;
+    }
+
+    public async Task<IPortfolio> FindOrCreatePortfolioAsync(
         UserId userId,
         CancellationToken cancellationToken)
     {
@@ -49,7 +63,7 @@ internal class PortfolioQueryService : IPortfolioQueryService
 
         if (portfolio is null)
         {
-            portfolio = Portfolio.Create(userId);
+            portfolio = Portfolio.CreateNew(userId);
             await _portfolioRepository.StoreAsync(portfolio, cancellationToken);
         }
 

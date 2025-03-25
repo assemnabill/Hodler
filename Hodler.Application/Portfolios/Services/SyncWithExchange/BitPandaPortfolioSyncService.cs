@@ -29,9 +29,9 @@ public class BitPandaPortfolioSyncService : IPortfolioSyncService
     )
     {
         var transactionInfos = await _bitPandaSpotApiClient.GetTransactionsAsync(userId, cancellationToken);
-        
-        var portfolio = await _portfolioQueryService.GetByUserIdAsync(userId, cancellationToken);
-        
+
+        var portfolio = await _portfolioQueryService.FindOrCreatePortfolioAsync(userId, cancellationToken);
+
         var transactions = transactionInfos
             .Select(info => (portfolio.Id, info).Adapt<Transaction>());
 

@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using Corz.Extensions.DateTime;
 using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Shared.Models;
 
@@ -7,22 +7,11 @@ namespace Hodler.Domain.Portfolios.Models;
 
 public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
 {
-    public Transactions(IEnumerable<Transaction> transactions) : base(transactions.OrderBy(x => x.Timestamp).ToList())
+    public Transactions(IEnumerable<Transaction> transactions)
+        : base(transactions.OrderBy(x => x.Timestamp).ToList())
     {
         EnsureNoDuplicates();
     }
-
-    private void EnsureNoDuplicates()
-    {
-        var duplicates = Items.Count - Items.Distinct().Count();
-
-        if (duplicates > 0)
-        {
-            throw new ArgumentException("Duplicate transactions found");
-        }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public SyncResult<ITransactions> Sync(IEnumerable<Transaction> transactions)
     {
@@ -46,6 +35,33 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         }
 
         return new SyncResult<ITransactions>(changed, new Transactions(currentTransactions));
+    }
+
+    public async Task<FiatAmount> GetPortfolioValueOnDateAsync(
+        DateOnly date,
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var transactions = Items
+            .Where(x => x.Timestamp.ToDate() <= date)
+            .OrderBy(x => x.Timestamp)
+            .ToList();
+
+        if (transactions.Count == 0)
+            return new FiatAmount(0, FiatCurrency.UsDollar);
+
+        var bought = transactions.Where(x => x.Type == TransactionType.Buy).Sum(x => x.BtcAmount);
+        var sold = transactions.Where(x => x.Type == TransactionType.Sell).Sum(x => x.BtcAmount);
+        var netBtc = bought - sold;
+
+        // TODO: Get price on date from historical data
+        var latestPrice = transactions.Last().MarketPrice;
+
+        // TODO: Get from user settings
+        var fiatCurrency = transactions.First().FiatAmount.FiatCurrency;
+
+        return new FiatAmount(netBtc * latestPrice, fiatCurrency);
     }
 
     public async Task<PortfolioSummaryInfo> GetSummaryReportAsync(
@@ -93,5 +109,15 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
             new FiatAmount(taxFreeProfit, fiatCurrency),
             Convert.ToDouble(taxFreeTotalBtcInvestment)
         );
+    }
+
+    private void EnsureNoDuplicates()
+    {
+        var duplicates = Items.Count - Items.Distinct().Count();
+
+        if (duplicates > 0)
+        {
+            throw new ArgumentException("Duplicate transactions found");
+        }
     }
 }

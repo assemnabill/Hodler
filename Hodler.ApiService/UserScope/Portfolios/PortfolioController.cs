@@ -2,8 +2,10 @@ using Hodler.Application.Portfolios.Commands.AddTransaction;
 using Hodler.Application.Portfolios.Commands.SyncWithExchange;
 using Hodler.Application.Portfolios.Queries.PortfolioByUserId;
 using Hodler.Application.Portfolios.Queries.PortfolioSummary;
+using Hodler.Application.Portfolios.Queries.PortfolioValueChart;
 using Hodler.Contracts.Portfolios.AddTransaction;
 using Hodler.Contracts.Portfolios.PortfolioSummary;
+using Hodler.Contracts.Portfolios.PortfolioValueChart;
 using Hodler.Contracts.Shared;
 using Hodler.Domain.Portfolios.Models;
 using Mapster;
@@ -12,29 +14,33 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hodler.ApiService.UserScope.Portfolios;
 
-public class PortfolioController : ApiController
+public class PortfolioController(IMediator mediator) : ApiController
 {
-    private readonly IMediator _mediator;
-
-    public PortfolioController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet]
     [ProducesResponseType(typeof(PortfolioInfoDto), 200)]
-    public async Task<IActionResult> GetPortfolioByUserId(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPortfolioAsync(CancellationToken cancellationToken)
     {
         var request = new PortfolioByUserIdQuery(UserId);
-        var response = await _mediator.Send(request, cancellationToken);
+        var response = await mediator.Send(request, cancellationToken);
         var dto = response.Adapt<PortfolioInfoDto>();
+
+        return Ok(dto);
+    }
+
+    [HttpGet("valueChart")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<ChartCandleDto>), 200)]
+    public async Task<IActionResult> GetPortfolioValueChartAsync(CancellationToken cancellationToken)
+    {
+        var request = new PortfolioValueChartQuery(UserId);
+        var response = await mediator.Send(request, cancellationToken);
+        var dto = response.Adapt<IReadOnlyCollection<ChartCandleDto>>();
 
         return Ok(dto);
     }
 
     [HttpPost("transaction")]
     [ProducesResponseType(200)]
-    public async Task<IActionResult> AddTransaction(
+    public async Task<IActionResult> AddTransactionAsync(
         [FromBody] AddTransactionRequestContract addTransactionRequestContract,
         CancellationToken cancellationToken)
     {
@@ -46,14 +52,14 @@ public class PortfolioController : ApiController
             (TransactionType)addTransactionRequestContract.Type
         );
 
-        await _mediator.Send(request, cancellationToken);
+        await mediator.Send(request, cancellationToken);
 
         return Ok();
     }
 
     [HttpPost("sync/{exchangeNamesName}")]
     [ProducesResponseType(typeof(PortfolioInfoDto), 200)]
-    public async Task<IActionResult> SyncWithExchange(
+    public async Task<IActionResult> SyncWithExchangeAsync(
         CryptoExchangeNames exchangeNamesName,
         CancellationToken cancellationToken
     )
@@ -65,7 +71,7 @@ public class PortfolioController : ApiController
             (Domain.CryptoExchanges.Models.CryptoExchangeNames)exchangeNamesName
         );
 
-        var result = await _mediator.Send(request, cancellationToken);
+        var result = await mediator.Send(request, cancellationToken);
         var dto = result.Adapt<PortfolioInfoDto>();
 
         return Ok(dto);
@@ -73,9 +79,9 @@ public class PortfolioController : ApiController
 
     [HttpGet("summary")]
     [ProducesResponseType(typeof(PortfolioSummaryDto), 200)]
-    public async Task<IActionResult> GetPortfolioSummary(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPortfolioSummaryAsync(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new PortfolioSummaryQuery(UserId), cancellationToken);
+        var result = await mediator.Send(new PortfolioSummaryQuery(UserId), cancellationToken);
 
         var dto = result.Adapt<PortfolioSummaryDto>();
 

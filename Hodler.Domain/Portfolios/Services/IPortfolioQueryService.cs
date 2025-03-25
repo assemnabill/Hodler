@@ -3,9 +3,20 @@ using Hodler.Domain.Users.Models;
 
 namespace Hodler.Domain.Portfolios.Services;
 
-public interface IPortfolioQueryService   
+public interface IPortfolioQueryService
 {
-    Task<IPortfolio> GetByUserIdAsync(UserId userId, CancellationToken cancellationToken);
+    Task<IPortfolio> FindOrCreatePortfolioAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    );
 
-    Task<PortfolioSummaryInfo> GetPortfolioSummaryAsync(UserId userId, CancellationToken cancellationToken);
+    Task<PortfolioSummaryInfo> GetPortfolioSummaryAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<IReadOnlyCollection<ChartCandle>> CalculatePortfolioValueChartAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    );
 }

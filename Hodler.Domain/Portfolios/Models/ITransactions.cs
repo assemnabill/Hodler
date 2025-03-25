@@ -11,4 +11,10 @@ public interface ITransactions : IReadOnlyCollection<Transaction>
     );
 
     SyncResult<ITransactions> Sync(IEnumerable<Transaction> transactions);
+
+    Task<FiatAmount> GetPortfolioValueOnDateAsync(
+        DateOnly dateOfTransaction,
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        CancellationToken cancellationToken = default
+    );
 }

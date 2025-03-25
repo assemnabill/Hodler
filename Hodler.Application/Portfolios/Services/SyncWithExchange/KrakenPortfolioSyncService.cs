@@ -30,7 +30,7 @@ public class KrakenPortfolioSyncService : IPortfolioSyncService
     {
         var transactionInfos = await _krakenApiClient.GetTransactionsAsync(userId, cancellationToken);
 
-        var portfolio = await _portfolioQueryService.GetByUserIdAsync(userId, cancellationToken);
+        var portfolio = await _portfolioQueryService.FindOrCreatePortfolioAsync(userId, cancellationToken);
 
         var transactions = transactionInfos
             .Select(info => (portfolio.Id, info).Adapt<Transaction>());
