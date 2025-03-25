@@ -1,6 +1,8 @@
 ﻿using Hodler.Domain.Portfolios.Ports.Repositories;
+using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Users.Ports;
 using Hodler.Integration.Repositories.Portfolios.Repositories;
+using Hodler.Integration.Repositories.PriceCatalogs.Repositories;
 using Hodler.Integration.Repositories.Users.Repositories;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+        services.AddScoped<IBitcoinPriceRepository, BitcoinPriceRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
         TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceCollectionExtensions).Assembly);

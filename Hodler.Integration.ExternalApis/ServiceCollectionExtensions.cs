@@ -15,11 +15,9 @@ public static class ServiceCollectionExtensions
     {
         TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceCollectionExtensions).Assembly);
 
-        services
-            .AddSingleton<ICurrentBitcoinPriceProvider, BitPandaCurrentBitcoinPriceProvider>()
-            .AddSingleton<IHistoricalBitcoinPriceProvider, CoinCapHistoricalBitcoinPriceProvider>();
-
-        services.AddSingleton<IBitPandaTickerApiClient, BitPandaSpotTickerApiClient>();
+        services.AddTransient<ICurrentBitcoinPriceProvider, BitPandaCurrentBitcoinPriceProvider>();
+        services.AddTransient<IHistoricalBitcoinPriceProvider, CoinCapHistoricalBitcoinPriceProvider>();
+        services.AddTransient<IBitPandaTickerApiClient, BitPandaSpotTickerApiClient>();
         services.AddTransient<IBitPandaSpotApiClient, BitPandaSpotApiClient>();
         services.AddTransient<IKrakenApiClient, KrakenApiClient>();
         services.AddTransient<ICoinCapApiClient, CoinCapApiClient>();
