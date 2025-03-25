@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Hodler.Integration.ExternalApis.PriceCatalogs.HistoricalBticoinPrice;
+namespace Hodler.Integration.ExternalApis.PriceCatalogs.HistoricalBitcoinPrice;
 
 /// <summary>
 /// This data is represented in OHLCV candles - Open, High, Low, Close, and Volume.

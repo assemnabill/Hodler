@@ -5,13 +5,13 @@ using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Shared.Models;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace Hodler.Integration.ExternalApis.PriceCatalogs.HistoricalBticoinPrice;
+namespace Hodler.Integration.ExternalApis.PriceCatalogs.HistoricalBitcoinPrice;
 
 public class CoinCapHistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
 {
-    private readonly ICoinCapApiClient _coinCapApiClient;
     private readonly IBitcoinPriceRepository _bitcoinPriceRepository;
     private readonly IDistributedCache _cache;
+    private readonly ICoinCapApiClient _coinCapApiClient;
 
     public CoinCapHistoricalBitcoinPriceProvider(
         ICoinCapApiClient coinCapApiClient,
@@ -37,7 +37,7 @@ public class CoinCapHistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProv
         }
 
         var cachedDates = await GetCachedDatesAsync(dates, cancellationToken, out var missingDates);
-       
+
         if (missingDates.Count != 0)
         {
             var missingPrices = await FetchMissingPricesAsync(missingDates, cancellationToken);

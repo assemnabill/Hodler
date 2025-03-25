@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Hodler.Integration.ExternalApis.PriceCatalogs.HistoricalBticoinPrice;
+namespace Hodler.Integration.ExternalApis.PriceCatalogs.HistoricalBitcoinPrice;
 
 public enum CoinCapCandlesInterval
 {
