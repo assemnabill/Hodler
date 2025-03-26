@@ -3,7 +3,7 @@ using Hodler.Domain.Portfolios.Models;
 using Mapster;
 using TransactionType = Hodler.Contracts.Portfolios.TransactionType;
 
-namespace Hodler.ApiService.Mappings;
+namespace Hodler.ApiService.Mappings.Portfolios;
 
 public class PortfolioInfoRegistration : IRegister
 {

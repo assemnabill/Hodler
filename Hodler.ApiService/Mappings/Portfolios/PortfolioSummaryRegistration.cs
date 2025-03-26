@@ -3,7 +3,7 @@ using Hodler.Contracts.Shared;
 using Hodler.Domain.Portfolios.Models;
 using Mapster;
 
-namespace Hodler.ApiService.Mappings;
+namespace Hodler.ApiService.Mappings.Portfolios;
 
 public class PortfolioSummaryRegistration : IRegister
 {

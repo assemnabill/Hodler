@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using Corz.DomainDriven.Abstractions.Models.Results;
 using Corz.Extensions.DateTime;
+using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Shared.Models;
 
@@ -49,19 +51,45 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
             .ToList();
 
         if (transactions.Count == 0)
-            return new FiatAmount(0, FiatCurrency.UsDollar);
+            return new FiatAmount(0, FiatCurrency.UsDollar); // TODO: Get from user settings
+
 
         var bought = transactions.Where(x => x.Type == TransactionType.Buy).Sum(x => x.BtcAmount);
         var sold = transactions.Where(x => x.Type == TransactionType.Sell).Sum(x => x.BtcAmount);
-        var netBtc = bought - sold;
+        var netBtcOnDate = bought - sold;
 
         // TODO: Get price on date from historical data
-        var latestPrice = transactions.Last().MarketPrice;
+        var btcPriceOnDate = transactions.Last().MarketPrice;
 
         // TODO: Get from user settings
         var fiatCurrency = transactions.First().FiatAmount.FiatCurrency;
 
-        return new FiatAmount(netBtc * latestPrice, fiatCurrency);
+        return new FiatAmount(netBtcOnDate * btcPriceOnDate, fiatCurrency);
+    }
+
+    public ITransactions Add(
+        PortfolioId portfolioId,
+        TransactionType transactionType,
+        DateTimeOffset date,
+        FiatAmount fiatAmount,
+        BitcoinAmount bitcoinAmount,
+        CryptoExchangeName? cryptoExchange,
+        out IResult result
+    )
+    {
+        result = new SuccessResult();
+        var marketPrice = new FiatAmount(fiatAmount.Amount / bitcoinAmount.Amount, fiatAmount.FiatCurrency);
+        var newTransaction = new Transaction(
+            portfolioId,
+            transactionType,
+            fiatAmount,
+            bitcoinAmount,
+            marketPrice,
+            date,
+            cryptoExchange
+        );
+
+        return Items.Contains(newTransaction) ? this : new Transactions(Items.Append(newTransaction));
     }
 
     public async Task<PortfolioSummaryInfo> GetSummaryReportAsync(

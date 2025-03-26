@@ -7,12 +7,12 @@ namespace Hodler.Application.Portfolios.Commands.SyncWithExchange;
 
 public class SyncWithExchangeCommand : IRequest<PortfolioInfo>
 {
-    public CryptoExchangeNames CryptoExchangeNames { get; }
-    public UserId UserId { get; }
-
-    public SyncWithExchangeCommand(UserId userId, CryptoExchangeNames cryptoExchangeNames)
+    public SyncWithExchangeCommand(UserId userId, CryptoExchangeName cryptoExchangeName)
     {
         UserId = userId;
-        CryptoExchangeNames = cryptoExchangeNames;
+        CryptoExchangeName = cryptoExchangeName;
     }
+
+    public CryptoExchangeName CryptoExchangeName { get; }
+    public UserId UserId { get; }
 }

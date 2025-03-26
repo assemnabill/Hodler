@@ -2,7 +2,7 @@ using Hodler.Contracts.Portfolios.PortfolioValueChart;
 using Hodler.Domain.Portfolios.Models;
 using Mapster;
 
-namespace Hodler.ApiService.Mappings;
+namespace Hodler.ApiService.Mappings.Portfolios;
 
 public class ChartCandleRegistration : IRegister
 {

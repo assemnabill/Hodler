@@ -10,5 +10,5 @@ public record Transaction(
     BitcoinAmount BtcAmount,
     FiatAmount MarketPrice,
     DateTimeOffset Timestamp,
-    CryptoExchangeNames? CryptoExchange = null
+    CryptoExchangeName? CryptoExchange = null
 );

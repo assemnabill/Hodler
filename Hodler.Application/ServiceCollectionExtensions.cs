@@ -19,10 +19,11 @@ public static class ServiceCollectionExtensions
 
         services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(assembly); });
         services.AddTransient<IPortfolioQueryService, PortfolioQueryService>();
+        services.AddTransient<IPortfolioCommandService, PortfolioCommandService>();
 
         services
-            .AddKeyedTransient<IPortfolioSyncService, BitPandaPortfolioSyncService>(CryptoExchangeNames.BitPanda)
-            .AddKeyedTransient<IPortfolioSyncService, KrakenPortfolioSyncService>(CryptoExchangeNames.Kraken);
+            .AddKeyedTransient<IPortfolioSyncService, BitPandaPortfolioSyncService>(CryptoExchangeName.BitPanda)
+            .AddKeyedTransient<IPortfolioSyncService, KrakenPortfolioSyncService>(CryptoExchangeName.Kraken);
 
         return services;
     }

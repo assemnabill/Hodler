@@ -7,7 +7,9 @@ using Hodler.Contracts.Portfolios.AddTransaction;
 using Hodler.Contracts.Portfolios.PortfolioSummary;
 using Hodler.Contracts.Portfolios.PortfolioValueChart;
 using Hodler.Contracts.Shared;
+using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Shared.Models;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -42,19 +44,21 @@ public class PortfolioController(IMediator mediator) : ApiController
     [ProducesResponseType(200)]
     public async Task<IActionResult> AddTransactionAsync(
         [FromBody] AddTransactionRequestContract addTransactionRequestContract,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var request = new AddTransactionCommand(
             UserId,
             addTransactionRequestContract.Date,
-            addTransactionRequestContract.Amount,
-            addTransactionRequestContract.Price,
-            (TransactionType)addTransactionRequestContract.Type
+            addTransactionRequestContract.BitcoinAmount,
+            addTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
+            (TransactionType)addTransactionRequestContract.Type,
+            (CryptoExchangeName)addTransactionRequestContract.CryptoExchange
         );
 
-        await mediator.Send(request, cancellationToken);
+        var result = await mediator.Send(request, cancellationToken);
 
-        return Ok();
+        return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
     }
 
     [HttpPost("sync/{exchangeNamesName}")]
@@ -68,7 +72,7 @@ public class PortfolioController(IMediator mediator) : ApiController
 
         var request = new SyncWithExchangeCommand(
             UserId,
-            (Domain.CryptoExchanges.Models.CryptoExchangeNames)exchangeNamesName
+            (CryptoExchangeName)exchangeNamesName
         );
 
         var result = await mediator.Send(request, cancellationToken);

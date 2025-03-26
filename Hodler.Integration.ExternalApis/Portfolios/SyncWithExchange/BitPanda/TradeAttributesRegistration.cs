@@ -20,7 +20,7 @@ public class TradeAttributesRegistration : IRegister
                 new BitcoinAmount(src.Amount_cryptocoin),
                 new FiatAmount(src.Price, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
                 DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(src.Time.Unix)).ToUniversalTime(),
-                CryptoExchangeNames.BitPanda
+                CryptoExchangeName.BitPanda
             ));
 
         config
@@ -31,7 +31,7 @@ public class TradeAttributesRegistration : IRegister
                 new BitcoinAmount(src.Amount_cryptocoin),
                 new FiatAmount(src.Price, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
                 src.Time.Date_iso8601.ToUniversalTime(),
-                CryptoExchangeNames.BitPanda
+                CryptoExchangeName.BitPanda
             ));
     }
 }

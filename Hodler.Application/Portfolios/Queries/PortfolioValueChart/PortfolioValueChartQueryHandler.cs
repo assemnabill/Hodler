@@ -15,8 +15,10 @@ public class PortfolioValueChartQueryHandler
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public async Task<IReadOnlyCollection<ChartCandle>> Handle(PortfolioValueChartQuery request,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<ChartCandle>> Handle(
+        PortfolioValueChartQuery request,
+        CancellationToken cancellationToken
+    )
     {
         ArgumentNullException.ThrowIfNull(request);
 

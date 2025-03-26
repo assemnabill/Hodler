@@ -21,8 +21,8 @@ namespace Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.Kraken;
 public class KrakenApiClient : IKrakenApiClient
 {
     private readonly IDistributedCache _cache;
-    private readonly IUserSettingsQueryService _userSettingsQueryService;
     private readonly IKrakenRestClient _krakenRestClient;
+    private readonly IUserSettingsQueryService _userSettingsQueryService;
 
     public KrakenApiClient(
         IDistributedCache cache,
@@ -137,7 +137,7 @@ public class KrakenApiClient : IKrakenApiClient
                     bitcoinAmount,
                     marketPrice,
                     spendingEntry.Timestamp.ToDateTimeOffset().ToUniversalTime(),
-                    CryptoExchangeNames.Kraken
+                    CryptoExchangeName.Kraken
                 );
             });
 
@@ -156,7 +156,7 @@ public class KrakenApiClient : IKrakenApiClient
            || receivingEntry is null
            || (!spendingEntry.Asset.Contains("XBT") && !receivingEntry.Asset.Contains("XBT"));
 
-    private static string CacheKey(UserId userId) => $"{userId}-Trades-{CryptoExchangeNames.Kraken.GetDescription()}";
+    private static string CacheKey(UserId userId) => $"{userId}-Trades-{CryptoExchangeName.Kraken.GetDescription()}";
 
     private async Task CacheTradesAsync(
         List<TransactionInfo> transactionInfos,

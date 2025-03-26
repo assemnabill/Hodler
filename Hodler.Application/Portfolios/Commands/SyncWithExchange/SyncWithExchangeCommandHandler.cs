@@ -20,12 +20,12 @@ public class SyncWithExchangeCommandHandler : IRequestHandler<SyncWithExchangeCo
         CancellationToken cancellationToken)
     {
         var domainService = _serviceProvider
-            .GetRequiredKeyedService<IPortfolioSyncService>(request.CryptoExchangeNames);
+            .GetRequiredKeyedService<IPortfolioSyncService>(request.CryptoExchangeName);
 
         var portfolio = await domainService.SyncWithExchangeAsync(request.UserId, cancellationToken);
-        
+
         var result = portfolio.Adapt<PortfolioInfo>();
-        
+
         return result;
     }
 }

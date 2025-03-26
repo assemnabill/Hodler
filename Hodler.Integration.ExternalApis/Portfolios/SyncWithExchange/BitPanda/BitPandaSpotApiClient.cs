@@ -18,9 +18,9 @@ namespace Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.BitPanda;
 public class BitPandaSpotApiClient : IBitPandaSpotApiClient
 {
     private const string ApiKeyHeaderName = "X-API-KEY";
+    private readonly IDistributedCache _cache;
 
     private readonly HttpClient _httpClient;
-    private readonly IDistributedCache _cache;
     private readonly IUserSettingsQueryService _userSettingsQueryService;
 
     public BitPandaSpotApiClient(
@@ -63,7 +63,7 @@ public class BitPandaSpotApiClient : IBitPandaSpotApiClient
 
         if (userApiKey is null)
             throw DomainException.CreateFrom(
-                new NoApiKeyProvidedFailure(CryptoExchangeNames.BitPanda.GetDescription()));
+                new NoApiKeyProvidedFailure(CryptoExchangeName.BitPanda.GetDescription()));
 
         _httpClient.DefaultRequestHeaders.Add(ApiKeyHeaderName, userApiKey.Value);
         var tradesClient = new TradesClient(_httpClient);
@@ -79,7 +79,7 @@ public class BitPandaSpotApiClient : IBitPandaSpotApiClient
         .ToList() ?? [];
 
     private static string CacheKey(UserId userId) =>
-        $"{userId}-Trades-{CryptoExchangeNames.BitPanda.GetDescription()}";
+        $"{userId}-Trades-{CryptoExchangeName.BitPanda.GetDescription()}";
 
     private async Task CacheTradesAsync(TradesResult tradeResult, UserId userId, CancellationToken cancellationToken)
     {

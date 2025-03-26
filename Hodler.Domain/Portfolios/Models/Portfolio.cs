@@ -1,5 +1,7 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
+using Corz.DomainDriven.Abstractions.Models.Results;
 using Corz.Extensions.DateTime;
+using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
@@ -46,10 +48,13 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         foreach (var transaction in Transactions)
         {
             var dateOfTransaction = transaction.Timestamp.ToDate();
-            var portfolioValueOnDate = await Transactions.GetPortfolioValueOnDateAsync(dateOfTransaction,
-                historicalBitcoinPriceProvider, cancellationToken);
-            var candle = new ChartCandle(dateOfTransaction, portfolioValueOnDate);
-            candels.Add(candle);
+            var portfolioValueOnDate = await Transactions.GetPortfolioValueOnDateAsync(
+                dateOfTransaction,
+                historicalBitcoinPriceProvider,
+                cancellationToken
+            );
+
+            candels.Add(new ChartCandle(dateOfTransaction, portfolioValueOnDate));
         }
 
         return candels;
@@ -59,6 +64,20 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,
         CancellationToken cancellationToken = default
     ) => Transactions.GetSummaryReportAsync(currentBitcoinPriceProvider, cancellationToken);
+
+    public IResult AddTransaction(
+        TransactionType transactionType,
+        DateTime date,
+        FiatAmount price,
+        BitcoinAmount bitcoinAmount,
+        CryptoExchangeName? cryptoExchange
+    )
+    {
+        Transactions = Transactions
+            .Add(Id, transactionType, date, price, bitcoinAmount, cryptoExchange, out var result);
+
+        return result;
+    }
 
 
     public static IPortfolio CreateNew(UserId userId)
