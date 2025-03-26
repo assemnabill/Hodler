@@ -1,6 +1,6 @@
 using Hodler.Application.Portfolios.Commands.AddTransaction;
 using Hodler.Application.Portfolios.Commands.SyncWithExchange;
-using Hodler.Application.Portfolios.Queries.PortfolioByUserId;
+using Hodler.Application.Portfolios.Queries.PortfolioInfo;
 using Hodler.Application.Portfolios.Queries.PortfolioSummary;
 using Hodler.Application.Portfolios.Queries.PortfolioValueChart;
 using Hodler.Contracts.Portfolios.AddTransaction;
@@ -20,7 +20,7 @@ public class PortfolioController(IMediator mediator) : ApiController
     [ProducesResponseType(typeof(PortfolioInfoDto), 200)]
     public async Task<IActionResult> GetPortfolioAsync(CancellationToken cancellationToken)
     {
-        var request = new PortfolioByUserIdQuery(UserId);
+        var request = new PortfolioInfoQuery(UserId);
         var response = await mediator.Send(request, cancellationToken);
         var dto = response.Adapt<PortfolioInfoDto>();
 

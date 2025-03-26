@@ -1,22 +1,21 @@
-using Hodler.Domain.Portfolios.Models;
 using Hodler.Domain.Portfolios.Services;
 using Mapster;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hodler.Application.Portfolios.Queries.PortfolioByUserId;
+namespace Hodler.Application.Portfolios.Queries.PortfolioInfo;
 
-public class PortfolioByUserIdQueryHandler
-    : IRequestHandler<PortfolioByUserIdQuery, PortfolioInfo>
+public class PortfolioInfoQueryHandler
+    : IRequestHandler<PortfolioInfoQuery, Domain.Portfolios.Models.PortfolioInfo>
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public PortfolioByUserIdQueryHandler(IServiceScopeFactory serviceScopeFactory)
+    public PortfolioInfoQueryHandler(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public async Task<PortfolioInfo> Handle(PortfolioByUserIdQuery request,
+    public async Task<Domain.Portfolios.Models.PortfolioInfo> Handle(PortfolioInfoQuery request,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -28,7 +27,7 @@ public class PortfolioByUserIdQueryHandler
 
         var portfolio = await service.FindOrCreatePortfolioAsync(request.UserId, cancellationToken);
 
-        var portfolioInfo = portfolio.Adapt<PortfolioInfo>();
+        var portfolioInfo = portfolio.Adapt<Domain.Portfolios.Models.PortfolioInfo>();
 
         return portfolioInfo;
     }
