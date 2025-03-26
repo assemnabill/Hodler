@@ -1,5 +1,6 @@
-﻿using Hodler.Integration.Repositories.Portfolio.Context;
-using Hodler.Integration.Repositories.User.Context;
+﻿using Hodler.Integration.Repositories.Portfolios.Context;
+using Hodler.Integration.Repositories.Users.Context;
+using Hodler.Integration.Repositories.Users.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,7 +49,7 @@ public static class WebApplicationBuilderExtensions
             });
 
         builder.Services
-            .AddIdentityCore<Integration.Repositories.User.Entities.User>()
+            .AddIdentityCore<User>()
             .AddEntityFrameworkStores<UserDbContext>()
             .AddDefaultTokenProviders()
             .AddApiEndpoints();

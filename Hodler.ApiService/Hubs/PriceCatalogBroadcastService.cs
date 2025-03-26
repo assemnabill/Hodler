@@ -1,5 +1,5 @@
-using Hodler.Contracts.PriceCatalog;
-using Hodler.Domain.PriceCatalog.Services;
+using Hodler.Contracts.PriceCatalogs;
+using Hodler.Domain.PriceCatalogs.Ports;
 using Mapster;
 using Microsoft.AspNetCore.SignalR;
 

@@ -20,7 +20,7 @@
 
 
     <ItemGroup>
-      <Folder Include="Portfolio\Commands\" />
+      <Folder Include="Portfolios\Commands\" />
     </ItemGroup>
 
 </Project>

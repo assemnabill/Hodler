@@ -1,8 +1,9 @@
-﻿using Hodler.Domain.CryptoExchange.Ports.CryptoExchangeApis;
-using Hodler.Domain.PriceCatalog.Ports;
-using Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.BitPanda;
-using Hodler.Integration.ExternalApis.Portfolio.SyncWithExchange.Kraken;
-using Hodler.Integration.ExternalApis.PriceCatalog.CurrentBitcoinPrice;
+﻿using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
+using Hodler.Domain.PriceCatalogs.Ports;
+using Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.BitPanda;
+using Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.Kraken;
+using Hodler.Integration.ExternalApis.PriceCatalogs.CurrentBitcoinPrice;
+using Hodler.Integration.ExternalApis.PriceCatalogs.HistoricalBitcoinPrice;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,9 +15,12 @@ public static class ServiceCollectionExtensions
     {
         TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceCollectionExtensions).Assembly);
 
-        services.AddSingleton<IBitPandaTickerApiClient, BitPandaSpotTickerApiClient>();
+        services.AddTransient<ICurrentBitcoinPriceProvider, BitPandaCurrentBitcoinPriceProvider>();
+        services.AddTransient<IHistoricalBitcoinPriceProvider, CoinCapHistoricalBitcoinPriceProvider>();
+        services.AddTransient<IBitPandaTickerApiClient, BitPandaSpotTickerApiClient>();
         services.AddTransient<IBitPandaSpotApiClient, BitPandaSpotApiClient>();
         services.AddTransient<IKrakenApiClient, KrakenApiClient>();
+        services.AddTransient<ICoinCapApiClient, CoinCapApiClient>();
         services.AddCryptoClients();
 
         return services;

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
-using Hodler.Integration.Repositories.Portfolio.Context;
-using Hodler.Integration.Repositories.User.Context;
+using Hodler.Integration.Repositories.Portfolios.Context;
+using Hodler.Integration.Repositories.Users.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hodler.Integration.DbMigration;

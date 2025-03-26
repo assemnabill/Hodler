@@ -13,16 +13,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="Portfolio\Resources\bitpanda.csv">
+      <EmbeddedResource Include="Portfolios\Resources\bitpanda.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
-      <EmbeddedResource Include="Portfolio\Resources\kraken.csv">
+      <EmbeddedResource Include="Portfolios\Resources\kraken.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="CryptoExchange\Ports\" />
+      <Folder Include="CryptoExchanges\Ports\" />
     </ItemGroup>
 
 </Project>

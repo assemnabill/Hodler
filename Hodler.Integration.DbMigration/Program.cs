@@ -1,6 +1,6 @@
 using Hodler.Integration.DbMigration;
-using Hodler.Integration.Repositories.Portfolio.Context;
-using Hodler.Integration.Repositories.User.Context;
+using Hodler.Integration.Repositories.Portfolios.Context;
+using Hodler.Integration.Repositories.Users.Context;
 using Hodler.ServiceDefaults;
 using Microsoft.EntityFrameworkCore;
 

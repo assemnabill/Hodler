@@ -1,7 +1,7 @@
-﻿using Hodler.Application.Portfolio.Services;
-using Hodler.Application.Portfolio.Services.SyncWithExchange;
-using Hodler.Domain.CryptoExchange.Models;
-using Hodler.Domain.Portfolio.Services;
+﻿using Hodler.Application.Portfolios.Services;
+using Hodler.Application.Portfolios.Services.SyncWithExchange;
+using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Portfolios.Services;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,10 +19,11 @@ public static class ServiceCollectionExtensions
 
         services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(assembly); });
         services.AddTransient<IPortfolioQueryService, PortfolioQueryService>();
+        services.AddTransient<IPortfolioCommandService, PortfolioCommandService>();
 
         services
-            .AddKeyedTransient<IPortfolioSyncService, BitPandaPortfolioSyncService>(CryptoExchangeNames.BitPanda)
-            .AddKeyedTransient<IPortfolioSyncService, KrakenPortfolioSyncService>(CryptoExchangeNames.Kraken);
+            .AddKeyedTransient<IPortfolioSyncService, BitPandaPortfolioSyncService>(CryptoExchangeName.BitPanda)
+            .AddKeyedTransient<IPortfolioSyncService, KrakenPortfolioSyncService>(CryptoExchangeName.Kraken);
 
         return services;
     }

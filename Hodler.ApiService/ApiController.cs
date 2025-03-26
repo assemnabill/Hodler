@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Corz.DomainDriven.Abstractions.Exceptions;
-using Hodler.Domain.User.Models;
+using Hodler.Domain.Users.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
