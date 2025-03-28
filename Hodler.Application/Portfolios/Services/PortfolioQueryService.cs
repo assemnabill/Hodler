@@ -35,7 +35,7 @@ internal class PortfolioQueryService : IPortfolioQueryService
         return summary;
     }
 
-    public async Task<IReadOnlyCollection<ChartCandle>> CalculatePortfolioValueChartAsync(
+    public async Task<IReadOnlyCollection<ChartSpot>> CalculatePortfolioValueChartAsync(
         UserId userId,
         CancellationToken cancellationToken = default
     )
@@ -46,7 +46,7 @@ internal class PortfolioQueryService : IPortfolioQueryService
 
         if (portfolio is null)
         {
-            return Array.Empty<ChartCandle>();
+            return Array.Empty<ChartSpot>();
         }
 
         var chart = await portfolio
@@ -57,7 +57,8 @@ internal class PortfolioQueryService : IPortfolioQueryService
 
     public async Task<IPortfolio> FindOrCreatePortfolioAsync(
         UserId userId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);
 

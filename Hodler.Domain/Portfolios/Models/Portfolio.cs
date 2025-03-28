@@ -19,8 +19,8 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         Id = portfolioId;
     }
 
-    public PortfolioId Id { get; private set; }
-    public UserId UserId { get; private set; }
+    public PortfolioId Id { get; }
+    public UserId UserId { get; }
     public ITransactions Transactions { get; private set; }
 
     public SyncResult<IPortfolio> SyncTransactions(IEnumerable<Transaction> transactions)
@@ -37,13 +37,13 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         return new SyncResult<IPortfolio>(syncResult.Changed, this);
     }
 
-    public async Task<IReadOnlyCollection<ChartCandle>> CalculatePortfolioValueChartAsync(
+    public async Task<IReadOnlyCollection<ChartSpot>> CalculatePortfolioValueChartAsync(
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         CancellationToken cancellationToken = default
     )
     {
         // TODO: Fill gap dates between transactions with => btcPriceOnDate * btcHoldingsOnDate
-        var candels = new List<ChartCandle>();
+        var candels = new List<ChartSpot>();
 
         foreach (var transaction in Transactions)
         {
@@ -54,7 +54,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
                 cancellationToken
             );
 
-            candels.Add(new ChartCandle(dateOfTransaction, portfolioValueOnDate));
+            candels.Add(new ChartSpot(dateOfTransaction, portfolioValueOnDate));
         }
 
         return candels;
@@ -63,7 +63,8 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     public Task<PortfolioSummaryInfo> GetSummaryReportAsync(
         ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,
         CancellationToken cancellationToken = default
-    ) => Transactions.GetSummaryReportAsync(currentBitcoinPriceProvider, cancellationToken);
+    ) =>
+        Transactions.GetSummaryReportAsync(currentBitcoinPriceProvider, cancellationToken);
 
     public IResult AddTransaction(
         TransactionType transactionType,

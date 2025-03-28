@@ -15,7 +15,7 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
 
     SyncResult<IPortfolio> SyncTransactions(IEnumerable<Transaction> transactions);
 
-    Task<IReadOnlyCollection<ChartCandle>> CalculatePortfolioValueChartAsync(
+    Task<IReadOnlyCollection<ChartSpot>> CalculatePortfolioValueChartAsync(
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         CancellationToken cancellationToken = default
     );
@@ -25,7 +25,8 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
         CancellationToken cancellationToken = default
     );
 
-    IResult AddTransaction(TransactionType transactionType,
+    IResult AddTransaction(
+        TransactionType transactionType,
         DateTime date,
         FiatAmount price,
         BitcoinAmount bitcoinAmount,

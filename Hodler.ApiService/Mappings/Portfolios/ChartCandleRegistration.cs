@@ -9,8 +9,8 @@ public class ChartCandleRegistration : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config
-            .NewConfig<ChartCandle, ChartCandleDto>()
+            .NewConfig<ChartSpot, ChartSpotDto>()
             .Map(x => x.Date, x => x.Date)
-            .Map(x => x.PortfolioValue, x => x.PortfolioValue.Amount);
+            .Map(x => x.PortfolioValue, x => x.PortfolioValue);
     }
 }
