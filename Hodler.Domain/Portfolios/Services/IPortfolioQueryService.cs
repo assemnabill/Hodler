@@ -15,7 +15,7 @@ public interface IPortfolioQueryService
         CancellationToken cancellationToken = default
     );
 
-    Task<IReadOnlyCollection<ChartCandle>> CalculatePortfolioValueChartAsync(
+    Task<IReadOnlyCollection<ChartSpot>> CalculatePortfolioValueChartAsync(
         UserId userId,
         CancellationToken cancellationToken = default
     );

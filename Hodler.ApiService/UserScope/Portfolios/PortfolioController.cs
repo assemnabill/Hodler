@@ -30,12 +30,12 @@ public class PortfolioController(IMediator mediator) : ApiController
     }
 
     [HttpGet("valueChart")]
-    [ProducesResponseType(typeof(IReadOnlyCollection<ChartCandleDto>), 200)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<ChartSpotDto>), 200)]
     public async Task<IActionResult> GetPortfolioValueChartAsync(CancellationToken cancellationToken)
     {
         var request = new PortfolioValueChartQuery(UserId);
         var response = await mediator.Send(request, cancellationToken);
-        var dto = response.Adapt<IReadOnlyCollection<ChartCandleDto>>();
+        var dto = response.Adapt<IReadOnlyCollection<ChartSpotDto>>();
 
         return Ok(dto);
     }
