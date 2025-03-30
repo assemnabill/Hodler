@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Hodler.Application.Portfolios.Queries.PortfolioValueChart;
 
 public class PortfolioValueChartQueryHandler
-    : IRequestHandler<PortfolioValueChartQuery, IReadOnlyCollection<ChartSpot>>
+    : IRequestHandler<PortfolioValueChartQuery, PortfolioValueChartInfo>
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
@@ -15,7 +15,7 @@ public class PortfolioValueChartQueryHandler
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public async Task<IReadOnlyCollection<ChartSpot>> Handle(
+    public async Task<PortfolioValueChartInfo> Handle(
         PortfolioValueChartQuery request,
         CancellationToken cancellationToken
     )

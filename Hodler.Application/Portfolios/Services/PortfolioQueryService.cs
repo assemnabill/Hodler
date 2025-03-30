@@ -35,24 +35,34 @@ internal class PortfolioQueryService : IPortfolioQueryService
         return summary;
     }
 
-    public async Task<IReadOnlyCollection<ChartSpot>> CalculatePortfolioValueChartAsync(
+    public async Task<PortfolioValueChartInfo> CalculatePortfolioValueChartAsync(
         UserId userId,
         CancellationToken cancellationToken = default
     )
     {
         ArgumentNullException.ThrowIfNull(userId);
 
-        var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);
-
-        if (portfolio is null)
-        {
-            return Array.Empty<ChartSpot>();
-        }
+        var portfolio = await FindOrCreatePortfolioAsync(userId, cancellationToken);
 
         var chart = await portfolio
-            .CalculatePortfolioValueChartAsync(_historicalBitcoinPriceProvider, cancellationToken);
+            .CalculatePortfolioValueChartAsync(
+                _historicalBitcoinPriceProvider,
+                cancellationToken
+            );
 
-        return chart;
+        var portfolioValue = await portfolio
+            .GetSummaryReportAsync(
+                _currentBitcoinPriceProvider,
+                cancellationToken
+            );
+
+        var chartInfo = new PortfolioValueChartInfo(
+            chart,
+            portfolioValue.PortfolioValue,
+            portfolioValue.FiatReturnOnInvestmentPercentage
+        );
+
+        return chartInfo;
     }
 
     public async Task<IPortfolio> FindOrCreatePortfolioAsync(
@@ -62,11 +72,11 @@ internal class PortfolioQueryService : IPortfolioQueryService
     {
         var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);
 
-        if (portfolio is null)
-        {
-            portfolio = Portfolio.CreateNew(userId);
-            await _portfolioRepository.StoreAsync(portfolio, cancellationToken);
-        }
+        if (portfolio is not null)
+            return portfolio;
+
+        portfolio = Portfolio.CreateNew(userId);
+        await _portfolioRepository.StoreAsync(portfolio, cancellationToken);
 
         return portfolio;
     }
