@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Hodler.Application.Portfolios.Queries.PortfolioValueChart;
 
-public class PortfolioValueChartQuery(UserId userId) : IRequest<IReadOnlyCollection<ChartSpot>>
+public class PortfolioValueChartQuery(UserId userId) : IRequest<PortfolioValueChartInfo>
 {
     public UserId UserId { get; } = userId;
 }
