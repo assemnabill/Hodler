@@ -18,13 +18,13 @@ namespace Hodler.ApiService.UserScope.Portfolios;
 
 public class PortfolioController(IMediator mediator) : ApiController
 {
-    [HttpGet]
-    [ProducesResponseType(typeof(PortfolioInfoDto), 200)]
-    public async Task<IActionResult> GetPortfolioAsync(CancellationToken cancellationToken)
+    [HttpGet("transactions")]
+    [ProducesResponseType(typeof(PortfolioTransactionsDto), 200)]
+    public async Task<IActionResult> GetPortfolioTransactionsAsync(CancellationToken cancellationToken)
     {
         var request = new PortfolioInfoQuery(UserId);
         var response = await mediator.Send(request, cancellationToken);
-        var dto = response.Adapt<PortfolioInfoDto>();
+        var dto = response.Adapt<PortfolioTransactionsDto>();
 
         return Ok(dto);
     }
@@ -61,8 +61,27 @@ public class PortfolioController(IMediator mediator) : ApiController
         return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
     }
 
+    [HttpDelete("transaction/{transaction}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> RemoveTransactionAsync(
+        [FromRoute] Guid transaction,
+        CancellationToken cancellationToken
+    )
+    {
+        return Ok();
+        // todo: implement. 
+        // var request = new RemoveTransactionCommand(
+        //     UserId,
+        //     new Transaction()
+        // );
+        //
+        // var result = await mediator.Send(request, cancellationToken);
+        //
+        // return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
+    }
+
     [HttpPost("sync/{exchangeNamesName}")]
-    [ProducesResponseType(typeof(PortfolioInfoDto), 200)]
+    [ProducesResponseType(typeof(PortfolioTransactionsDto), 200)]
     public async Task<IActionResult> SyncWithExchangeAsync(
         CryptoExchangeNames exchangeNamesName,
         CancellationToken cancellationToken
@@ -76,7 +95,7 @@ public class PortfolioController(IMediator mediator) : ApiController
         );
 
         var result = await mediator.Send(request, cancellationToken);
-        var dto = result.Adapt<PortfolioInfoDto>();
+        var dto = result.Adapt<PortfolioTransactionsDto>();
 
         return Ok(dto);
     }
