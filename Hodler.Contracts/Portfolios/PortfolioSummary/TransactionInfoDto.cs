@@ -1,8 +1,11 @@
+using Hodler.Contracts.Shared;
+
 namespace Hodler.Contracts.Portfolios.PortfolioSummary;
 
 public record TransactionInfoDto(
     TransactionType Type,
-    decimal FiatAmount,
+    FiatAmountDto FiatAmount,
     decimal BtcAmount,
-    decimal MarketPrice,
-    DateTimeOffset Timestamp);
+    FiatAmountDto MarketPrice,
+    DateTimeOffset Timestamp
+);

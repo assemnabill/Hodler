@@ -1,4 +1,5 @@
 using Hodler.Contracts.Portfolios.PortfolioSummary;
+using Hodler.Contracts.Shared;
 using Hodler.Domain.Portfolios.Models;
 using Mapster;
 using TransactionType = Hodler.Contracts.Portfolios.TransactionType;
@@ -10,9 +11,9 @@ public class PortfolioInfoRegistration : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config
-            .NewConfig<PortfolioInfo, PortfolioInfoDto>()
+            .NewConfig<PortfolioInfo, PortfolioTransactionsDto>()
             .MapWith((src) =>
-                new PortfolioInfoDto(
+                new PortfolioTransactionsDto(
                     src.Id.Value,
                     src.Transactions.Select(x => x.Adapt<TransactionInfoDto>()).ToList()
                 ));
@@ -22,9 +23,9 @@ public class PortfolioInfoRegistration : IRegister
             .MapWith((src) =>
                 new TransactionInfoDto(
                     (TransactionType)src.Type,
-                    src.FiatAmount.Amount,
+                    src.FiatAmount.Adapt<FiatAmountDto>(),
                     src.BtcAmount.Amount,
-                    src.MarketPrice,
+                    src.MarketPrice.Adapt<FiatAmountDto>(),
                     src.Timestamp
                 ));
     }
