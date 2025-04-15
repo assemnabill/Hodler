@@ -1,8 +1,10 @@
 using Corz.Extensions.Enumeration;
 using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using Mapster;
 using Mapster.Utils;
+using User = Hodler.Integration.Repositories.Users.Entities.User;
 
 namespace Hodler.Integration.Repositories.Users.Mappings;
 
@@ -14,35 +16,32 @@ public class UserMappingRegistration : IRegister
             .ForType<UserSettings, Entities.UserSettings>()
             .Map(dest => dest.UserSettingsId, src => src.UserSettingsId)
             .Map(dest => dest.UserId, src => src.UserId)
-            .Map(dest => dest.Language, src => src.Language)
-            .Map(dest => dest.Currency, src => src.Currency)
-            .Map(dest => dest.Theme, src => src.Theme)
-            .Map(dest => dest.Region, src => src.Region);
+            .Map(dest => dest.Currency, src => src.Currency.Id)
+            .Map(dest => dest.Theme, src => src.Theme);
 
         config
             .ForType<Entities.UserSettings, UserSettings>()
             .MapWith(x => new UserSettings(
                 x.UserSettingsId,
                 new UserId(Guid.Parse(x.UserId)),
-                x.Language,
-                x.Currency,
-                x.Theme,
-                x.Region));
+                FiatCurrency.GetById(x.Currency),
+                x.Theme.ToEnum<AppTheme>()
+            ));
 
         config
-            .ForType<Entities.User, IUser>()
+            .ForType<User, IUser>()
             .MapWith(x =>
-                new User(
+                new Domain.Users.Models.User(
                     new UserId(Guid.Parse(x.Id)),
-                    x.UserSettings != null
-                        ? new UserSettings(
+                    x.UserSettings == null
+                        ? null
+                        : new UserSettings(
                             x.UserSettings.UserSettingsId,
                             new UserId(Guid.Parse(x.UserSettings.UserId)),
-                            x.UserSettings.Language,
-                            x.UserSettings.Currency,
-                            x.UserSettings.Theme,
-                            x.UserSettings.Region)
-                        : null,
+                            FiatCurrency.GetById(x.UserSettings.Currency),
+                            x.UserSettings.Theme.ToEnum<AppTheme>()
+                        )
+                    ,
                     x.ApiKeys
                         .Select(y => y.Adapt<ApiKey>())
                         .ToList()

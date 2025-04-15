@@ -5,23 +5,22 @@ namespace Hodler.Domain.Users.Models;
 
 public class User : AggregateRoot<User>, IUser
 {
-    // public PersonName Name { get; } // TODO
-    public UserId Id { get; }
-    public UserSettings UserSettings { get; private set; }
-    public IReadOnlyCollection<ApiKey>? ApiKeys { get; private set; }
-
     public User(
         UserId userId,
-        UserSettings userSettings,
+        UserSettings? userSettings,
         IReadOnlyCollection<ApiKey>? apiKeys = null
     )
     {
         ArgumentNullException.ThrowIfNull(userId);
 
         Id = userId;
-        UserSettings = userSettings;
+        UserSettings = userSettings ?? new UserSettings(Guid.NewGuid(), userId);
         ApiKeys = apiKeys;
     }
+
+    public UserId Id { get; }
+    public UserSettings UserSettings { get; private set; }
+    public IReadOnlyCollection<ApiKey>? ApiKeys { get; private set; }
 
     public bool AddApiKey(ApiKeyName apiKeyName, string value, string? secret)
     {

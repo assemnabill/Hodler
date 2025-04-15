@@ -17,6 +17,7 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
 
     Task<IReadOnlyCollection<ChartSpot>> CalculatePortfolioValueChartAsync(
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        FiatCurrency userDisplayCurrency,
         CancellationToken cancellationToken = default
     );
 
