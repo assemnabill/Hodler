@@ -39,6 +39,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
 
     public async Task<IReadOnlyCollection<ChartSpot>> CalculatePortfolioValueChartAsync(
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        FiatCurrency userDisplayCurrency,
         CancellationToken cancellationToken = default
     )
     {
@@ -51,6 +52,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             var portfolioValueOnDate = await Transactions.GetPortfolioValueOnDateAsync(
                 dateOfTransaction,
                 historicalBitcoinPriceProvider,
+                userDisplayCurrency,
                 cancellationToken
             );
 

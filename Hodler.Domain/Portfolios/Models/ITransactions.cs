@@ -17,6 +17,7 @@ public interface ITransactions : IReadOnlyCollection<Transaction>
     Task<FiatAmount> GetPortfolioValueOnDateAsync(
         DateOnly dateOfTransaction,
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        FiatCurrency userDisplayCurrency,
         CancellationToken cancellationToken = default
     );
 

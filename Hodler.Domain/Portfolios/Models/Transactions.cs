@@ -42,6 +42,7 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
     public async Task<FiatAmount> GetPortfolioValueOnDateAsync(
         DateOnly date,
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        FiatCurrency userDisplayCurrency,
         CancellationToken cancellationToken = default
     )
     {
@@ -51,8 +52,28 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
             .ToList();
 
         if (transactions.Count == 0)
-            return new FiatAmount(0, FiatCurrency.UsDollar); // TODO: Get from user settings
+            return new FiatAmount(0, userDisplayCurrency);
 
+        // foreach (var transaction in transactions)
+        // {
+        // todo: if transaction not in user display currency, convert to user display currency
+        // todo: adjust when adding transaction and when display currency changed
+        //
+        //     if (transaction.FiatAmount.FiatCurrency.Id != userDisplayCurrency.Id)
+        //     {
+        //         var btcPriceOnDate = await historicalBitcoinPriceProvider
+        //             .GetHistoricalPriceOnDateAsync(
+        //                 userDisplayCurrency,
+        //                 transaction.Timestamp.ToDate(),
+        //                 cancellationToken
+        //             );
+        //        
+        //         transaction.FiatAmount = new FiatAmount(
+        //             transaction.BtcAmount.Amount * btcPriceOnDate.Amount,
+        //             userDisplayCurrency
+        //         );
+        //     }
+        // }
 
         var bought = transactions.Where(x => x.Type == TransactionType.Buy).Sum(x => x.BtcAmount);
         var sold = transactions.Where(x => x.Type == TransactionType.Sell).Sum(x => x.BtcAmount);

@@ -1,29 +1,26 @@
+using Hodler.Domain.Shared.Models;
+
 namespace Hodler.Domain.Users.Models;
 
 public class UserSettings
 {
     public Guid UserSettingsId { get; }
     public UserId UserId { get; }
-    public string? Language { get; }
-    public string? Currency { get; }
-    public string? Theme { get; }
-    public string? Region { get; }
+    public FiatCurrency Currency { get; }
+    public AppTheme Theme { get; }
 
     public UserSettings(
         Guid userSettingsId,
         UserId userId,
-        string? language,
-        string? currency,
-        string? theme,
-        string? region)
+        FiatCurrency? currency = null,
+        AppTheme? theme = null
+    )
     {
         ArgumentNullException.ThrowIfNull(userId);
 
         UserSettingsId = userSettingsId;
         UserId = userId;
-        Language = language;
-        Currency = currency;
-        Theme = theme;
-        Region = region;
+        Currency = currency ?? FiatCurrency.UsDollar;
+        Theme = theme ?? AppTheme.Dark;
     }
 }

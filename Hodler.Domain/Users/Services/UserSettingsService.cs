@@ -13,11 +13,28 @@ public class UserSettingsService : IUserSettingsService
         _userRepository = userRepository;
     }
 
-    public async Task<bool> AddApiKeyAsync(ApiKeyName apiKeyName,
+    public async Task<UserSettings> GetUserSettingsAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(userId);
+
+        var user = await _userRepository.FindByAsync(userId, cancellationToken);
+
+        if (user == null)
+            throw new InvalidOperationException($"User with id {userId} not found.");
+
+        return user.UserSettings;
+    }
+
+    public async Task<bool> AddApiKeyAsync(
+        ApiKeyName apiKeyName,
         string value,
         UserId userId,
         string? secret,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         ArgumentNullException.ThrowIfNull(apiKeyName);
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
