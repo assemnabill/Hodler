@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hodler.Integration.Repositories.Migrations.User
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20250415170634_AdjustCurrencyAndThemeTypes")]
-    partial class AdjustCurrencyAndThemeTypes
+    [Migration("20250416111438_RemoveInitialUserSettings")]
+    partial class RemoveInitialUserSettings
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -140,12 +140,6 @@ namespace Hodler.Integration.Repositories.Migrations.User
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Currency")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Theme")
-                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

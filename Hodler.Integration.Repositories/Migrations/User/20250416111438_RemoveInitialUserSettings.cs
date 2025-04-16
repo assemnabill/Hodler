@@ -5,11 +5,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Hodler.Integration.Repositories.Migrations.User
 {
     /// <inheritdoc />
-    public partial class AdjustCurrencyAndThemeTypes : Migration
+    public partial class RemoveInitialUserSettings : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropColumn(
+                name: "Currency",
+                table: "UserSettings");
+
             migrationBuilder.DropColumn(
                 name: "Language",
                 table: "UserSettings");
@@ -18,45 +22,19 @@ namespace Hodler.Integration.Repositories.Migrations.User
                 name: "Region",
                 table: "UserSettings");
 
-            migrationBuilder.AlterColumn<int>(
+            migrationBuilder.DropColumn(
                 name: "Theme",
-                table: "UserSettings",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<int>(
-                name: "Currency",
-                table: "UserSettings",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+                table: "UserSettings");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Theme",
-                table: "UserSettings",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(int),
-                oldType: "integer");
-
-            migrationBuilder.AlterColumn<string>(
+            migrationBuilder.AddColumn<string>(
                 name: "Currency",
                 table: "UserSettings",
                 type: "text",
-                nullable: true,
-                oldClrType: typeof(int),
-                oldType: "integer");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Language",
@@ -66,6 +44,12 @@ namespace Hodler.Integration.Repositories.Migrations.User
 
             migrationBuilder.AddColumn<string>(
                 name: "Region",
+                table: "UserSettings",
+                type: "text",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "Theme",
                 table: "UserSettings",
                 type: "text",
                 nullable: true);
