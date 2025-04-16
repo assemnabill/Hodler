@@ -126,8 +126,14 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
             return new PortfolioSummaryInfo(zero, new BitcoinAmount(0), zero, zero, zero, 0, zero, zero, 0);
         }
 
-        var netInvestedFiat = Items.Sum(t => t.FiatAmount);
-        var totalBtcInvestment = Items.Sum(t => t.BtcAmount);
+        var buyTransactions = Items.Where(x => x.Type == TransactionType.Buy).ToList();
+        var sellTransactions = Items.Where(x => x.Type == TransactionType.Sell).ToList();
+
+        var netInvestedFiat = buyTransactions.Sum(x => x.FiatAmount.Amount)
+                              - sellTransactions.Sum(x => x.FiatAmount.Amount);
+
+        var totalBtcInvestment = buyTransactions.Sum(x => x.BtcAmount.Amount)
+                                 - sellTransactions.Sum(x => x.BtcAmount.Amount);
 
         // TODO: GET IN USER CURRENCY AND CONVERT TRANSACTIONS IN FORIGN CURRENCY TO USER CURRENCY
         var currentBtcPrice = await currentBitcoinPriceProvider

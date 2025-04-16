@@ -8,5 +8,5 @@ public class AddTransactionRequestContract
     public decimal BitcoinAmount { get; set; }
     public FiatAmountDto FiatAmount { get; set; }
     public TransactionType Type { get; set; }
-    public CryptoExchangeNames CryptoExchange { get; set; }
+    public CryptoExchangeNames? CryptoExchange { get; set; }
 }

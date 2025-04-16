@@ -53,7 +53,7 @@ public class PortfolioController(IMediator mediator) : ApiController
             addTransactionRequestContract.BitcoinAmount,
             addTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
             (TransactionType)addTransactionRequestContract.Type,
-            (CryptoExchangeName)addTransactionRequestContract.CryptoExchange
+            (CryptoExchangeName?)addTransactionRequestContract.CryptoExchange
         );
 
         var result = await mediator.Send(request, cancellationToken);
