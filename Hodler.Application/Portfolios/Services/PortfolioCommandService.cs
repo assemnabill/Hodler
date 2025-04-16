@@ -32,7 +32,9 @@ public class PortfolioCommandService : IPortfolioCommandService
             request.Type,
             request.Date,
             request.Price,
-            request.Amount, request.CryptoExchange);
+            request.Amount,
+            request.CryptoExchange
+        );
 
         if (result.IsSuccess)
         {

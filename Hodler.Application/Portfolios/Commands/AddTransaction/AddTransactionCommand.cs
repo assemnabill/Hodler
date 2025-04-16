@@ -9,6 +9,13 @@ namespace Hodler.Application.Portfolios.Commands.AddTransaction;
 
 public class AddTransactionCommand : IRequest<IResult>
 {
+    public UserId UserId { get; }
+    public DateTime Date { get; }
+    public BitcoinAmount Amount { get; }
+    public FiatAmount Price { get; }
+    public TransactionType Type { get; }
+    public CryptoExchangeName? CryptoExchange { get; }
+
     public AddTransactionCommand(
         UserId userId,
         DateTime date,
@@ -27,11 +34,4 @@ public class AddTransactionCommand : IRequest<IResult>
         Type = type;
         CryptoExchange = cryptoExchange;
     }
-
-    public UserId UserId { get; }
-    public DateTime Date { get; }
-    public BitcoinAmount Amount { get; }
-    public FiatAmount Price { get; }
-    public TransactionType Type { get; }
-    public CryptoExchangeName? CryptoExchange { get; }
 }
