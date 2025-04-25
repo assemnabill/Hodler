@@ -1,4 +1,4 @@
-using Hodler.Domain.PriceCatalogs.Ports;
+using Hodler.Domain.BitcoinPrices.Ports;
 
 namespace Hodler.Integration.Repositories.PriceCatalogs.Repositories;
 

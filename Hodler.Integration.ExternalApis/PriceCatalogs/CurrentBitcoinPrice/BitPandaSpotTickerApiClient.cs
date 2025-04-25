@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Json;
-using Hodler.Domain.PriceCatalogs.Models;
+using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Integration.ExternalApis.PriceCatalogs.CurrentBitcoinPrice;

@@ -1,9 +1,10 @@
+using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Portfolios.Models;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Portfolios.Services;
-using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Users.Models;
 using Hodler.Domain.Users.Services;
+using Microsoft.Extensions.Internal;
 
 namespace Hodler.Application.Portfolios.Services;
 
@@ -12,19 +13,22 @@ internal class PortfolioQueryService : IPortfolioQueryService
     private readonly ICurrentBitcoinPriceProvider _currentBitcoinPriceProvider;
     private readonly IHistoricalBitcoinPriceProvider _historicalBitcoinPriceProvider;
     private readonly IPortfolioRepository _portfolioRepository;
+    private readonly ISystemClock _systemClock;
     private readonly IUserSettingsService _userSettingsService;
 
     public PortfolioQueryService(
         IPortfolioRepository portfolioRepository,
         ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
-        IUserSettingsService userSettingsService
+        IUserSettingsService userSettingsService,
+        ISystemClock systemClock
     )
     {
         _portfolioRepository = portfolioRepository;
         _currentBitcoinPriceProvider = currentBitcoinPriceProvider;
         _historicalBitcoinPriceProvider = historicalBitcoinPriceProvider;
         _userSettingsService = userSettingsService;
+        _systemClock = systemClock;
     }
 
 
@@ -33,8 +37,9 @@ internal class PortfolioQueryService : IPortfolioQueryService
         ArgumentNullException.ThrowIfNull(userId);
 
         var portfolio = await FindOrCreatePortfolioAsync(userId, cancellationToken);
+        var userSettings = await _userSettingsService.GetUserSettingsAsync(userId, cancellationToken);
 
-        var summary = await portfolio.GetSummaryReportAsync(_currentBitcoinPriceProvider, cancellationToken)!;
+        var summary = await portfolio.GetSummaryReportAsync(_currentBitcoinPriceProvider, userSettings.Currency, cancellationToken)!;
 
         return summary;
     }
@@ -53,12 +58,14 @@ internal class PortfolioQueryService : IPortfolioQueryService
             .CalculatePortfolioValueChartAsync(
                 _historicalBitcoinPriceProvider,
                 userSettings.Currency,
+                _systemClock,
                 cancellationToken
             );
 
         var portfolioValue = await portfolio
             .GetSummaryReportAsync(
                 _currentBitcoinPriceProvider,
+                userSettings.Currency,
                 cancellationToken
             );
 

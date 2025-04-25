@@ -1,6 +1,6 @@
 ﻿using Corz.DomainDriven.Abstractions.Models.Results;
+using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;
-using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolios.Models;
@@ -12,9 +12,9 @@ public interface ITransactions : IReadOnlyCollection<Transaction>
         CancellationToken cancellationToken
     );
 
-    SyncResult<ITransactions> Sync(IEnumerable<Transaction> transactions);
+    SyncResult<ITransactions> Sync(List<Transaction> transactions);
 
-    Task<FiatAmount> GetPortfolioValueOnDateAsync(
+    Task<FiatAmount> CalculatePortfolioValueOnDateAsync(
         DateOnly dateOfTransaction,
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         FiatCurrency userDisplayCurrency,

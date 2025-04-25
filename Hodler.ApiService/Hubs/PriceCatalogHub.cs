@@ -1,5 +1,5 @@
 using Hodler.Contracts.PriceCatalogs;
-using Hodler.Domain.PriceCatalogs.Ports;
+using Hodler.Domain.BitcoinPrices.Ports;
 using Mapster;
 using Microsoft.AspNetCore.SignalR;
 

@@ -1,5 +1,5 @@
-﻿using Hodler.Domain.PriceCatalogs.Models;
-using Hodler.Domain.PriceCatalogs.Ports;
+﻿using Hodler.Domain.BitcoinPrices.Models;
+using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Integration.ExternalApis.PriceCatalogs.CurrentBitcoinPrice;
@@ -16,7 +16,7 @@ public class BitPandaCurrentBitcoinPriceProvider : ICurrentBitcoinPriceProvider
     public async Task<FiatAmount> GetCurrentBitcoinPriceInAmericanDollarsAsync(CancellationToken cancellationToken)
     {
         var priceCatalog = await GetBitcoinPriceCatalogAsync(cancellationToken);
-        
+
         return priceCatalog.GetPrice(FiatCurrency.UsDollar);
     }
 

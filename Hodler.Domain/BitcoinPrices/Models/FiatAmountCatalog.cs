@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.PriceCatalogs.Models;
+namespace Hodler.Domain.BitcoinPrices.Models;
 
 public class FiatAmountCatalog : ReadOnlyCollection<FiatAmount>, IFiatAmountCatalog
 {
@@ -9,6 +9,5 @@ public class FiatAmountCatalog : ReadOnlyCollection<FiatAmount>, IFiatAmountCata
     {
     }
 
-    public FiatAmount GetPrice(FiatCurrency currency) => 
-        this.First(fiatAmount => fiatAmount.FiatCurrency.Equals(currency));
+    public FiatAmount GetPrice(FiatCurrency currency) => this.First(fiatAmount => fiatAmount.FiatCurrency.Equals(currency));
 }

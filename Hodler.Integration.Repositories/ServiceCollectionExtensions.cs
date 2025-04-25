@@ -1,5 +1,5 @@
-﻿using Hodler.Domain.Portfolios.Ports.Repositories;
-using Hodler.Domain.PriceCatalogs.Ports;
+﻿using Hodler.Domain.BitcoinPrices.Ports;
+using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Users.Ports;
 using Hodler.Integration.Repositories.Portfolios.Repositories;
 using Hodler.Integration.Repositories.PriceCatalogs.Repositories;

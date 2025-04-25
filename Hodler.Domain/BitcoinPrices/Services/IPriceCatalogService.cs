@@ -1,7 +1,7 @@
-using Hodler.Domain.PriceCatalogs.Models;
+using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.PriceCatalogs.Services;
+namespace Hodler.Domain.BitcoinPrices.Services;
 
 public interface IPriceCatalogService
 {

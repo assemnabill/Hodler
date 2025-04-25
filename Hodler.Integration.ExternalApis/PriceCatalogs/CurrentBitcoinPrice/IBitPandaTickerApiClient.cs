@@ -1,4 +1,4 @@
-using Hodler.Domain.PriceCatalogs.Models;
+using Hodler.Domain.BitcoinPrices.Models;
 
 namespace Hodler.Integration.ExternalApis.PriceCatalogs.CurrentBitcoinPrice;
 

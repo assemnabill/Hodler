@@ -1,5 +1,5 @@
-﻿using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
-using Hodler.Domain.PriceCatalogs.Ports;
+﻿using Hodler.Domain.BitcoinPrices.Ports;
+using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
 using Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.BitPanda;
 using Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.Kraken;
 using Hodler.Integration.ExternalApis.PriceCatalogs.CurrentBitcoinPrice;
@@ -16,7 +16,6 @@ public static class ServiceCollectionExtensions
         TypeAdapterConfig.GlobalSettings.Scan(typeof(ServiceCollectionExtensions).Assembly);
 
         services.AddTransient<ICurrentBitcoinPriceProvider, BitPandaCurrentBitcoinPriceProvider>();
-        services.AddTransient<IHistoricalBitcoinPriceProvider, CoinCapHistoricalBitcoinPriceProvider>();
         services.AddTransient<IBitPandaTickerApiClient, BitPandaSpotTickerApiClient>();
         services.AddTransient<IBitPandaSpotApiClient, BitPandaSpotApiClient>();
         services.AddTransient<IKrakenApiClient, KrakenApiClient>();

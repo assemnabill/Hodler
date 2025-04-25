@@ -1,4 +1,4 @@
-namespace Hodler.Domain.PriceCatalogs.Models;
+namespace Hodler.Domain.BitcoinPrices.Models;
 
 public interface IPriceCatalog<TAsset> : IDictionary<TAsset, IFiatAmountCatalog>
 {

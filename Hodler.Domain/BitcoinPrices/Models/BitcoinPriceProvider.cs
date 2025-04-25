@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Hodler.Domain.PriceCatalogs.Models;
+namespace Hodler.Domain.BitcoinPrices.Models;
 
 public enum BitcoinPriceProvider
 {

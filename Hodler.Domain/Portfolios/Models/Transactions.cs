@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using Corz.DomainDriven.Abstractions.Models.Results;
 using Corz.Extensions.DateTime;
+using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;
-using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolios.Models;
@@ -15,15 +15,18 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         EnsureNoDuplicates();
     }
 
-    public SyncResult<ITransactions> Sync(IEnumerable<Transaction> transactions)
+    public SyncResult<ITransactions> Sync(List<Transaction> transactions)
     {
         var changed = false;
-        transactions = transactions.OrderBy(x => x.Timestamp).ToList();
+        transactions = transactions
+            .OrderBy(x => x.Timestamp)
+            .ToList();
+
         var currentTransactions = Items
             .OrderBy(x => x.Timestamp)
             .ToList();
 
-        // TODO: EQUALITY CHECK NOT WORKING
+        // TODO: EQUALITY CHECK NOT WORKING? - FIXED BY TURNING ENUMERABLE TO LIST, TEST THIS LATER
         if (Equals(transactions, currentTransactions))
             return new SyncResult<ITransactions>(changed, this);
 
@@ -39,53 +42,28 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         return new SyncResult<ITransactions>(changed, new Transactions(currentTransactions));
     }
 
-    public async Task<FiatAmount> GetPortfolioValueOnDateAsync(
+    public async Task<FiatAmount> CalculatePortfolioValueOnDateAsync(
         DateOnly date,
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         FiatCurrency userDisplayCurrency,
         CancellationToken cancellationToken = default
     )
     {
-        var transactions = Items
+        var transactionsTillDate = Items
             .Where(x => x.Timestamp.ToDate() <= date)
             .OrderBy(x => x.Timestamp)
             .ToList();
 
-        if (transactions.Count == 0)
+        if (transactionsTillDate.Count == 0)
             return new FiatAmount(0, userDisplayCurrency);
 
-        // foreach (var transaction in transactions)
-        // {
-        // todo: if transaction not in user display currency, convert to user display currency
-        // todo: adjust when adding transaction and when display currency changed
-        //
-        //     if (transaction.FiatAmount.FiatCurrency.Id != userDisplayCurrency.Id)
-        //     {
-        //         var btcPriceOnDate = await historicalBitcoinPriceProvider
-        //             .GetHistoricalPriceOnDateAsync(
-        //                 userDisplayCurrency,
-        //                 transaction.Timestamp.ToDate(),
-        //                 cancellationToken
-        //             );
-        //        
-        //         transaction.FiatAmount = new FiatAmount(
-        //             transaction.BtcAmount.Amount * btcPriceOnDate.Amount,
-        //             userDisplayCurrency
-        //         );
-        //     }
-        // }
+        var netBtcOnDate = transactionsTillDate
+            .Sum(x => x.Type == TransactionType.Buy ? x.BtcAmount : -x.BtcAmount);
 
-        var bought = transactions.Where(x => x.Type == TransactionType.Buy).Sum(x => x.BtcAmount);
-        var sold = transactions.Where(x => x.Type == TransactionType.Sell).Sum(x => x.BtcAmount);
-        var netBtcOnDate = bought - sold;
+        var btcPriceOnDate = await historicalBitcoinPriceProvider
+            .GetHistoricalPriceOnDateAsync(userDisplayCurrency, date, cancellationToken);
 
-        // TODO: Get price on date from historical data
-        var btcPriceOnDate = transactions.Last().MarketPrice;
-
-        // TODO: Get from user settings
-        var fiatCurrency = transactions.First().FiatAmount.FiatCurrency;
-
-        return new FiatAmount(netBtcOnDate * btcPriceOnDate, fiatCurrency);
+        return new FiatAmount(netBtcOnDate * btcPriceOnDate, btcPriceOnDate.FiatCurrency);
     }
 
     public ITransactions Add(

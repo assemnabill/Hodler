@@ -1,6 +1,6 @@
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.PriceCatalogs.Models;
+namespace Hodler.Domain.BitcoinPrices.Models;
 
 public interface IFiatAmountCatalog : IReadOnlyCollection<FiatAmount>
 {
@@ -21,7 +21,7 @@ public interface IFiatAmountCatalog : IReadOnlyCollection<FiatAmount>
                 FiatCurrency.SwedishKrona,
                 FiatCurrency.DanishKrone
             ];
-            
+
             return supportedFiatCurrencies;
         }
     }
