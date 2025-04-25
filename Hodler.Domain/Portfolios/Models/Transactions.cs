@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using Corz.DomainDriven.Abstractions.Models.Results;
-using Corz.Extensions.DateTime;
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Shared.Models;
@@ -42,29 +41,6 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         return new SyncResult<ITransactions>(changed, new Transactions(currentTransactions));
     }
 
-    public async Task<FiatAmount> CalculatePortfolioValueOnDateAsync(
-        DateOnly date,
-        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
-        FiatCurrency userDisplayCurrency,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var transactionsTillDate = Items
-            .Where(x => x.Timestamp.ToDate() <= date)
-            .OrderBy(x => x.Timestamp)
-            .ToList();
-
-        if (transactionsTillDate.Count == 0)
-            return new FiatAmount(0, userDisplayCurrency);
-
-        var netBtcOnDate = transactionsTillDate
-            .Sum(x => x.Type == TransactionType.Buy ? x.BtcAmount : -x.BtcAmount);
-
-        var btcPriceOnDate = await historicalBitcoinPriceProvider
-            .GetHistoricalPriceOnDateAsync(userDisplayCurrency, date, cancellationToken);
-
-        return new FiatAmount(netBtcOnDate * btcPriceOnDate, btcPriceOnDate.FiatCurrency);
-    }
 
     public ITransactions Add(
         PortfolioId portfolioId,

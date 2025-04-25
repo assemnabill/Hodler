@@ -14,13 +14,6 @@ public interface ITransactions : IReadOnlyCollection<Transaction>
 
     SyncResult<ITransactions> Sync(List<Transaction> transactions);
 
-    Task<FiatAmount> CalculatePortfolioValueOnDateAsync(
-        DateOnly dateOfTransaction,
-        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
-        FiatCurrency userDisplayCurrency,
-        CancellationToken cancellationToken = default
-    );
-
     ITransactions Add(
         PortfolioId portfolioId,
         TransactionType transactionType,
