@@ -1,6 +1,7 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
 using Corz.DomainDriven.Abstractions.Models.Results;
 using Corz.Extensions.DateTime;
+using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Shared.Models;
@@ -55,7 +56,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             .GetHistoricalPriceOfDateIntervalAsync(userDisplayCurrency, startDate, endDate, cancellationToken);
 
         var chartSpots = btcPriceOnDates
-            .Select(x => new ChartSpot(x.Key, CalculatePortfolioValueOnDateAsync(x.Key, x.Value)))
+            .Select(x => new ChartSpot(x.Key, CalculatePortfolioValueOnDateAsync(x.Value)))
             .ToList();
 
         return chartSpots;
@@ -82,20 +83,20 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         return result;
     }
 
-    private FiatAmount CalculatePortfolioValueOnDateAsync(DateOnly date, FiatAmount btcPriceOnDate)
+    private FiatAmount CalculatePortfolioValueOnDateAsync(IBitcoinPrice btcPriceOnDate)
     {
         var transactionsTillDate = Transactions
-            .Where(x => x.Timestamp.ToDate() <= date)
+            .Where(x => x.Timestamp.ToDate() <= btcPriceOnDate.Date)
             .OrderBy(x => x.Timestamp)
             .ToList();
 
         if (transactionsTillDate.Count == 0)
-            return new FiatAmount(0, btcPriceOnDate.FiatCurrency);
+            return new FiatAmount(0, btcPriceOnDate.Currency);
 
         var netBtcOnDate = transactionsTillDate
             .Sum(x => x.Type == TransactionType.Buy ? x.BtcAmount : -x.BtcAmount);
 
-        return new FiatAmount(netBtcOnDate * btcPriceOnDate, btcPriceOnDate.FiatCurrency);
+        return new FiatAmount(netBtcOnDate * btcPriceOnDate.Price, btcPriceOnDate.Currency);
     }
 
 

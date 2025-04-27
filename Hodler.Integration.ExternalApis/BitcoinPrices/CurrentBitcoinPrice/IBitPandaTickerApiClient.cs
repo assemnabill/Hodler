@@ -1,6 +1,6 @@
 using Hodler.Domain.BitcoinPrices.Models;
 
-namespace Hodler.Integration.ExternalApis.PriceCatalogs.CurrentBitcoinPrice;
+namespace Hodler.Integration.ExternalApis.BitcoinPrices.CurrentBitcoinPrice;
 
 public interface IBitPandaTickerApiClient
 {

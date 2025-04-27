@@ -2,7 +2,7 @@
 using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Integration.ExternalApis.PriceCatalogs.CurrentBitcoinPrice;
+namespace Hodler.Integration.ExternalApis.BitcoinPrices.CurrentBitcoinPrice;
 
 public class BitPandaSpotTickerApiClient : IBitPandaTickerApiClient
 {

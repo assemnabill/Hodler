@@ -26,7 +26,9 @@ public class KrakenApiClient : IKrakenApiClient
 
     public KrakenApiClient(
         IDistributedCache cache,
-        IUserSettingsQueryService userSettingsQueryService, IKrakenRestClient krakenRestClient)
+        IUserSettingsQueryService userSettingsQueryService,
+        IKrakenRestClient krakenRestClient
+    )
     {
         _userSettingsQueryService = userSettingsQueryService;
         _krakenRestClient = krakenRestClient;
@@ -35,7 +37,8 @@ public class KrakenApiClient : IKrakenApiClient
 
     public async Task<IReadOnlyCollection<TransactionInfo>> GetTransactionsAsync(
         UserId userId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         ArgumentNullException.ThrowIfNull(userId);
 
@@ -151,10 +154,10 @@ public class KrakenApiClient : IKrakenApiClient
         return FiatCurrency.GetByTicker(receivingEntry.Asset.Substring(0, 3));
     }
 
-    private static bool IsInvalidBitcoinTransaction(KrakenLedgerEntry? spendingEntry, KrakenLedgerEntry? receivingEntry)
-        => spendingEntry is null
-           || receivingEntry is null
-           || (!spendingEntry.Asset.Contains("XBT") && !receivingEntry.Asset.Contains("XBT"));
+    private static bool IsInvalidBitcoinTransaction(KrakenLedgerEntry? spendingEntry, KrakenLedgerEntry? receivingEntry) =>
+        spendingEntry is null
+        || receivingEntry is null
+        || (!spendingEntry.Asset.Contains("XBT") && !receivingEntry.Asset.Contains("XBT"));
 
     private static string CacheKey(UserId userId) => $"{userId}-Trades-{CryptoExchangeName.Kraken.GetDescription()}";
 
