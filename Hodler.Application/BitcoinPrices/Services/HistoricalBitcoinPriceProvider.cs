@@ -26,8 +26,12 @@ public class HistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
     )
     {
         var bitcoinPrices = await GetHistoricalPriceOfDateIntervalAsync(fiatCurrency, date, date, cancellationToken);
+        if (bitcoinPrices.TryGetValue(date, out var bitcoinPrice))
+        {
+            return bitcoinPrice;
+        }
 
-        return bitcoinPrices.GetValueOrDefault(date)!;
+        throw new KeyNotFoundException($"The historical price for the date {date} could not be found.");
     }
 
     public async Task<Dictionary<DateOnly, IBitcoinPrice>> GetHistoricalPriceOfDateIntervalAsync(
@@ -87,7 +91,6 @@ public class HistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
         {
             await _bitcoinPriceRepository.StoreAsync(prices, cancellationToken);
         }
-
 
         return prices;
     }
