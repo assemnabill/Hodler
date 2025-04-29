@@ -1,10 +1,12 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
 using Corz.DomainDriven.Abstractions.Models.Results;
 using Corz.Extensions.DateTime;
+using Hodler.Domain.BitcoinPrices.Models;
+using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;
-using Hodler.Domain.PriceCatalogs.Ports;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
+using Microsoft.Extensions.Internal;
 
 namespace Hodler.Domain.Portfolios.Models;
 
@@ -27,7 +29,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     {
         ArgumentNullException.ThrowIfNull(transactions);
 
-        var syncResult = Transactions.Sync(transactions);
+        var syncResult = Transactions.Sync(transactions.ToList());
 
         if (syncResult.Changed)
         {
@@ -40,30 +42,29 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     public async Task<IReadOnlyCollection<ChartSpot>> CalculatePortfolioValueChartAsync(
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         FiatCurrency userDisplayCurrency,
+        ISystemClock systemClock,
         CancellationToken cancellationToken = default
     )
     {
-        // TODO: Fill gap dates between transactions with => btcPriceOnDate * btcHoldingsOnDate
-        var candels = new List<ChartSpot>();
+        var startDate = Transactions
+            .Select(x => x.Timestamp.ToDate())
+            .Min();
 
-        foreach (var transaction in Transactions)
-        {
-            var dateOfTransaction = transaction.Timestamp.ToDate();
-            var portfolioValueOnDate = await Transactions.GetPortfolioValueOnDateAsync(
-                dateOfTransaction,
-                historicalBitcoinPriceProvider,
-                userDisplayCurrency,
-                cancellationToken
-            );
+        var endDate = systemClock.UtcNow.ToDate();
 
-            candels.Add(new ChartSpot(dateOfTransaction, portfolioValueOnDate));
-        }
+        var btcPriceOnDates = await historicalBitcoinPriceProvider
+            .GetHistoricalPriceOfDateIntervalAsync(userDisplayCurrency, startDate, endDate, cancellationToken);
 
-        return candels;
+        var chartSpots = btcPriceOnDates
+            .Select(x => new ChartSpot(x.Key, CalculatePortfolioValueOnDateAsync(x.Value)))
+            .ToList();
+
+        return chartSpots;
     }
 
     public Task<PortfolioSummaryInfo> GetSummaryReportAsync(
         ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,
+        FiatCurrency userSettingsCurrency, //todo: consider
         CancellationToken cancellationToken = default
     ) =>
         Transactions.GetSummaryReportAsync(currentBitcoinPriceProvider, cancellationToken);
@@ -80,6 +81,22 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             .Add(Id, transactionType, date, price, bitcoinAmount, cryptoExchange, out var result);
 
         return result;
+    }
+
+    private FiatAmount CalculatePortfolioValueOnDateAsync(IBitcoinPrice btcPriceOnDate)
+    {
+        var transactionsTillDate = Transactions
+            .Where(x => x.Timestamp.ToDate() <= btcPriceOnDate.Date)
+            .OrderBy(x => x.Timestamp)
+            .ToList();
+
+        if (transactionsTillDate.Count == 0)
+            return new FiatAmount(0, btcPriceOnDate.Currency);
+
+        var netBtcOnDate = transactionsTillDate
+            .Sum(x => x.Type == TransactionType.Buy ? x.BtcAmount : -x.BtcAmount);
+
+        return new FiatAmount(netBtcOnDate * btcPriceOnDate.Price, btcPriceOnDate.Currency);
     }
 
 

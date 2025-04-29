@@ -4,9 +4,6 @@ namespace Hodler.Domain.Shared.Models;
 
 public class FiatCurrency : TypeSafeEnum<FiatCurrency>
 {
-    public string Ticker { get; }
-    public string Symbol { get; }
-
     public static readonly FiatCurrency Euro = new(1, "EUR", "€");
     public static readonly FiatCurrency UsDollar = new(2, "USD", "$");
     public static readonly FiatCurrency SwissFranc = new(3, "CHF", "CHF");
@@ -17,6 +14,8 @@ public class FiatCurrency : TypeSafeEnum<FiatCurrency>
     public static readonly FiatCurrency CzechKoruna = new(8, "CZK", "Kč");
     public static readonly FiatCurrency SwedishKrona = new(15, "SEK", "kr");
     public static readonly FiatCurrency DanishKrone = new(17, "DKK", "kr");
+    public string Ticker { get; }
+    public string Symbol { get; }
 
     public FiatCurrency(int id, string ticker, string symbol) : base(id)
     {
@@ -27,7 +26,7 @@ public class FiatCurrency : TypeSafeEnum<FiatCurrency>
 
     public static FiatCurrency GetByTicker(string ticker)
     {
-        return ticker switch
+        return ticker.ToUpper() switch
         {
             "EUR" => Euro,
             "USD" => UsDollar,

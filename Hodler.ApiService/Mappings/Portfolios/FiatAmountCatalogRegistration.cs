@@ -1,6 +1,6 @@
 using Hodler.Contracts.PriceCatalogs;
 using Hodler.Contracts.Shared;
-using Hodler.Domain.PriceCatalogs.Models;
+using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.Shared.Models;
 using Mapster;
 using FiatCurrency = Hodler.Contracts.Shared.FiatCurrency;

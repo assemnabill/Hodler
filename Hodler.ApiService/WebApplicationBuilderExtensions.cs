@@ -1,4 +1,5 @@
-﻿using Hodler.Integration.Repositories.Portfolios.Context;
+﻿using Hodler.Integration.Repositories.BitcoinPrices.Context;
+using Hodler.Integration.Repositories.Portfolios.Context;
 using Hodler.Integration.Repositories.Users.Context;
 using Hodler.Integration.Repositories.Users.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +11,8 @@ public static class WebApplicationBuilderExtensions
 {
     public static WebApplicationBuilder AddAuthentication(
         this WebApplicationBuilder builder,
-        IConfiguration configuration)
+        IConfiguration configuration
+    )
     {
         builder.Services
             .AddAuthentication(options =>
@@ -28,7 +30,7 @@ public static class WebApplicationBuilderExtensions
             });
 
         builder.Services.AddAuthorizationBuilder();
-        
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowAll", policy =>
@@ -39,14 +41,13 @@ public static class WebApplicationBuilderExtensions
                     .AllowCredentials(); // Allow credentials (cookies)
             });
         });
-        
-        builder.Services.AddDbContext<UserDbContext>(
-            options =>
-            {
-                var connectionString = configuration.GetConnectionString(ServiceConstants.DatabaseName);
 
-                options.UseNpgsql(connectionString);
-            });
+        builder.Services.AddDbContext<UserDbContext>(options =>
+        {
+            var connectionString = configuration.GetConnectionString(ServiceConstants.DatabaseName);
+
+            options.UseNpgsql(connectionString);
+        });
 
         builder.Services
             .AddIdentityCore<User>()
@@ -61,6 +62,7 @@ public static class WebApplicationBuilderExtensions
         this WebApplicationBuilder builder
     )
     {
+        builder.AddNpgsqlDbContext<BitcoinPriceDbContext>(ServiceConstants.DatabaseName);
         builder.AddNpgsqlDbContext<PortfolioDbContext>(ServiceConstants.DatabaseName);
 
         return builder;
@@ -76,7 +78,7 @@ public static class WebApplicationBuilderExtensions
                     ServiceConstants.ApiVersion,
                     new()
                     {
-                        Title = "Hodler.Api",
+                        Title = ServiceConstants.Title,
                         Version = ServiceConstants.ApiVersion
                     });
             });

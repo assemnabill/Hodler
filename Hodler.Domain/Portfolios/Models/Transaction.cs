@@ -11,4 +11,7 @@ public record Transaction(
     FiatAmount MarketPrice,
     DateTimeOffset Timestamp,
     CryptoExchangeName? CryptoExchange = null
-);
+)
+{
+    public bool IsInCurrency(FiatCurrency fiatCurrency) => FiatAmount.FiatCurrency.Id == fiatCurrency.Id;
+}
