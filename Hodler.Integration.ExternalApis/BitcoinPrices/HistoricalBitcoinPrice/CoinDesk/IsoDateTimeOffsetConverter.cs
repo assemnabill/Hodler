@@ -39,7 +39,6 @@ internal class IsoDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
     {
         string text;
 
-
         if ((_dateTimeStyles & DateTimeStyles.AdjustToUniversal) == DateTimeStyles.AdjustToUniversal
             || (_dateTimeStyles & DateTimeStyles.AssumeUniversal) == DateTimeStyles.AssumeUniversal)
         {
@@ -53,22 +52,15 @@ internal class IsoDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
 
     public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        string? dateText = reader.GetString();
+        var dateText = reader.GetString();
 
         if (string.IsNullOrEmpty(dateText) == false)
         {
-            if (!string.IsNullOrEmpty(_dateTimeFormat))
-            {
-                return DateTimeOffset.ParseExact(dateText, _dateTimeFormat, Culture, _dateTimeStyles);
-            }
-            else
-            {
-                return DateTimeOffset.Parse(dateText, Culture, _dateTimeStyles);
-            }
+            return !string.IsNullOrEmpty(_dateTimeFormat)
+                ? DateTimeOffset.ParseExact(dateText, _dateTimeFormat, Culture, _dateTimeStyles)
+                : DateTimeOffset.Parse(dateText, Culture, _dateTimeStyles);
         }
-        else
-        {
-            return default(DateTimeOffset);
-        }
+
+        return default;
     }
 }

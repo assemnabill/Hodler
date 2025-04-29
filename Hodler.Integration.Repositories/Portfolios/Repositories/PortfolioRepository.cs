@@ -24,6 +24,24 @@ internal class PortfolioRepository : IPortfolioRepository
         _logger = logger;
     }
 
+    public async Task StoreAsync(IPortfolio aggregateRoot, CancellationToken cancellationToken)
+    {
+        aggregateRoot.OnBeforeStore();
+        await SaveChangesAsync(aggregateRoot, cancellationToken);
+        aggregateRoot.OnAfterStore();
+    }
+
+    public async Task<IPortfolio?> FindByAsync(UserId userId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(userId);
+
+        var entity = await IncludeAggregate()
+            .Where(x => x.UserId == userId.Value.ToString())
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return entity?.Adapt<Portfolio, IPortfolio>();
+    }
+
     private async Task SaveChangesAsync(IPortfolio aggregateRoot, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(aggregateRoot);
@@ -57,7 +75,7 @@ internal class PortfolioRepository : IPortfolioRepository
 
             await ChangeTransactions(aggregateRoot, entity, cancellationToken);
 
-            int rows = await _dbContext.SaveChangesAsync(cancellationToken);
+            var rows = await _dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (Exception e)
         {
@@ -69,7 +87,8 @@ internal class PortfolioRepository : IPortfolioRepository
     private async Task ChangeTransactions(
         IPortfolio aggregateRoot,
         Portfolio entity,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var existingEntities = _dbContext.Transactions
             .Where(x => x.PortfolioId == entity.PortfolioId)
@@ -97,24 +116,6 @@ internal class PortfolioRepository : IPortfolioRepository
                 await _dbContext.AddAsync(newEntity, cancellationToken);
             }
         }
-    }
-
-    public async Task StoreAsync(IPortfolio aggregateRoot, CancellationToken cancellationToken)
-    {
-        aggregateRoot.OnBeforeStore();
-        await SaveChangesAsync(aggregateRoot, cancellationToken);
-        aggregateRoot.OnAfterStore();
-    }
-
-    public async Task<IPortfolio?> FindByAsync(UserId userId, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(userId);
-
-        var entity = await IncludeAggregate()
-            .Where(x => x.UserId == userId.Value.ToString())
-            .FirstOrDefaultAsync(cancellationToken);
-
-        return entity?.Adapt<Portfolio, IPortfolio>();
     }
 
     private IQueryable<Portfolio> IncludeAggregate()

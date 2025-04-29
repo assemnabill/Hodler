@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Hodler.Integration.Repositories.BitcoinPrices.Context;
 using Hodler.Integration.Repositories.Portfolios.Context;
 using Hodler.Integration.Repositories.Users.Context;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,24 @@ internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<Hod
 
         var identityDbContext = scope.ServiceProvider.GetRequiredService<UserDbContext>();
         await InitializeDatabaseAsync(identityDbContext, cancellationToken);
+
+        var bitcoinPriceDbContext = scope.ServiceProvider.GetRequiredService<BitcoinPriceDbContext>();
+        await InitializeDatabaseAsync(bitcoinPriceDbContext, cancellationToken);
+    }
+
+    private async Task InitializeDatabaseAsync(BitcoinPriceDbContext bitcoinPriceDbContext, CancellationToken cancellationToken)
+    {
+        using var activity = _activitySource.StartActivity("Initializing bitcoin price database", ActivityKind.Client);
+
+        var sw = Stopwatch.StartNew();
+
+        var strategy = bitcoinPriceDbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(bitcoinPriceDbContext.Database.MigrateAsync, cancellationToken);
+
+        // todo: init with historical data from coindesk api
+
+        logger.LogInformation("Database initialization completed after {ElapsedMilliseconds}ms",
+            sw.ElapsedMilliseconds);
     }
 
     private async Task InitializeDatabaseAsync(UserDbContext identityDbContext, CancellationToken cancellationToken)

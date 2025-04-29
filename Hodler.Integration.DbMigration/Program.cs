@@ -1,4 +1,5 @@
 using Hodler.Integration.DbMigration;
+using Hodler.Integration.Repositories.BitcoinPrices.Context;
 using Hodler.Integration.Repositories.Portfolios.Context;
 using Hodler.Integration.Repositories.Users.Context;
 using Hodler.ServiceDefaults;
@@ -9,15 +10,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 builder.AddNpgsqlDbContext<PortfolioDbContext>(
-    "hodler-db",
+    Databases.Hodler,
     null,
     optionsBuilder => optionsBuilder.UseNpgsql(npgsqlBuilder =>
         npgsqlBuilder.MigrationsAssembly(typeof(PortfolioDbContext).Assembly.GetName().Name)
     )
 );
 
+builder.AddNpgsqlDbContext<BitcoinPriceDbContext>(
+    Databases.Hodler,
+    null,
+    optionsBuilder => optionsBuilder.UseNpgsql(npgsqlBuilder =>
+        npgsqlBuilder.MigrationsAssembly(typeof(BitcoinPriceDbContext).Assembly.GetName().Name)
+    )
+);
+
 builder.AddNpgsqlDbContext<UserDbContext>(
-    "hodler-db",
+    Databases.Hodler,
     null,
     optionsBuilder => optionsBuilder.UseNpgsql(npgsqlBuilder =>
         npgsqlBuilder.MigrationsAssembly(typeof(UserDbContext).Assembly.GetName().Name)
