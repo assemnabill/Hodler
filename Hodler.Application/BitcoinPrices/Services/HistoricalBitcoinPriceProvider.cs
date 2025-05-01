@@ -19,21 +19,6 @@ public class HistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
         _coinDeskApiClient = coinDeskApiClient;
     }
 
-    public async Task<IBitcoinPrice> GetHistoricalPriceOnDateAsync(
-        FiatCurrency fiatCurrency,
-        DateOnly date,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var bitcoinPrices = await GetHistoricalPriceOfDateIntervalAsync(fiatCurrency, date, date, cancellationToken);
-        if (bitcoinPrices.TryGetValue(date, out var bitcoinPrice))
-        {
-            return bitcoinPrice;
-        }
-
-        throw new KeyNotFoundException($"The historical price for the date {date} could not be found.");
-    }
-
     public async Task<Dictionary<DateOnly, IBitcoinPrice>> GetHistoricalPriceOfDateIntervalAsync(
         FiatCurrency fiatCurrency,
         DateOnly startDate,
@@ -76,7 +61,7 @@ public class HistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
         return result;
     }
 
-    private async Task<IReadOnlyCollection<IBitcoinPrice>> SyncMissingPricesAsync(
+    public async Task<IReadOnlyCollection<IBitcoinPrice>> SyncMissingPricesAsync(
         FiatCurrency fiatCurrency,
         DateOnly startDate,
         DateOnly endDate,
@@ -93,5 +78,20 @@ public class HistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
         }
 
         return prices;
+    }
+
+    public async Task<IBitcoinPrice> GetHistoricalPriceOnDateAsync(
+        FiatCurrency fiatCurrency,
+        DateOnly date,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var bitcoinPrices = await GetHistoricalPriceOfDateIntervalAsync(fiatCurrency, date, date, cancellationToken);
+        if (bitcoinPrices.TryGetValue(date, out var bitcoinPrice))
+        {
+            return bitcoinPrice;
+        }
+
+        throw new KeyNotFoundException($"The historical price for the date {date} could not be found.");
     }
 }

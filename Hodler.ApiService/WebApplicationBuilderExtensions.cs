@@ -1,9 +1,11 @@
-﻿using Hodler.Integration.Repositories.BitcoinPrices.Context;
+﻿using Hodler.Integration.Repositories;
+using Hodler.Integration.Repositories.BitcoinPrices.Context;
 using Hodler.Integration.Repositories.Portfolios.Context;
 using Hodler.Integration.Repositories.Users.Context;
 using Hodler.Integration.Repositories.Users.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace Hodler.ApiService;
 
@@ -58,14 +60,20 @@ public static class WebApplicationBuilderExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder AddDbContexts(
+    public static WebApplicationBuilder AddRepositories(
         this WebApplicationBuilder builder
     )
     {
-        builder.AddNpgsqlDbContext<BitcoinPriceDbContext>(ServiceConstants.DatabaseName);
-        builder.AddNpgsqlDbContext<PortfolioDbContext>(ServiceConstants.DatabaseName);
+        builder.AddNpgsqlDbContext<PortfolioDbContext>(ServiceConstants.DatabaseName, null, ConfigureDbContextOptions);
+        builder.AddNpgsqlDbContext<BitcoinPriceDbContext>(ServiceConstants.DatabaseName, null, ConfigureDbContextOptions);
+
+        builder.Services.AddRepositories();
 
         return builder;
+
+        void ConfigureDbContextOptions(DbContextOptionsBuilder optionsBuilder) =>
+            optionsBuilder
+                .UseNpgsql(ob => ob.MigrationsAssembly(typeof(BitcoinPriceDbContext).Assembly.GetName().Name));
     }
 
     public static WebApplicationBuilder AddSwagger(this WebApplicationBuilder builder)
@@ -76,10 +84,15 @@ public static class WebApplicationBuilderExtensions
             {
                 options.SwaggerDoc(
                     ServiceConstants.ApiVersion,
-                    new()
+                    new OpenApiInfo
                     {
                         Title = ServiceConstants.Title,
-                        Version = ServiceConstants.ApiVersion
+                        Description = null,
+                        Version = ServiceConstants.ApiVersion,
+                        TermsOfService = null,
+                        Contact = null,
+                        License = null,
+                        Extensions = null
                     });
             });
 

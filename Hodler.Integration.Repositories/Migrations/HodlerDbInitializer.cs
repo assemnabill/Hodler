@@ -1,10 +1,16 @@
 ﻿using System.Diagnostics;
+using Corz.Extensions.DateTime;
+using Hodler.Domain.BitcoinPrices.Ports;
+using Hodler.Domain.Shared.Models;
 using Hodler.Integration.Repositories.BitcoinPrices.Context;
 using Hodler.Integration.Repositories.Portfolios.Context;
 using Hodler.Integration.Repositories.Users.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace Hodler.Integration.DbMigration;
+namespace Hodler.Integration.Repositories.Migrations;
 
 internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<HodlerDbInitializer> logger)
     : BackgroundService
@@ -24,22 +30,52 @@ internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<Hod
         await InitializeDatabaseAsync(identityDbContext, cancellationToken);
 
         var bitcoinPriceDbContext = scope.ServiceProvider.GetRequiredService<BitcoinPriceDbContext>();
-        await InitializeDatabaseAsync(bitcoinPriceDbContext, cancellationToken);
+        var historicalBitcoinPriceProvider = scope.ServiceProvider.GetRequiredService<IHistoricalBitcoinPriceProvider>();
+
+        await InitializeDatabaseAsync(
+            bitcoinPriceDbContext,
+            historicalBitcoinPriceProvider,
+            cancellationToken
+        );
     }
 
-    private async Task InitializeDatabaseAsync(BitcoinPriceDbContext bitcoinPriceDbContext, CancellationToken cancellationToken)
+    private async Task InitializeDatabaseAsync(
+        BitcoinPriceDbContext bitcoinPriceDbContext,
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        CancellationToken cancellationToken
+    )
     {
-        using var activity = _activitySource.StartActivity("Initializing bitcoin price database", ActivityKind.Client);
+        try
+        {
+            using var activity = _activitySource.StartActivity("Initializing bitcoin price database", ActivityKind.Client);
 
-        var sw = Stopwatch.StartNew();
+            var sw = Stopwatch.StartNew();
 
-        var strategy = bitcoinPriceDbContext.Database.CreateExecutionStrategy();
-        await strategy.ExecuteAsync(bitcoinPriceDbContext.Database.MigrateAsync, cancellationToken);
+            var strategy = bitcoinPriceDbContext.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(bitcoinPriceDbContext.Database.MigrateAsync, cancellationToken);
 
-        // todo: init with historical data from coindesk api
+            logger.LogInformation("Database migrations completed.");
 
-        logger.LogInformation("Database initialization completed after {ElapsedMilliseconds}ms",
-            sw.ElapsedMilliseconds);
+            logger.LogInformation("Initializing historical bitcoin price data...");
+
+            var from = DateTime.UtcNow.AddYears(-10).ToDate();
+            var to = DateTime.UtcNow.ToDate();
+
+            var bitcoinPrices = await historicalBitcoinPriceProvider
+                .SyncMissingPricesAsync(FiatCurrency.UsDollar, from, to, cancellationToken);
+
+            logger.LogInformation(
+                "Stored prices from ({From}) to ({To}) in USD.",
+                bitcoinPrices.Min(x => x.Date),
+                bitcoinPrices.Max(x => x.Date)
+            );
+
+            logger.LogInformation("Database initialization completed after {Time}", sw.Elapsed);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error occurred while initializing bitcoin price database");
+        }
     }
 
     private async Task InitializeDatabaseAsync(UserDbContext identityDbContext, CancellationToken cancellationToken)

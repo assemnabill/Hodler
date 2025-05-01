@@ -47,7 +47,7 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
     {
         ArgumentNullException.ThrowIfNull(prices);
 
-        if (!prices.Any())
+        if (prices.Count == 0)
             return;
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -61,43 +61,39 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
         try
         {
             foreach (var price in prices)
-            {
                 price.OnBeforeStore();
-            }
 
-            var existingPrices = await _dbContext.BitcoinPrices
-                .Where(p => prices.Any(x => x.Date == p.Date && x.Currency.Id == p.Currency))
-                .ToDictionaryAsync(
-                    p => (p.Date, p.Currency),
-                    p => p,
-                    cancellationToken
-                );
+            var toBeInserted = new List<Entities.BitcoinPrice>();
 
             foreach (var price in prices)
             {
                 var entity = price.Adapt<Entities.BitcoinPrice>();
+                var existingEntity = _dbContext.BitcoinPrices
+                    .FirstOrDefault(x => x.Date == price.Date && x.Currency == price.Currency.Id);
 
-                if (existingPrices.TryGetValue((price.Date, price.Currency.Id), out var existingEntity))
+                if (existingEntity is null)
                 {
-                    _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+                    entity.CreatedAt = DateTimeOffset.UtcNow;
+                    toBeInserted.Add(entity);
+                    continue;
                 }
-                else
-                {
-                    await _dbContext.BitcoinPrices.AddAsync(entity, cancellationToken);
-                }
+
+                entity.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
             }
+
+            if (toBeInserted.Count != 0)
+                await _dbContext.BitcoinPrices.AddRangeAsync(toBeInserted, cancellationToken);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             foreach (var price in prices)
-            {
                 price.OnAfterStore();
-            }
+
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error occurred while storing bitcoin prices");
-            throw;
         }
     }
 
@@ -148,7 +144,10 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
         catch (Exception e)
         {
             _logger.LogError(e,
-                "Error while storing portfolio ({AggregateRootDate}). Stack Trace: {StackTrace}.", aggregateRoot.Date, new StackTrace());
+                "Error while storing portfolio ({AggregateRootDate}). Stack Trace: {StackTrace}.",
+                aggregateRoot.Date,
+                new StackTrace()
+            );
         }
     }
 }
