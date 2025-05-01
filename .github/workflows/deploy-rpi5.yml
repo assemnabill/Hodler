@@ -1,0 +1,36 @@
+name: Deploy to Raspberry Pi 5
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build .NET API
+        run: |
+          dotnet publish -c Release -o ./publish
+          tar -czf publish.tar.gz ./publish
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dotnet-publish
+          path: publish.tar.gz
+
+      - name: Deploy to RPi5 via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.RPI5_IP }}  # Local IP (e.g., 192.168.1.100)
+          username: ${{ secrets.RPI5_USER }}
+          password: ${{ secrets.RPI5_PASSWORD }}
+          script: |
+            cd /home/pi
+            docker-compose down
+            rm -rf ./publish
+            wget -q https://github.com/${{ github.repository }}/releases/latest/download/publish.tar.gz
+            tar -xzf publish.tar.gz
+            docker-compose up -d --build
