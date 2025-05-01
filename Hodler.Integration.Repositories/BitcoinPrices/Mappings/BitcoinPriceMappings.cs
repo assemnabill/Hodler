@@ -1,6 +1,7 @@
+using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.Shared.Models;
-using Hodler.Integration.Repositories.BitcoinPrices.Entities;
 using Mapster;
+using BitcoinPrice = Hodler.Integration.Repositories.BitcoinPrices.Entities.BitcoinPrice;
 
 namespace Hodler.Integration.Repositories.BitcoinPrices.Mappings;
 
@@ -9,7 +10,7 @@ public class BitcoinPriceMappings : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config
-            .NewConfig<BitcoinPrice, Domain.BitcoinPrices.Models.BitcoinPrice>()
+            .NewConfig<BitcoinPrice, IBitcoinPrice>()
             .ConstructUsing(x => new Domain.BitcoinPrices.Models.BitcoinPrice(
                 new DateOnly(x.Date.Year, x.Date.Month, x.Date.Day),
                 FiatCurrency.GetById(x.Currency),
@@ -21,16 +22,16 @@ public class BitcoinPriceMappings : IRegister
             ));
 
         config
-            .NewConfig<Domain.BitcoinPrices.Models.BitcoinPrice, BitcoinPrice>()
-            .ConstructUsing(x => new BitcoinPrice
+            .NewConfig<IBitcoinPrice, BitcoinPrice>()
+            .MapWith(x => new BitcoinPrice
             {
                 Date = x.Date,
                 Currency = x.Currency.Id,
                 Close = x.Close.Amount,
-                Open = x.Open!.Amount,
-                High = x.High!.Amount,
-                Low = x.Low!.Amount,
-                Volume = x.Volume!.Amount,
+                Open = x.Open != null ? x.Open.Amount : null,
+                High = x.High != null ? x.High.Amount : null,
+                Low = x.Low != null ? x.Low.Amount : null,
+                Volume = x.Volume != null ? x.Volume.Amount : null,
             });
     }
 }

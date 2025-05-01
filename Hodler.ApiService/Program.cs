@@ -2,7 +2,6 @@ using Hodler.ApiService;
 using Hodler.Application;
 using Hodler.Domain;
 using Hodler.Integration.ExternalApis;
-using Hodler.Integration.Repositories;
 using Hodler.Integration.Repositories.Users.Entities;
 using Hodler.ServiceDefaults;
 using Mapster;
@@ -14,12 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 
+// todo extend webappbuilder instead
 // Hodler Service Layers.
 builder.Services
     .AddDomain()
     .AddApplication()
-    .AddExternalApis()
-    .AddRepositories();
+    .AddExternalApis();
 
 // Hodler Service Core
 builder.Services
@@ -31,7 +30,7 @@ builder.Services
 // Hodler Service Infrastructure
 builder.AddRedisDistributedCache(ServiceConstants.RedisCache);
 builder.AddAuthentication(builder.Configuration);
-builder.AddDbContexts();
+builder.AddRepositories();
 builder.AddSwagger();
 
 // TODO: NEED A RETRY POLICY

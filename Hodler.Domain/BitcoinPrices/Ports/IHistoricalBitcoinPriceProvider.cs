@@ -5,15 +5,14 @@ namespace Hodler.Domain.BitcoinPrices.Ports;
 
 public interface IHistoricalBitcoinPriceProvider
 {
-    // TODO: Implement using coin desk api
-    Task<IBitcoinPrice> GetHistoricalPriceOnDateAsync(
+    Task<Dictionary<DateOnly, IBitcoinPrice>> GetHistoricalPriceOfDateIntervalAsync(
         FiatCurrency fiatCurrency,
-        DateOnly date,
+        DateOnly startDate,
+        DateOnly endDate,
         CancellationToken cancellationToken = default
     );
 
-    // TODO: Implement using coin desk api
-    Task<Dictionary<DateOnly, IBitcoinPrice>> GetHistoricalPriceOfDateIntervalAsync(
+    public Task<IReadOnlyCollection<IBitcoinPrice>> SyncMissingPricesAsync(
         FiatCurrency fiatCurrency,
         DateOnly startDate,
         DateOnly endDate,
