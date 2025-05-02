@@ -71,15 +71,11 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
                 var existingEntity = _dbContext.BitcoinPrices
                     .FirstOrDefault(x => x.Date == price.Date && x.Currency == price.Currency.Id);
 
-                if (existingEntity is null)
-                {
-                    entity.CreatedAt = DateTimeOffset.UtcNow;
-                    toBeInserted.Add(entity);
+                if (existingEntity is not null)
                     continue;
-                }
 
-                entity.UpdatedAt = DateTimeOffset.UtcNow;
-                _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+                entity.CreatedAt = DateTimeOffset.UtcNow;
+                toBeInserted.Add(entity);
             }
 
             if (toBeInserted.Count != 0)

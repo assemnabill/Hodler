@@ -1,8 +1,10 @@
+using System.ComponentModel;
+
 namespace Hodler.Domain.Users.Models;
 
 public enum AppTheme
 {
-    Dark,
-    Light,
-    System
+    [Description("Dark")] Dark,
+    [Description("Light")] Light,
+    [Description("Systen")] System
 }

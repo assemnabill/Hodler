@@ -1,4 +1,5 @@
 using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using Hodler.Domain.Users.Ports;
 
@@ -46,6 +47,25 @@ public class UserSettingsService : IUserSettingsService
             throw new InvalidOperationException($"User with id {userId} not found.");
 
         var changed = user.AddApiKey(apiKeyName, value, secret);
+
+        if (changed)
+            await _userRepository.StoreAsync(user, cancellationToken);
+
+        return changed;
+    }
+
+    public async Task<bool> ChangeDisplayCurrencyAsync(
+        UserId userId,
+        FiatCurrency newDisplayCurrency,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var user = await _userRepository.FindByAsync(userId, cancellationToken);
+
+        if (user == null)
+            throw new InvalidOperationException($"User with id {userId} not found.");
+
+        var changed = user.ChangeDisplayCurrency(newDisplayCurrency);
 
         if (changed)
             await _userRepository.StoreAsync(user, cancellationToken);

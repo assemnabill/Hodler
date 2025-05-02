@@ -17,7 +17,8 @@ public class SyncWithExchangeCommandHandler : IRequestHandler<SyncWithExchangeCo
 
     public async Task<PortfolioInfo> Handle(
         SyncWithExchangeCommand request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var domainService = _serviceProvider
             .GetRequiredKeyedService<IPortfolioSyncService>(request.CryptoExchangeName);

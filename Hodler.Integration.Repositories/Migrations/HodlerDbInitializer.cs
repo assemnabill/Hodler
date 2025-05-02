@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using Corz.Extensions.DateTime;
 using Hodler.Domain.BitcoinPrices.Ports;
+using Hodler.Domain.BitcoinPrices.Services;
+using Hodler.Domain.Portfolios.Services;
 using Hodler.Domain.Shared.Models;
 using Hodler.Integration.Repositories.BitcoinPrices.Context;
 using Hodler.Integration.Repositories.Portfolios.Context;
@@ -30,7 +32,7 @@ internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<Hod
         await InitializeDatabaseAsync(identityDbContext, cancellationToken);
 
         var bitcoinPriceDbContext = scope.ServiceProvider.GetRequiredService<BitcoinPriceDbContext>();
-        var historicalBitcoinPriceProvider = scope.ServiceProvider.GetRequiredService<IHistoricalBitcoinPriceProvider>();
+        var historicalBitcoinPriceProvider = scope.ServiceProvider.GetRequiredService<IBitcoinPriceSyncService>();
 
         await InitializeDatabaseAsync(
             bitcoinPriceDbContext,
@@ -41,7 +43,7 @@ internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<Hod
 
     private async Task InitializeDatabaseAsync(
         BitcoinPriceDbContext bitcoinPriceDbContext,
-        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        IBitcoinPriceSyncService historicalBitcoinPriceProvider,
         CancellationToken cancellationToken
     )
     {

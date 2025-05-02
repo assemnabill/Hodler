@@ -11,11 +11,4 @@ public interface IHistoricalBitcoinPriceProvider
         DateOnly endDate,
         CancellationToken cancellationToken = default
     );
-
-    public Task<IReadOnlyCollection<IBitcoinPrice>> SyncMissingPricesAsync(
-        FiatCurrency fiatCurrency,
-        DateOnly startDate,
-        DateOnly endDate,
-        CancellationToken cancellationToken = default
-    );
 }

@@ -16,7 +16,8 @@ public class KrakenPortfolioSyncService : IPortfolioSyncService
     public KrakenPortfolioSyncService(
         IKrakenApiClient krakenApiClient,
         IPortfolioQueryService portfolioQueryService,
-        IPortfolioRepository portfolioRepository)
+        IPortfolioRepository portfolioRepository
+    )
     {
         _krakenApiClient = krakenApiClient;
         _portfolioQueryService = portfolioQueryService;

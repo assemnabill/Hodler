@@ -1,10 +1,17 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
 using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Shared.Models;
+using Hodler.Domain.Users.Events;
 
 namespace Hodler.Domain.Users.Models;
 
 public class User : AggregateRoot<User>, IUser
 {
+    public UserId Id { get; }
+    public UserSettings UserSettings { get; private set; }
+    public IReadOnlyCollection<ApiKey>? ApiKeys { get; private set; }
+
+
     public User(
         UserId userId,
         UserSettings? userSettings,
@@ -17,10 +24,6 @@ public class User : AggregateRoot<User>, IUser
         UserSettings = userSettings ?? new UserSettings(Guid.NewGuid(), userId);
         ApiKeys = apiKeys;
     }
-
-    public UserId Id { get; }
-    public UserSettings UserSettings { get; private set; }
-    public IReadOnlyCollection<ApiKey>? ApiKeys { get; private set; }
 
     public bool AddApiKey(ApiKeyName apiKeyName, string value, string? secret)
     {
@@ -43,5 +46,16 @@ public class User : AggregateRoot<User>, IUser
 
         changed = true;
         return changed;
+    }
+
+    public bool ChangeDisplayCurrency(FiatCurrency newDisplayCurrency)
+    {
+        if (newDisplayCurrency.Id == UserSettings.DisplayCurrency.Id)
+            return false;
+
+        UserSettings = UserSettings.ChangeDisplayCurrency(newDisplayCurrency);
+        EnqueueDomainEvent(new UserDisplayCurrencyChanged(newDisplayCurrency));
+
+        return true;
     }
 }

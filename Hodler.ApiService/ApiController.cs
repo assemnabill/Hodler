@@ -12,7 +12,7 @@ namespace Hodler.ApiService;
 public class ApiController : ControllerBase
 {
     protected UserId UserId => new(Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value));
-    
+
     protected IActionResult HandleException(Exception exception) =>
         exception switch
         {

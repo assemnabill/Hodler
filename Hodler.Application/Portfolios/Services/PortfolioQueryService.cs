@@ -39,7 +39,7 @@ internal class PortfolioQueryService : IPortfolioQueryService
         var portfolio = await FindOrCreatePortfolioAsync(userId, cancellationToken);
         var userSettings = await _userSettingsService.GetUserSettingsAsync(userId, cancellationToken);
 
-        var summary = await portfolio.GetSummaryReportAsync(_currentBitcoinPriceProvider, userSettings.Currency, cancellationToken)!;
+        var summary = await portfolio.GetSummaryReportAsync(_currentBitcoinPriceProvider, userSettings.DisplayCurrency, cancellationToken)!;
 
         return summary;
     }
@@ -57,7 +57,7 @@ internal class PortfolioQueryService : IPortfolioQueryService
         var chart = await portfolio
             .CalculatePortfolioValueChartAsync(
                 _historicalBitcoinPriceProvider,
-                userSettings.Currency,
+                userSettings.DisplayCurrency,
                 _systemClock,
                 cancellationToken
             );
@@ -65,7 +65,7 @@ internal class PortfolioQueryService : IPortfolioQueryService
         var portfolioValue = await portfolio
             .GetSummaryReportAsync(
                 _currentBitcoinPriceProvider,
-                userSettings.Currency,
+                userSettings.DisplayCurrency,
                 cancellationToken
             );
 

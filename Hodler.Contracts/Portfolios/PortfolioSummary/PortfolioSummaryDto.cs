@@ -11,4 +11,5 @@ public record PortfolioSummaryDto(
     double FiatReturnOnInvestmentPercentage,
     FiatAmountDto AverageBitcoinPrice,
     FiatAmountDto TaxFreeFiatReturnOnInvestment,
-    double TaxFreeFiatReturnOnInvestmentPercentage);
+    double TaxFreeFiatReturnOnInvestmentPercentage
+);

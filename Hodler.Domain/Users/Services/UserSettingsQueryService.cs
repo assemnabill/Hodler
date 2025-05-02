@@ -21,10 +21,20 @@ public class UserSettingsQueryService : IUserSettingsQueryService
 
         if (user is null)
             throw new InvalidOperationException($"User with id {userId} not found.");
-        
+
 
         var apiKey = user.ApiKeys.FirstOrDefault(x => x.ApiKeyName == apiKeyName);
 
         return apiKey;
+    }
+
+    public async Task<UserSettings> GetAccountSettings(UserId userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.FindByAsync(userId, cancellationToken);
+
+        if (user is null)
+            throw new InvalidOperationException($"User with id {userId} not found.");
+
+        return user.UserSettings;
     }
 }

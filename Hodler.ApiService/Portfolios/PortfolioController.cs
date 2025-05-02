@@ -14,7 +14,7 @@ using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Hodler.ApiService.UserScope.Portfolios;
+namespace Hodler.ApiService.Portfolios;
 
 public class PortfolioController(IMediator mediator) : ApiController
 {

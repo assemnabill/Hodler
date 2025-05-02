@@ -16,14 +16,15 @@ public sealed class PortfolioSummaryInfo
 
     public PortfolioSummaryInfo(
         FiatAmount fiatNetInvested,
-        BitcoinAmount totalBitcoin, 
-        FiatAmount currentBitcoinPrice, 
+        BitcoinAmount totalBitcoin,
+        FiatAmount currentBitcoinPrice,
         FiatAmount portfolioValue,
-        FiatAmount fiatReturnOnInvestment, 
-        double fiatReturnOnInvestmentPercentage, 
-        FiatAmount averageBitcoinPrice, 
+        FiatAmount fiatReturnOnInvestment,
+        double fiatReturnOnInvestmentPercentage,
+        FiatAmount averageBitcoinPrice,
         FiatAmount taxFreeFiatReturnOnInvestment,
-        double taxFreeFiatReturnOnInvestmentPercentage)
+        double taxFreeFiatReturnOnInvestmentPercentage
+    )
     {
         FiatNetInvested = fiatNetInvested;
         TotalBitcoin = totalBitcoin;

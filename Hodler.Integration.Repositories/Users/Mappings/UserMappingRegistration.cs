@@ -16,7 +16,7 @@ public class UserMappingRegistration : IRegister
             .ForType<UserSettings, Entities.UserSettings>()
             .Map(dest => dest.UserSettingsId, src => src.UserSettingsId)
             .Map(dest => dest.UserId, src => src.UserId)
-            .Map(dest => dest.Currency, src => src.Currency.Id)
+            .Map(dest => dest.Currency, src => src.DisplayCurrency.Id)
             .Map(dest => dest.Theme, src => src.Theme);
 
         config
