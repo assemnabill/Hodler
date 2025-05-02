@@ -9,4 +9,5 @@ public record TransactionInfo(
     BitcoinAmount BtcAmount,
     FiatAmount MarketPrice,
     DateTimeOffset Timestamp,
-    CryptoExchangeName? CryptoExchange);
+    CryptoExchangeName? CryptoExchange
+);

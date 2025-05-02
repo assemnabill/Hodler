@@ -1,6 +1,6 @@
-using Corz.Extensions.Enumeration;
 using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.BitcoinPrices.Ports;
+using Hodler.Domain.BitcoinPrices.Services;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Application.BitcoinPrices.Services;
@@ -8,15 +8,15 @@ namespace Hodler.Application.BitcoinPrices.Services;
 public class HistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
 {
     private readonly IBitcoinPriceRepository _bitcoinPriceRepository;
-    private readonly ICoinDeskApiClient _coinDeskApiClient;
+    private readonly IBitcoinPriceSyncService _bitcoinPriceSyncService;
 
     public HistoricalBitcoinPriceProvider(
         IBitcoinPriceRepository bitcoinPriceRepository,
-        ICoinDeskApiClient coinDeskApiClient
+        IBitcoinPriceSyncService bitcoinPriceSyncService
     )
     {
         _bitcoinPriceRepository = bitcoinPriceRepository;
-        _coinDeskApiClient = coinDeskApiClient;
+        _bitcoinPriceSyncService = bitcoinPriceSyncService;
     }
 
     public async Task<Dictionary<DateOnly, IBitcoinPrice>> GetHistoricalPriceOfDateIntervalAsync(
@@ -46,7 +46,7 @@ public class HistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
             missingDates.Add(date);
         }
 
-        var missingPrices = await SyncMissingPricesAsync(
+        var missingPrices = await _bitcoinPriceSyncService.SyncMissingPricesAsync(
             fiatCurrency,
             missingDates.Min(),
             missingDates.Max(),
@@ -59,25 +59,6 @@ public class HistoricalBitcoinPriceProvider : IHistoricalBitcoinPriceProvider
         }
 
         return result;
-    }
-
-    public async Task<IReadOnlyCollection<IBitcoinPrice>> SyncMissingPricesAsync(
-        FiatCurrency fiatCurrency,
-        DateOnly startDate,
-        DateOnly endDate,
-        CancellationToken cancellationToken = default
-    )
-    {
-
-        var prices = await _coinDeskApiClient
-            .GetHistoricalDailyBitcoinPricesAsync(fiatCurrency, startDate, endDate, cancellationToken);
-
-        if (!prices.IsNullOrEmpty())
-        {
-            await _bitcoinPriceRepository.StoreAsync(prices, cancellationToken);
-        }
-
-        return prices;
     }
 
     public async Task<IBitcoinPrice> GetHistoricalPriceOnDateAsync(

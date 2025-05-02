@@ -15,8 +15,10 @@ public class PortfolioInfoQueryHandler
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public async Task<Domain.Portfolios.Models.PortfolioInfo> Handle(PortfolioInfoQuery request,
-        CancellationToken cancellationToken)
+    public async Task<Domain.Portfolios.Models.PortfolioInfo> Handle(
+        PortfolioInfoQuery request,
+        CancellationToken cancellationToken
+    )
     {
         ArgumentNullException.ThrowIfNull(request);
 

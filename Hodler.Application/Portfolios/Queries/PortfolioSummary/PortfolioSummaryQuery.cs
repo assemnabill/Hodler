@@ -10,7 +10,7 @@ public class PortfolioSummaryQuery : IRequest<Domain.Portfolios.Models.Portfolio
     public PortfolioSummaryQuery(UserId userId)
     {
         ArgumentNullException.ThrowIfNull(userId);
-        
+
         UserId = userId;
     }
 }

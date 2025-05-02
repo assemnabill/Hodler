@@ -36,7 +36,8 @@ public class BitPandaSpotApiClient : IBitPandaSpotApiClient
 
     public async Task<IReadOnlyCollection<TransactionInfo>> GetTransactionsAsync(
         UserId userId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         ArgumentNullException.ThrowIfNull(userId);
 
@@ -73,13 +74,13 @@ public class BitPandaSpotApiClient : IBitPandaSpotApiClient
         return RetrieveBitcoinTrades(tradeResult);
     }
 
-    private List<TradeAttributes> RetrieveBitcoinTrades(TradesResult? tradesFromCache) => tradesFromCache?.Data
-        .Select(x => x.Attributes)
-        .Where(x => x.Cryptocoin_id == CryptoCurrency.Bitcoin.Id.ToString())
-        .ToList() ?? [];
+    private List<TradeAttributes> RetrieveBitcoinTrades(TradesResult? tradesFromCache) =>
+        tradesFromCache?.Data
+            .Select(x => x.Attributes)
+            .Where(x => x.Cryptocoin_id == CryptoCurrency.Bitcoin.Id.ToString())
+            .ToList() ?? [];
 
-    private static string CacheKey(UserId userId) =>
-        $"{userId}-Trades-{CryptoExchangeName.BitPanda.GetDescription()}";
+    private static string CacheKey(UserId userId) => $"{userId}-Trades-{CryptoExchangeName.BitPanda.GetDescription()}";
 
     private async Task CacheTradesAsync(TradesResult tradeResult, UserId userId, CancellationToken cancellationToken)
     {

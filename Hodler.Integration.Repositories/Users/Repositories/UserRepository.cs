@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Corz.DomainDriven.Abstractions.DomainEvents;
 using Hodler.Domain.Users.Models;
 using Hodler.Domain.Users.Ports;
 using Hodler.Integration.Repositories.Users.Context;
@@ -10,16 +11,19 @@ namespace Hodler.Integration.Repositories.Users.Repositories;
 
 internal class UserRepository : IUserRepository
 {
+    private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly UserDbContext _dbContext;
     private readonly ILogger<UserRepository> _logger;
 
     public UserRepository(
         UserDbContext dbContext,
-        ILogger<UserRepository> logger
+        ILogger<UserRepository> logger,
+        IDomainEventDispatcher domainEventDispatcher
     )
     {
         _dbContext = dbContext;
         _logger = logger;
+        _domainEventDispatcher = domainEventDispatcher;
     }
 
     private async Task SaveChangesAsync(IUser aggregateRoot, CancellationToken cancellationToken)
@@ -96,26 +100,23 @@ internal class UserRepository : IUserRepository
 
         var userSettings = aggregateRoot.UserSettings.Adapt<UserSettings, Entities.UserSettings>();
 
-        if (existingEntity is null && userSettings is not null)
-        {
+        if (existingEntity is null)
             await _dbContext.AddAsync(userSettings, cancellationToken);
-        }
     }
 
 
-    private IQueryable<Entities.User> IncludeAggregate()
-    {
-        return _dbContext.Users
+    private IQueryable<Entities.User> IncludeAggregate() =>
+        _dbContext.Users
             .AsNoTracking()
             .AsSplitQuery()
             .Include(x => x.UserSettings)
             .Include(x => x.ApiKeys);
-    }
 
     public async Task StoreAsync(IUser aggregateRoot, CancellationToken cancellationToken)
     {
         aggregateRoot.OnBeforeStore();
         await SaveChangesAsync(aggregateRoot, cancellationToken);
+        await _domainEventDispatcher.PublishEventsOfAsync(aggregateRoot.DomainEventQueue, cancellationToken);
         aggregateRoot.OnAfterStore();
     }
 

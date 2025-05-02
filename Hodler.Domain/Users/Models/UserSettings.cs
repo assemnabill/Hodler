@@ -6,7 +6,7 @@ public class UserSettings
 {
     public Guid UserSettingsId { get; }
     public UserId UserId { get; }
-    public FiatCurrency Currency { get; }
+    public FiatCurrency DisplayCurrency { get; }
     public AppTheme Theme { get; }
 
     public UserSettings(
@@ -20,7 +20,9 @@ public class UserSettings
 
         UserSettingsId = userSettingsId;
         UserId = userId;
-        Currency = currency ?? FiatCurrency.UsDollar;
+        DisplayCurrency = currency ?? FiatCurrency.UsDollar;
         Theme = theme ?? AppTheme.Dark;
     }
+
+    public UserSettings ChangeDisplayCurrency(FiatCurrency newDisplayCurrency) => new(UserSettingsId, UserId, newDisplayCurrency, Theme);
 }

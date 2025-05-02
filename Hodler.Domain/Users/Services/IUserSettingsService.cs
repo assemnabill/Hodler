@@ -1,4 +1,5 @@
 using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 
 namespace Hodler.Domain.Users.Services;
@@ -15,6 +16,12 @@ public interface IUserSettingsService
         string value,
         UserId userId,
         string? secret,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
+    );
+
+    Task<bool> ChangeDisplayCurrencyAsync(
+        UserId requestUserId,
+        FiatCurrency newDisplayCurrency,
+        CancellationToken cancellationToken = default
     );
 }

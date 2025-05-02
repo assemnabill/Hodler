@@ -28,7 +28,7 @@ public class ApiKey
         Value = value;
         UserId = userId;
         Secret = secret;
-        
+
         EnsureSecretIsPresentWhenRequired();
     }
 
@@ -39,7 +39,7 @@ public class ApiKey
             ApiKeyName.Kraken => true,
             _ => false
         };
-        
+
         if (isSecretRequired && string.IsNullOrWhiteSpace(Secret))
         {
             throw new ArgumentException($"Secret is required for this Api ({ApiKeyName})");

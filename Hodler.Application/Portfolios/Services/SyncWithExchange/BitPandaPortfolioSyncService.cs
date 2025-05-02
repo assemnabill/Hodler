@@ -16,7 +16,8 @@ public class BitPandaPortfolioSyncService : IPortfolioSyncService
     public BitPandaPortfolioSyncService(
         IBitPandaSpotApiClient bitPandaSpotApiClient,
         IPortfolioQueryService portfolioQueryService,
-        IPortfolioRepository portfolioRepository)
+        IPortfolioRepository portfolioRepository
+    )
     {
         _bitPandaSpotApiClient = bitPandaSpotApiClient;
         _portfolioQueryService = portfolioQueryService;
