@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using Corz.Extensions.DateTime;
-using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.BitcoinPrices.Services;
-using Hodler.Domain.Portfolios.Services;
 using Hodler.Domain.Shared.Models;
 using Hodler.Integration.Repositories.BitcoinPrices.Context;
 using Hodler.Integration.Repositories.Portfolios.Context;
@@ -43,7 +41,7 @@ internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<Hod
 
     private async Task InitializeDatabaseAsync(
         BitcoinPriceDbContext bitcoinPriceDbContext,
-        IBitcoinPriceSyncService historicalBitcoinPriceProvider,
+        IBitcoinPriceSyncService bitcoinPriceSyncService,
         CancellationToken cancellationToken
     )
     {
@@ -56,14 +54,27 @@ internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<Hod
             var strategy = bitcoinPriceDbContext.Database.CreateExecutionStrategy();
             await strategy.ExecuteAsync(bitcoinPriceDbContext.Database.MigrateAsync, cancellationToken);
 
-            logger.LogInformation("Database migrations completed.");
+            logger.LogInformation("Database migrations completed. Initializing historical bitcoin price data...");
 
-            logger.LogInformation("Initializing historical bitcoin price data...");
+            var latestPrice = await bitcoinPriceDbContext
+                .BitcoinPrices
+                .OrderByDescending(x => x.Date)
+                .FirstOrDefaultAsync(cancellationToken);
 
-            var from = DateTime.UtcNow.AddYears(-10).ToDate();
+            const int syncPeriodInYears = 10;
+            if (latestPrice == null)
+                logger.LogInformation("No historical bitcoin price data available. Syncing prices of last {Years} years.", syncPeriodInYears);
+
+            var from = latestPrice?.Date ?? DateTime.UtcNow.AddYears(-syncPeriodInYears).ToDate();
             var to = DateTime.UtcNow.ToDate();
 
-            var bitcoinPrices = await historicalBitcoinPriceProvider
+            if (from == to)
+            {
+                logger.LogInformation("Bitcoin prices are already up to date.");
+                return;
+            }
+
+            var bitcoinPrices = await bitcoinPriceSyncService
                 .SyncMissingPricesAsync(FiatCurrency.UsDollar, from, to, cancellationToken);
 
             logger.LogInformation(
