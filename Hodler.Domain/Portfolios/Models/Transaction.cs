@@ -13,6 +13,10 @@ public record Transaction(
     CryptoExchangeName? CryptoExchange = null
 )
 {
-    public FiatAmount MarketPrice => new(FiatAmount / BtcAmount, FiatAmount.FiatCurrency);
+    public FiatAmount MarketPrice =>
+        BtcAmount == 0
+            ? new(0, FiatAmount.FiatCurrency)
+            : new(FiatAmount / BtcAmount, FiatAmount.FiatCurrency);
+
     public bool IsInCurrency(FiatCurrency fiatCurrency) => FiatAmount.FiatCurrency.Id == fiatCurrency.Id;
 }
