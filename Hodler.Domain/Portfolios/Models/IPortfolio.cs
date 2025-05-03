@@ -36,4 +36,6 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
         BitcoinAmount bitcoinAmount,
         CryptoExchangeName? cryptoExchange
     );
+
+    IResult RemoveTransaction(TransactionId transactionId);
 }

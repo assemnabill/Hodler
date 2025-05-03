@@ -2,6 +2,7 @@
 using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Portfolios.Failures;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolios.Models;
@@ -12,12 +13,14 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         : base(transactions.OrderBy(x => x.Timestamp).ToList())
     {
         EnsureNoDuplicates();
+        EnsureAllHaveSamePortfolioId();
     }
 
-    public SyncResult<ITransactions> Sync(List<Transaction> transactions)
+
+    public SyncResult<ITransactions> Sync(List<Transaction> newTransactions)
     {
         var changed = false;
-        transactions = transactions
+        newTransactions = newTransactions
             .OrderBy(x => x.Timestamp)
             .ToList();
 
@@ -25,20 +28,13 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
             .OrderBy(x => x.Timestamp)
             .ToList();
 
-        // TODO: EQUALITY CHECK NOT WORKING? - FIXED BY TURNING ENUMERABLE TO LIST, TEST THIS LATER
-        if (Equals(transactions, currentTransactions))
-            return new SyncResult<ITransactions>(changed, this);
-
-        foreach (var transaction in transactions)
+        foreach (var transaction in newTransactions.Where(transaction => !AlreadyExists(transaction)))
         {
-            if (Items.Any(x => x.Equals(transaction)))
-                continue;
-
             currentTransactions.Add(transaction);
             changed = true;
         }
 
-        return new SyncResult<ITransactions>(changed, new Transactions(currentTransactions));
+        return new SyncResult<ITransactions>(changed, changed ? new Transactions(currentTransactions) : this);
     }
 
 
@@ -53,19 +49,25 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
     )
     {
         result = new SuccessResult();
-        var marketPrice = new FiatAmount(fiatAmount.Amount / bitcoinAmount.Amount, fiatAmount.FiatCurrency);
+
         var newTransaction = new Transaction(
             portfolioId,
+            new TransactionId(Guid.NewGuid()),
             transactionType,
             fiatAmount,
             bitcoinAmount,
-            marketPrice,
             date,
             cryptoExchange
         );
 
-        return Items.Contains(newTransaction) ? this : new Transactions(Items.Append(newTransaction));
+        if (!AlreadyExists(newTransaction))
+            return new Transactions(Items.Append(newTransaction));
+
+        result = new FailureResult(new TransactionAlreadyExistsFailure(newTransaction));
+        return this;
     }
+
+    public ITransactions Remove(TransactionId transactionId) => new Transactions(Items.Where(x => x.Id != transactionId));
 
     public async Task<PortfolioSummaryInfo> GetSummaryReportAsync(
         ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,
@@ -75,42 +77,46 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         ArgumentNullException.ThrowIfNull(currentBitcoinPriceProvider);
 
         if (Items.Count == 0)
-        {
-            var zero = new FiatAmount(0, FiatCurrency.UsDollar);
-            return new PortfolioSummaryInfo(zero, new BitcoinAmount(0), zero, zero, zero, 0, zero, zero, 0);
-        }
+            return PortfolioSummaryInfo.Empty;
 
-        var buyTransactions = Items.Where(x => x.Type == TransactionType.Buy).ToList();
-        var sellTransactions = Items.Where(x => x.Type == TransactionType.Sell).ToList();
+        var currentBtcPriceInUsd = await currentBitcoinPriceProvider
+            .GetCurrentBitcoinPriceInAmericanDollarsAsync(cancellationToken);
+
+        var transactions = Items
+            .Select(x => x.IsInCurrency(FiatCurrency.UsDollar)
+                ? x
+                : x with { FiatAmount = x.FiatAmount.ConvertTo(FiatCurrency.UsDollar) }
+            )
+            .ToList();
+
+        var buyTransactions = transactions.Where(x => x.Type == TransactionType.Buy).ToList();
+        var sellTransactions = transactions.Where(x => x.Type == TransactionType.Sell).ToList();
 
         var netInvestedFiat = buyTransactions.Sum(x => x.FiatAmount.Amount)
                               - sellTransactions.Sum(x => x.FiatAmount.Amount);
 
-        var totalBtcInvestment = buyTransactions.Sum(x => x.BtcAmount.Amount)
-                                 - sellTransactions.Sum(x => x.BtcAmount.Amount);
+        var netInvestedBtc = buyTransactions.Sum(x => x.BtcAmount.Amount)
+                             - sellTransactions.Sum(x => x.BtcAmount.Amount);
 
-        // TODO: GET IN USER CURRENCY AND CONVERT TRANSACTIONS IN FORIGN CURRENCY TO USER CURRENCY
-        var currentBtcPrice = await currentBitcoinPriceProvider
-            .GetCurrentBitcoinPriceInAmericanDollarsAsync(cancellationToken);
-
-        var currentValue = totalBtcInvestment * currentBtcPrice.Amount;
+        var currentValue = netInvestedBtc * currentBtcPriceInUsd.Amount;
         var totalProfitFiat = currentValue - netInvestedFiat;
         var totalProfitPercentage = Convert.ToDouble(totalProfitFiat / netInvestedFiat * 100);
+        var avgBtcPrice = transactions.Average(x => x.MarketPrice);
 
-        var avgBtcPrice = Items.Average(x => x.MarketPrice);
+        // todo: this is only true for germany, fix this for other countries
+        var taxFreeTotalBtcInvestment = transactions
+            .Where(t => t.Timestamp <= DateTimeOffset.UtcNow.AddYears(-1))
+            .Sum(t => t.BtcAmount);
 
-        var taxFreeTransactions = Items
-            .Where(t => t.Timestamp <= DateTimeOffset.UtcNow.AddYears(-1));
+        var taxFreeProfit = taxFreeTotalBtcInvestment * currentBtcPriceInUsd.Amount;
 
-        var taxFreeTotalBtcInvestment = taxFreeTransactions.Sum(t => t.BtcAmount);
-        var taxFreeProfit = taxFreeTotalBtcInvestment * currentBtcPrice.Amount;
-
-        var fiatCurrency = Items.First().FiatAmount.FiatCurrency;
+        // todo: replace with user currency
+        var fiatCurrency = transactions.First().FiatAmount.FiatCurrency;
 
         return new PortfolioSummaryInfo(
             new FiatAmount(netInvestedFiat, fiatCurrency),
-            totalBtcInvestment,
-            currentBtcPrice,
+            netInvestedBtc,
+            currentBtcPriceInUsd,
             new FiatAmount(currentValue, fiatCurrency),
             new FiatAmount(totalProfitFiat, fiatCurrency),
             totalProfitPercentage,
@@ -119,6 +125,24 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
             Convert.ToDouble(taxFreeTotalBtcInvestment)
         );
     }
+
+    private bool AlreadyExists(Transaction newTransaction) =>
+        Items.Any(x => x.Timestamp == newTransaction.Timestamp
+                       && x.FiatAmount == newTransaction.FiatAmount
+                       && x.BtcAmount == newTransaction.BtcAmount
+                       && x.Type == newTransaction.Type);
+
+    private void EnsureAllHaveSamePortfolioId()
+    {
+        if (Items.Count == 0)
+            return;
+
+        var portfolioId = Items.First().PortfolioId;
+
+        if (Items.Any(transaction => transaction.PortfolioId != portfolioId))
+            throw new ArgumentException("All transactions must have the same PortfolioId");
+    }
+
 
     private void EnsureNoDuplicates()
     {

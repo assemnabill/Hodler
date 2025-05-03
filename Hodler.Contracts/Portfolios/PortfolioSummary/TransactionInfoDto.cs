@@ -1,4 +1,5 @@
 using Hodler.Contracts.Shared;
+using Hodler.Domain.Portfolios.Models;
 
 namespace Hodler.Contracts.Portfolios.PortfolioSummary;
 

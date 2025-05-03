@@ -21,10 +21,10 @@ public class PortfolioInfoMapping : IRegister
                 Transaction>()
             .MapWith(src => new Transaction(
                 src.portfolioId,
+                src.transactionInfo.Id,
                 src.transactionInfo.Type,
                 src.transactionInfo.FiatAmount,
                 src.transactionInfo.BtcAmount,
-                src.transactionInfo.MarketPrice,
                 src.transactionInfo.Timestamp,
                 src.transactionInfo.CryptoExchange
             ));

@@ -1,4 +1,5 @@
 using Hodler.Application.Portfolios.Commands.AddTransaction;
+using Hodler.Application.Portfolios.Commands.RemoveTransaction;
 using Hodler.Application.Portfolios.Commands.SyncWithExchange;
 using Hodler.Application.Portfolios.Queries.PortfolioInfo;
 using Hodler.Application.Portfolios.Queries.PortfolioSummary;
@@ -52,7 +53,7 @@ public class PortfolioController(IMediator mediator) : ApiController
             addTransactionRequestContract.Date,
             addTransactionRequestContract.BitcoinAmount,
             addTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
-            (TransactionType)addTransactionRequestContract.Type,
+            addTransactionRequestContract.Type,
             (CryptoExchangeName?)addTransactionRequestContract.CryptoExchange
         );
 
@@ -61,23 +62,21 @@ public class PortfolioController(IMediator mediator) : ApiController
         return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
     }
 
-    [HttpDelete("transaction/{transaction}")]
+    [HttpDelete("transaction/{transactionId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> RemoveTransactionAsync(
-        [FromRoute] Guid transaction,
+        [FromRoute] Guid transactionId,
         CancellationToken cancellationToken
     )
     {
-        return Ok();
-        // todo: implement. 
-        // var request = new RemoveTransactionCommand(
-        //     UserId,
-        //     new Transaction()
-        // );
-        //
-        // var result = await mediator.Send(request, cancellationToken);
-        //
-        // return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
+        var request = new RemoveTransactionCommand(
+            UserId,
+            new TransactionId(transactionId)
+        );
+
+        var result = await mediator.Send(request, cancellationToken);
+
+        return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
     }
 
     [HttpPost("sync/{exchangeNamesName}")]

@@ -2,6 +2,7 @@ namespace Hodler.Integration.Repositories.Portfolios.Entities;
 
 public class Transaction : Entity
 {
+    public Guid TransactionId { get; set; }
     public Guid PortfolioId { get; init; }
     public int Type { get; init; }
     public decimal FiatAmount { get; init; }
