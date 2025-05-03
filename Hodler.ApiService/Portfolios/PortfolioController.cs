@@ -76,7 +76,7 @@ public class PortfolioController(IMediator mediator) : ApiController
 
         var result = await mediator.Send(request, cancellationToken);
 
-        return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
+        return result.IsSuccess ? NoContent() : BadRequest(result.Failures);
     }
 
     [HttpPost("sync/{exchangeNamesName}")]
