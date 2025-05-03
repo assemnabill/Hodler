@@ -33,10 +33,10 @@ public class PortfolioMappingRegistration : IRegister
             .NewConfig<Transaction, Domain.Portfolios.Models.Transaction>()
             .MapWith(transaction => new Domain.Portfolios.Models.Transaction(
                 new PortfolioId(transaction.PortfolioId),
+                new TransactionId(transaction.TransactionId),
                 (TransactionType)transaction.Type,
                 new FiatAmount(transaction.FiatAmount, FiatCurrency.GetById(transaction.FiatCurrency)!),
                 new BitcoinAmount(transaction.BtcAmount),
-                new FiatAmount(transaction.MarketPrice, FiatCurrency.GetById(transaction.FiatCurrency)!),
                 transaction.Timestamp.ToUniversalTime(),
                 (CryptoExchangeName)transaction.CryptoExchange
             ));

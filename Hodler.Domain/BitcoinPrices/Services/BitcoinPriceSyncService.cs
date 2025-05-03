@@ -7,8 +7,8 @@ namespace Hodler.Domain.BitcoinPrices.Services;
 
 public class BitcoinPriceSyncService : IBitcoinPriceSyncService
 {
-    private readonly ICoinDeskApiClient _coinDeskApiClient;
     private readonly IBitcoinPriceRepository _bitcoinPriceRepository;
+    private readonly ICoinDeskApiClient _coinDeskApiClient;
 
     public BitcoinPriceSyncService(
         ICoinDeskApiClient coinDeskApiClient,
@@ -31,9 +31,7 @@ public class BitcoinPriceSyncService : IBitcoinPriceSyncService
             .GetHistoricalDailyBitcoinPricesAsync(fiatCurrency, startDate, endDate, cancellationToken);
 
         if (!prices.IsNullOrEmpty())
-        {
             await _bitcoinPriceRepository.StoreAsync(prices, cancellationToken);
-        }
 
         return prices;
     }

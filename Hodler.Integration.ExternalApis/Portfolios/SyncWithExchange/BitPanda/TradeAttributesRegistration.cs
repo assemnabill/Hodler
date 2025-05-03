@@ -15,10 +15,10 @@ public class TradeAttributesRegistration : IRegister
             .NewConfig<TradeAttributes, Transaction>()
             .MapWith(src => new Transaction(
                 new PortfolioId(Guid.NewGuid()),
+                new TransactionId(Guid.NewGuid()),
                 src.Type == TradeType.Buy ? TransactionType.Buy : TransactionType.Sell,
                 new FiatAmount(src.Amount_fiat, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
                 new BitcoinAmount(src.Amount_cryptocoin),
-                new FiatAmount(src.Price, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
                 DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(src.Time.Unix)).ToUniversalTime(),
                 CryptoExchangeName.BitPanda
             ));
@@ -26,6 +26,7 @@ public class TradeAttributesRegistration : IRegister
         config
             .NewConfig<TradeAttributes, TransactionInfo>()
             .MapWith(src => new TransactionInfo(
+                new TransactionId(Guid.NewGuid()),
                 src.Type == TradeType.Buy ? TransactionType.Buy : TransactionType.Sell,
                 new FiatAmount(src.Amount_fiat, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
                 new BitcoinAmount(src.Amount_cryptocoin),

@@ -135,6 +135,7 @@ public class KrakenApiClient : IKrakenApiClient
                 }
 
                 return new TransactionInfo(
+                    new TransactionId(Guid.NewGuid()),
                     transactionType,
                     fiatAmount,
                     bitcoinAmount,

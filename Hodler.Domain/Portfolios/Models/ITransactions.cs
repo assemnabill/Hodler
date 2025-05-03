@@ -12,7 +12,7 @@ public interface ITransactions : IReadOnlyCollection<Transaction>
         CancellationToken cancellationToken
     );
 
-    SyncResult<ITransactions> Sync(List<Transaction> transactions);
+    SyncResult<ITransactions> Sync(List<Transaction> newTransactions);
 
     ITransactions Add(
         PortfolioId portfolioId,
@@ -23,4 +23,6 @@ public interface ITransactions : IReadOnlyCollection<Transaction>
         CryptoExchangeName? cryptoExchange,
         out IResult result
     );
+
+    ITransactions Remove(TransactionId transactionId);
 }

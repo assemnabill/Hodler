@@ -2,9 +2,9 @@ using Corz.DomainDriven.Abstractions.Models.Bases;
 
 namespace Hodler.Domain.Portfolios.Models;
 
-public class PortfolioId : PrimitiveWrapper<Guid, PortfolioId>
+public class TransactionId : PrimitiveWrapper<Guid, TransactionId>
 {
-    public PortfolioId(Guid value) : base(value)
+    public TransactionId(Guid value) : base(value)
     {
         if (value == Guid.Empty)
             throw new ArgumentException($"Invalid {nameof(PortfolioId)}");

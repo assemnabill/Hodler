@@ -32,9 +32,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         var syncResult = Transactions.Sync(transactions.ToList());
 
         if (syncResult.Changed)
-        {
             Transactions = syncResult.CurrentState;
-        }
 
         return new SyncResult<IPortfolio>(syncResult.Changed, this);
     }
@@ -81,6 +79,19 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             .Add(Id, transactionType, date, price, bitcoinAmount, cryptoExchange, out var result);
 
         return result;
+    }
+
+    public IResult RemoveTransaction(TransactionId transactionId)
+    {
+        var transaction = Transactions.FirstOrDefault(x => x.Id == transactionId);
+
+        if (transaction is null)
+            return new SuccessResult();
+
+        Transactions = Transactions.Remove(transactionId);
+
+        return new SuccessResult();
+
     }
 
     private FiatAmount CalculatePortfolioValueOnDateAsync(IBitcoinPrice btcPriceOnDate)

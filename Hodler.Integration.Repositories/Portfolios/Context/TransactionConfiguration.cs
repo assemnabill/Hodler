@@ -8,15 +8,26 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
 {
     public void Configure(EntityTypeBuilder<Transaction> builder)
     {
-        builder.HasKey(
-            nameof(Transaction.PortfolioId),
-            nameof(Transaction.Timestamp),
-            nameof(Transaction.Type),
-            nameof(Transaction.BtcAmount),
-            nameof(Transaction.FiatAmount),
-            nameof(Transaction.FiatCurrency),
-            nameof(Transaction.MarketPrice),
-            nameof(Transaction.CryptoExchange)
-        );
+        builder.HasKey(x => x.TransactionId);
+
+        builder
+            .Property(x => x.TransactionId)
+            .ValueGeneratedNever()
+            .HasDefaultValueSql(SqlFunctions.NewId);
+
+        builder
+            .HasIndex(
+                nameof(Transaction.Timestamp),
+                nameof(Transaction.PortfolioId),
+                nameof(Transaction.Type),
+                nameof(Transaction.FiatAmount),
+                nameof(Transaction.BtcAmount)
+            );
+
+    }
+
+    private static class SqlFunctions
+    {
+        public const string NewId = "gen_random_uuid()";
     }
 }

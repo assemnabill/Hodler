@@ -1,5 +1,6 @@
 using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Application.Portfolios.Commands.AddTransaction;
+using Hodler.Application.Portfolios.Commands.RemoveTransaction;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Portfolios.Services;
 
@@ -40,6 +41,19 @@ public class PortfolioCommandService : IPortfolioCommandService
         {
             await _portfolioRepository.StoreAsync(portfolio, cancellationToken);
         }
+
+        return result;
+    }
+
+    public async Task<IResult> RemoveTransactionAsync(RemoveTransactionCommand request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var portfolio = await _portfolioQueryService.FindOrCreatePortfolioAsync(request.UserId, cancellationToken);
+        var result = portfolio.RemoveTransaction(request.TransactionId);
+
+        if (result.IsSuccess)
+            await _portfolioRepository.StoreAsync(portfolio, cancellationToken);
 
         return result;
     }

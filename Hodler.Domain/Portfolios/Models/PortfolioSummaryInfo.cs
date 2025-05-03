@@ -14,6 +14,19 @@ public sealed class PortfolioSummaryInfo
     public FiatAmount TaxFreeFiatReturnOnInvestment { get; }
     public double TaxFreeFiatReturnOnInvestmentPercentage { get; }
 
+    public static PortfolioSummaryInfo Empty =>
+        new(
+            FiatAmount.ZeroUsDollars,
+            0,
+            FiatAmount.ZeroUsDollars,
+            FiatAmount.ZeroUsDollars,
+            FiatAmount.ZeroUsDollars,
+            0,
+            FiatAmount.ZeroUsDollars,
+            FiatAmount.ZeroUsDollars,
+            0
+        );
+
     public PortfolioSummaryInfo(
         FiatAmount fiatNetInvested,
         BitcoinAmount totalBitcoin,
