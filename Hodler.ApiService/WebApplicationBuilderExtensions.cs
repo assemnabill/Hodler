@@ -83,7 +83,7 @@ public static class WebApplicationBuilderExtensions
             .AddSwaggerGen(options =>
             {
                 options.SwaggerDoc(
-                    ServiceConstants.ApiVersion,
+                    ServiceConstants.SwaggerDocumentName,
                     new OpenApiInfo
                     {
                         Title = ServiceConstants.Title,

@@ -12,8 +12,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Hodler.Integration.Repositories.Migrations;
 
-internal class HodlerDbInitializer(IServiceProvider serviceProvider, ILogger<HodlerDbInitializer> logger)
-    : BackgroundService
+internal class HodlerDbInitializer(
+    IServiceProvider serviceProvider,
+    ILogger<HodlerDbInitializer> logger
+) : BackgroundService
 {
     public const string ActivitySourceName = "Migrations";
 
