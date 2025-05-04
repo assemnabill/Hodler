@@ -1,16 +1,21 @@
-# Project Name
+# Hodler 🪙
 
 ## Description
 
 This project, developed in ASP.NET Core using C# 13.0, serves as
-a [briefly describe purpose: e.g., backend for a web application, API service, etc.]. The repository is built on the
-.NET 9.0 framework, ensuring modern and efficient development practices tailored for scalable and robust web
-applications.
+a Bitcoin investment tracker that simplifies portfolio management for investors, offering seamless integration with popular exchanges, tax-aware insights, and real-time profit/loss analysis. 
+
+We aim to empower Bitcoin holders with a secure and simple tool that demystifies complex tax regulations and provides clear, actionable financial intelligence.
 
 ## Features
 
-- [Feature 1: e.g., Authentication and Authorization mechanism]
-- [Feature 2: e.g., Secure data handling and storage]
+- Self-Hosting: Take control of your own data by self hosting hodler in your home lab
+- User Authentication: create accounts and log in securely
+- All your transactions in one place: Track your transactions by adding, editing and removing them
+- Data Import and Synchronization: Automatic import of transaction history from connected exchanges
+- Portfolio Tracking: Real-time updates of BTC prices and portfolio values, total BTC holdings, overall profit/loss and much more
+- Reporting: Provide transaction history and performance reports
+- Beutiful and Simple: intuitive, user-friendly interface with clear visualizations of data and insights
 
 ## Prerequisites
 
