@@ -15,16 +15,18 @@ namespace Hodler.ApiService.Users;
 /// <summary>
 /// A controller responsible for managing user-specific settings.
 /// </summary>
-public class UserSettingsController : ApiController
+public class UserSettingsController(IMediator mediator) : ApiController
 {
-    private readonly IMediator _mediator;
-
-    public UserSettingsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
+    /// <summary>
+    /// Adds a new API key for the user.
+    /// </summary>
+    /// <param name="addApiKeyRequestContract">The request data containing the API key name, API key value, and optional secret key.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the result of the add API key operation. Returns an <see cref="IActionResult"/> indicating success or failure.</returns>
     [HttpPost("apiKey")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddApiKey(
         [FromBody] AddApiKeyRequestContract addApiKeyRequestContract,
         CancellationToken cancellationToken
@@ -39,7 +41,7 @@ public class UserSettingsController : ApiController
                 addApiKeyRequestContract.Secret
             );
 
-            var success = await _mediator.Send(request, cancellationToken);
+            var success = await mediator.Send(request, cancellationToken);
 
             return Ok(success);
         }
@@ -49,7 +51,16 @@ public class UserSettingsController : ApiController
         }
     }
 
+    /// <summary>
+    /// Changes the user's display currency to the specified new currency.
+    /// </summary>
+    /// <param name="contract">The request containing the new display currency to set.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation. Returns an <see cref="IActionResult"/> indicating success or failure.</returns>
     [HttpPost("changeDisplayCurrency")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ChangeDisplayCurrencyAsync(
         [FromBody] ChangeDisplayCurrencyRequestContract contract,
         CancellationToken cancellationToken
@@ -62,7 +73,7 @@ public class UserSettingsController : ApiController
                 FiatCurrency.GetById((int)contract.NewDisplayCurrency)
             );
 
-            var success = await _mediator.Send(request, cancellationToken);
+            var success = await mediator.Send(request, cancellationToken);
 
             return Ok(success);
 
@@ -73,15 +84,21 @@ public class UserSettingsController : ApiController
         }
     }
 
+    /// <summary>
+    /// Retrieves the user account settings.
+    /// </summary>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the action result of the operation. Returns an <see cref="IActionResult"/> with the user's account settings on success, or an error status on failure.</returns>
     [HttpGet("accountSettings")]
-    [ProducesResponseType(typeof(AccountSettingsContract), 200)]
+    [ProducesResponseType(typeof(AccountSettingsContract), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUserAccountSettingsAsync(CancellationToken cancellationToken)
     {
         try
         {
             var request = new UserAccountSettingsQuery(UserId);
-
-            var success = await _mediator.Send(request, cancellationToken);
+            var success = await mediator.Send(request, cancellationToken);
             var dto = success.Adapt<AccountSettingsContract>();
 
             return Ok(dto);
