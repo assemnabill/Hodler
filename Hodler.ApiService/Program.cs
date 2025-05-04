@@ -57,7 +57,7 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint(
             "/swagger/v1/swagger.json",
-            $"Hodler API {ServiceConstants.ApiVersion}");
+            $"Hodler API {ServiceConstants.SwaggerDocumentName}");
         c.RoutePrefix = "hodler"; // To serve the Swagger UI at the app's root
     });
 }

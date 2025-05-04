@@ -19,13 +19,13 @@ namespace Hodler.ApiService.Portfolios;
 
 public class PortfolioController(IMediator mediator) : ApiController
 {
-    [HttpGet("transactions")]
-    [ProducesResponseType(typeof(PortfolioTransactionsDto), 200)]
-    public async Task<IActionResult> GetPortfolioTransactionsAsync(CancellationToken cancellationToken)
+    [HttpGet("summary")]
+    [ProducesResponseType(typeof(PortfolioSummaryDto), 200)]
+    public async Task<IActionResult> GetPortfolioSummaryAsync(CancellationToken cancellationToken)
     {
-        var request = new PortfolioInfoQuery(UserId);
-        var response = await mediator.Send(request, cancellationToken);
-        var dto = response.Adapt<PortfolioTransactionsDto>();
+        var result = await mediator.Send(new PortfolioSummaryQuery(UserId), cancellationToken);
+
+        var dto = result.Adapt<PortfolioSummaryDto>();
 
         return Ok(dto);
     }
@@ -41,7 +41,18 @@ public class PortfolioController(IMediator mediator) : ApiController
         return Ok(dto);
     }
 
-    [HttpPost("transaction")]
+    [HttpGet("transactions")]
+    [ProducesResponseType(typeof(PortfolioTransactionsDto), 200)]
+    public async Task<IActionResult> GetPortfolioTransactionsAsync(CancellationToken cancellationToken)
+    {
+        var request = new PortfolioInfoQuery(UserId);
+        var response = await mediator.Send(request, cancellationToken);
+        var dto = response.Adapt<PortfolioTransactionsDto>();
+
+        return Ok(dto);
+    }
+
+    [HttpPost("transactions")]
     [ProducesResponseType(200)]
     public async Task<IActionResult> AddTransactionAsync(
         [FromBody] AddTransactionRequestContract addTransactionRequestContract,
@@ -62,17 +73,14 @@ public class PortfolioController(IMediator mediator) : ApiController
         return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
     }
 
-    [HttpDelete("transaction/{transactionId}")]
+    [HttpDelete("transactions/{transactionId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> RemoveTransactionAsync(
         [FromRoute] Guid transactionId,
         CancellationToken cancellationToken
     )
     {
-        var request = new RemoveTransactionCommand(
-            UserId,
-            new TransactionId(transactionId)
-        );
+        var request = new RemoveTransactionCommand(UserId, new TransactionId(transactionId));
 
         var result = await mediator.Send(request, cancellationToken);
 
@@ -95,17 +103,6 @@ public class PortfolioController(IMediator mediator) : ApiController
 
         var result = await mediator.Send(request, cancellationToken);
         var dto = result.Adapt<PortfolioTransactionsDto>();
-
-        return Ok(dto);
-    }
-
-    [HttpGet("summary")]
-    [ProducesResponseType(typeof(PortfolioSummaryDto), 200)]
-    public async Task<IActionResult> GetPortfolioSummaryAsync(CancellationToken cancellationToken)
-    {
-        var result = await mediator.Send(new PortfolioSummaryQuery(UserId), cancellationToken);
-
-        var dto = result.Adapt<PortfolioSummaryDto>();
 
         return Ok(dto);
     }
