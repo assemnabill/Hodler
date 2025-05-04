@@ -1,10 +1,8 @@
 using Hodler.ApiService;
-using Hodler.ApiService.Hubs;
 using Hodler.Application;
 using Hodler.Domain;
-using Hodler.Integration.Repositories;
 using Hodler.Integration.ExternalApis;
-using Hodler.Integration.Repositories.User.Entities;
+using Hodler.Integration.Repositories.Users.Entities;
 using Hodler.ServiceDefaults;
 using Mapster;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -15,12 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 
+// todo extend webappbuilder instead
 // Hodler Service Layers.
 builder.Services
     .AddDomain()
     .AddApplication()
-    .AddExternalApis()
-    .AddRepositories();
+    .AddExternalApis();
 
 // Hodler Service Core
 builder.Services
@@ -32,10 +30,11 @@ builder.Services
 // Hodler Service Infrastructure
 builder.AddRedisDistributedCache(ServiceConstants.RedisCache);
 builder.AddAuthentication(builder.Configuration);
-builder.AddDbContexts();
+builder.AddRepositories();
 builder.AddSwagger();
 
-builder.Services.AddHostedService<PriceCatalogBroadcastService>();
+// TODO: NEED A RETRY POLICY
+// builder.Services.AddHostedService<PriceCatalogBroadcastService>();
 
 // SignalR
 builder.Services.AddSignalR();
@@ -67,7 +66,9 @@ if (app.Environment.IsDevelopment())
 app.MapDefaultEndpoints();
 app.MapControllers();
 app.MapIdentityApi<User>();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHub<PriceCatalogHub>("/priceCatalog");
+// TODO: NEED A RETRY POLICY
+// app.MapHub<PriceCatalogHub>("/priceCatalog");
 app.Run();

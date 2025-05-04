@@ -1,4 +1,3 @@
-
 namespace Hodler.Contracts.Shared;
 
 public enum CryptoExchangeNames

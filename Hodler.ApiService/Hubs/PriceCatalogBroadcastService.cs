@@ -1,5 +1,5 @@
-using Hodler.Contracts.PriceCatalog;
-using Hodler.Domain.PriceCatalog.Services;
+using Hodler.Contracts.PriceCatalogs;
+using Hodler.Domain.BitcoinPrices.Ports;
 using Mapster;
 using Microsoft.AspNetCore.SignalR;
 
@@ -8,8 +8,8 @@ namespace Hodler.ApiService.Hubs;
 public class PriceCatalogBroadcastService : BackgroundService
 {
     private static readonly TimeSpan UpdateInterval = TimeSpan.FromSeconds(5);
-    private readonly IHubContext<PriceCatalogHub> _hubContext;
     private readonly ICurrentBitcoinPriceProvider _currentBitcoinPriceProvider;
+    private readonly IHubContext<PriceCatalogHub> _hubContext;
 
     public PriceCatalogBroadcastService(
         IHubContext<PriceCatalogHub> hubContext,
@@ -29,7 +29,7 @@ public class PriceCatalogBroadcastService : BackgroundService
         {
             var priceCatalog = await _currentBitcoinPriceProvider.GetBitcoinPriceCatalogAsync(stoppingToken);
             var dto = priceCatalog.Adapt<BitcoinPricePerCurrencyCatalogDto>();
-            
+
             await _hubContext.Clients.All
                 .SendAsync("BitcoinPriceChanged", dto, cancellationToken: stoppingToken);
         }

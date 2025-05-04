@@ -1,7 +1,11 @@
-﻿using Hodler.Integration.Repositories.Portfolio.Context;
-using Hodler.Integration.Repositories.User.Context;
+﻿using Hodler.Integration.Repositories;
+using Hodler.Integration.Repositories.BitcoinPrices.Context;
+using Hodler.Integration.Repositories.Portfolios.Context;
+using Hodler.Integration.Repositories.Users.Context;
+using Hodler.Integration.Repositories.Users.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace Hodler.ApiService;
 
@@ -9,29 +13,46 @@ public static class WebApplicationBuilderExtensions
 {
     public static WebApplicationBuilder AddAuthentication(
         this WebApplicationBuilder builder,
-        IConfiguration configuration)
+        IConfiguration configuration
+    )
     {
         builder.Services
             .AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
+                options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
             })
-            .AddCookie(IdentityConstants.ApplicationScheme)
-            .AddCookie("Identity.Bearer");
+            .AddCookie(IdentityConstants.BearerScheme, options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                options.SlidingExpiration = true;
+            });
 
         builder.Services.AddAuthorizationBuilder();
 
-        builder.Services.AddDbContext<UserDbContext>(
-            options =>
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
             {
-                var connectionString = configuration.GetConnectionString(ServiceConstants.DatabaseName);
-
-                options.UseNpgsql(connectionString);
+                policy
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials(); // Allow credentials (cookies)
             });
+        });
+
+        builder.Services.AddDbContext<UserDbContext>(options =>
+        {
+            var connectionString = configuration.GetConnectionString(ServiceConstants.DatabaseName);
+
+            options.UseNpgsql(connectionString);
+        });
 
         builder.Services
-            .AddIdentityCore<Integration.Repositories.User.Entities.User>()
+            .AddIdentityCore<User>()
             .AddEntityFrameworkStores<UserDbContext>()
             .AddDefaultTokenProviders()
             .AddApiEndpoints();
@@ -39,13 +60,20 @@ public static class WebApplicationBuilderExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder AddDbContexts(
+    public static WebApplicationBuilder AddRepositories(
         this WebApplicationBuilder builder
     )
     {
-        builder.AddNpgsqlDbContext<PortfolioDbContext>(ServiceConstants.DatabaseName);
+        builder.AddNpgsqlDbContext<PortfolioDbContext>(ServiceConstants.DatabaseName, null, ConfigureDbContextOptions);
+        builder.AddNpgsqlDbContext<BitcoinPriceDbContext>(ServiceConstants.DatabaseName, null, ConfigureDbContextOptions);
+
+        builder.Services.AddRepositories();
 
         return builder;
+
+        void ConfigureDbContextOptions(DbContextOptionsBuilder optionsBuilder) =>
+            optionsBuilder
+                .UseNpgsql(ob => ob.MigrationsAssembly(typeof(BitcoinPriceDbContext).Assembly.GetName().Name));
     }
 
     public static WebApplicationBuilder AddSwagger(this WebApplicationBuilder builder)
@@ -56,10 +84,15 @@ public static class WebApplicationBuilderExtensions
             {
                 options.SwaggerDoc(
                     ServiceConstants.ApiVersion,
-                    new()
+                    new OpenApiInfo
                     {
-                        Title = "Hodler.Api",
-                        Version = ServiceConstants.ApiVersion
+                        Title = ServiceConstants.Title,
+                        Description = null,
+                        Version = ServiceConstants.ApiVersion,
+                        TermsOfService = null,
+                        Contact = null,
+                        License = null,
+                        Extensions = null
                     });
             });
 

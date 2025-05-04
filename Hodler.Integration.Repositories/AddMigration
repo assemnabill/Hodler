@@ -1,3 +1,5 @@
-dotnet ef --startup-project ../Hodler.ApiService/Hodler.ApiService.csproj migrations add EliminateTransactionPK --context PortfolioDbContext --output-dir Migrations/Portfolio --project ./Hodler.Integration.Repositories.csproj
+dotnet ef --startup-project ../Hodler.ApiService/Hodler.ApiService.csproj migrations add AddTransactionIdProperty --context PortfolioDbContext --output-dir Migrations/Portfolio --project ./Hodler.Integration.Repositories.csproj
 
 dotnet ef --startup-project ../Hodler.ApiService/Hodler.ApiService.csproj migrations add RenameApiKeysTable --context UserDbContext --output-dir Migrations/User --project ./Hodler.Integration.Repositories.csproj
+
+dotnet ef --startup-project ../Hodler.ApiService/Hodler.ApiService.csproj migrations add AddBitcoinPrices --context BitcoinPriceDbContext --output-dir Migrations/BitcoinPrices --project ./Hodler.Integration.Repositories.csproj
