@@ -4,6 +4,7 @@ using Hodler.Domain.Portfolios.Models;
 namespace Hodler.Contracts.Portfolios.PortfolioSummary;
 
 public record TransactionInfoDto(
+    Guid Id,
     TransactionType Type,
     FiatAmountDto FiatAmount,
     decimal BtcAmount,

@@ -45,6 +45,7 @@ public class PortfolioMappingRegistration : IRegister
             .NewConfig<Domain.Portfolios.Models.Transaction, Transaction>()
             .Map(dest => dest.Type, src => (int)src.Type)
             .Map(dest => dest.PortfolioId, src => src.PortfolioId.Value)
+            .Map(dest => dest.TransactionId, src => src.Id.Value)
             .Map(dest => dest.FiatAmount, src => src.FiatAmount.Amount)
             .Map(dest => dest.FiatCurrency, src => src.FiatAmount.FiatCurrency.Id)
             .Map(dest => dest.BtcAmount, src => src.BtcAmount.Amount)
