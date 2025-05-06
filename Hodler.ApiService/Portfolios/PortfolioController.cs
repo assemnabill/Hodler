@@ -148,7 +148,7 @@ public class PortfolioController(IMediator mediator) : ApiController
         var request = new RemoveTransactionCommand(UserId, new TransactionId(transactionId));
         var result = await mediator.Send(request, cancellationToken);
 
-        return result.IsSuccess ? Ok() : BadRequest(result.Failures);
+        return result.IsSuccess ? NoContent() : BadRequest(result.Failures);
     }
 
     /// <summary>
