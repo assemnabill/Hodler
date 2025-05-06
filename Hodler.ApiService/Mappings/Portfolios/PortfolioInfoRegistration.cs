@@ -21,6 +21,7 @@ public class PortfolioInfoRegistration : IRegister
             .NewConfig<TransactionInfo, TransactionInfoDto>()
             .MapWith((src) =>
                 new TransactionInfoDto(
+                    src.Id.Value,
                     src.Type,
                     src.FiatAmount.Adapt<FiatAmountDto>(),
                     src.BtcAmount.Amount,

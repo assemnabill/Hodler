@@ -23,4 +23,6 @@ public record FiatAmount
 
         return new FiatAmount(Amount * conversionRate, otherCurrency);
     }
+
+    public static FiatAmount Zero(FiatCurrency fiatCurrency) => new(0, fiatCurrency);
 };

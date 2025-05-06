@@ -95,26 +95,27 @@ internal class PortfolioRepository : IPortfolioRepository
             .ToList();
 
         var newEntities = aggregateRoot.Transactions
-            .Select(x => x.Adapt<Transaction, Entities.Transaction>());
+            .Select(x => x.Adapt<Transaction, Entities.Transaction>())
+            .ToList();
+
+        var toRemove = existingEntities.Except(newEntities).ToList();
+        _dbContext.RemoveRange(toRemove);
 
         foreach (var newEntity in newEntities)
         {
             var existingEntity = existingEntities
-                .FirstOrDefault(x => x.Timestamp == newEntity.Timestamp
-                                     && x.Type == newEntity.Type
-                                     && x.FiatCurrency == newEntity.FiatCurrency
-                                     && x.PortfolioId == newEntity.PortfolioId
-                                     && x.CryptoExchange == newEntity.CryptoExchange
-                                     && x.FiatAmount == newEntity.FiatAmount
-                                     && x.BtcAmount == newEntity.BtcAmount
-                                     && x.MarketPrice == newEntity.MarketPrice
-                );
+                .FirstOrDefault(x => x.TransactionId == newEntity.TransactionId);
 
-            if (existingEntity is null)
+            if (existingEntity is not null)
             {
-                newEntity.CreatedAt = DateTimeOffset.UtcNow;
-                await _dbContext.AddAsync(newEntity, cancellationToken);
+                newEntity.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.Entry(existingEntity).CurrentValues.SetValues(newEntity);
+                _dbContext.Entry(existingEntity).State = EntityState.Modified;
+                continue;
             }
+
+            newEntity.CreatedAt = DateTimeOffset.UtcNow;
+            await _dbContext.AddAsync(newEntity, cancellationToken);
         }
     }
 

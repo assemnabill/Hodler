@@ -1,6 +1,7 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
 using Corz.DomainDriven.Abstractions.Models.Results;
 using Corz.Extensions.DateTime;
+using Corz.Extensions.Enumeration;
 using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;
@@ -44,14 +45,23 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         CancellationToken cancellationToken = default
     )
     {
+        var today = systemClock.UtcNow.ToDate();
+
+        if (Transactions.IsNullOrEmpty())
+        {
+            return
+            [
+                new ChartSpot(today.AddDays(-1), FiatAmount.Zero(userDisplayCurrency)),
+                new ChartSpot(today, FiatAmount.Zero(userDisplayCurrency))
+            ];
+        }
+
         var startDate = Transactions
             .Select(x => x.Timestamp.ToDate())
             .Min();
 
-        var endDate = systemClock.UtcNow.ToDate();
-
         var btcPriceOnDates = await historicalBitcoinPriceProvider
-            .GetHistoricalPriceOfDateIntervalAsync(userDisplayCurrency, startDate, endDate, cancellationToken);
+            .GetHistoricalPriceOfDateIntervalAsync(userDisplayCurrency, startDate, today, cancellationToken);
 
         var chartSpots = btcPriceOnDates
             .Select(x => new ChartSpot(x.Key, CalculatePortfolioValueOnDateAsync(x.Value)))
