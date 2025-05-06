@@ -6,6 +6,7 @@ using Hodler.Integration.Repositories.BitcoinPrices.Context;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using BitcoinPrice = Hodler.Integration.Repositories.BitcoinPrices.Entities.BitcoinPrice;
 
 namespace Hodler.Integration.Repositories.BitcoinPrices.Repositories;
 
@@ -37,7 +38,7 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
             .Where(p => p.Currency == fiatCurrency.Id
                         && p.Date >= startDate
                         && p.Date <= endDate)
-            .Select(p => p.Adapt<BitcoinPrice>())
+            .Select(p => p.Adapt<IBitcoinPrice>())
             .ToListAsync(cancellationToken);
 
         return prices;
@@ -63,11 +64,11 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
             foreach (var price in prices)
                 price.OnBeforeStore();
 
-            var toBeInserted = new List<Entities.BitcoinPrice>();
+            var toBeInserted = new List<BitcoinPrice>();
 
             foreach (var price in prices)
             {
-                var entity = price.Adapt<Entities.BitcoinPrice>();
+                var entity = price.Adapt<BitcoinPrice>();
                 var existingEntity = _dbContext.BitcoinPrices
                     .FirstOrDefault(x => x.Date == price.Date && x.Currency == price.Currency.Id);
 
@@ -122,7 +123,7 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
                     cancellationToken
                 );
 
-            var entity = aggregateRoot.Adapt<Entities.BitcoinPrice>();
+            var entity = aggregateRoot.Adapt<BitcoinPrice>();
             if (existingDbEntity is null)
             {
                 entity.CreatedAt = DateTimeOffset.UtcNow;
