@@ -39,7 +39,7 @@ internal class PortfolioQueryService : IPortfolioQueryService
         var portfolio = await FindOrCreatePortfolioAsync(userId, cancellationToken);
         var userSettings = await _userSettingsService.GetUserSettingsAsync(userId, cancellationToken);
 
-        var summary = await portfolio.GetSummaryReportAsync(_currentBitcoinPriceProvider, userSettings.DisplayCurrency, cancellationToken)!;
+        var summary = await portfolio.GetSummaryReportAsync(_currentBitcoinPriceProvider, userSettings.DisplayCurrency, cancellationToken);
 
         return summary;
     }
