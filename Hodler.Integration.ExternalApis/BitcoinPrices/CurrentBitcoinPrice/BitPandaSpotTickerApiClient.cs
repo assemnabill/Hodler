@@ -17,7 +17,7 @@ public class BitPandaSpotTickerApiClient : IBitPandaTickerApiClient
     {
         const string tickerUri = "https://api.bitpanda.com/v1/ticker";
         var response = await _httpClient
-            .GetFromJsonAsync<Dictionary<string, Dictionary<string, decimal>>>(tickerUri, cancellationToken)!;
+            .GetFromJsonAsync<Dictionary<string, Dictionary<string, decimal>>>(tickerUri, cancellationToken);
 
         if (!response.TryGetValue(CryptoCurrency.Bitcoin.Symbol, out var bitcoinPrice))
         {

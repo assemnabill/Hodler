@@ -4,13 +4,13 @@ using Corz.DomainDriven.Abstractions.Exceptions;
 using Corz.Extensions.DateTime;
 using Corz.Extensions.Enumeration;
 using CryptoExchange.Net.Authentication;
+using Hodler.Domain.BitcoinPrices.Failures;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
 using Hodler.Domain.Portfolios.Models;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using Hodler.Domain.Users.Services;
-using Hodler.Integration.ExternalApis.Failures;
 using Kraken.Net.Enums;
 using Kraken.Net.Interfaces.Clients;
 using Kraken.Net.Objects.Models;
@@ -111,7 +111,7 @@ public class KrakenApiClient : IKrakenApiClient
                 if (IsInvalidBitcoinTransaction(spendingEntry, receivingEntry))
                     return null;
 
-                var transactionType = receivingEntry.Asset.Contains("XBT")
+                var transactionType = receivingEntry!.Asset.Contains("XBT")
                     ? TransactionType.Buy
                     : TransactionType.Sell;
 
@@ -121,14 +121,14 @@ public class KrakenApiClient : IKrakenApiClient
 
                 if (transactionType == TransactionType.Buy)
                 {
-                    marketPrice = new FiatAmount(Math.Abs(spendingEntry!.Quantity / receivingEntry!.Quantity),
+                    marketPrice = new FiatAmount(Math.Abs(spendingEntry!.Quantity / receivingEntry.Quantity),
                         GetFiatCurrencyByTicker(spendingEntry));
                     fiatAmount = new FiatAmount(spendingEntry.Quantity, GetFiatCurrencyByTicker(spendingEntry));
                     bitcoinAmount = new BitcoinAmount(receivingEntry.Quantity);
                 }
                 else
                 {
-                    marketPrice = new FiatAmount(Math.Abs(receivingEntry!.Quantity / spendingEntry!.Quantity),
+                    marketPrice = new FiatAmount(Math.Abs(receivingEntry.Quantity / spendingEntry!.Quantity),
                         GetFiatCurrencyByTicker(receivingEntry));
                     fiatAmount = new FiatAmount(receivingEntry.Quantity, GetFiatCurrencyByTicker(receivingEntry));
                     bitcoinAmount = new BitcoinAmount(spendingEntry.Quantity);

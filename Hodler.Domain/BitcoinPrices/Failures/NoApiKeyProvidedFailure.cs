@@ -1,8 +1,8 @@
 using Corz.DomainDriven.Abstractions.Failures;
 
-namespace Hodler.Integration.ExternalApis.Failures;
+namespace Hodler.Domain.BitcoinPrices.Failures;
 
-internal class NoApiKeyProvidedFailure : Failure
+public class NoApiKeyProvidedFailure : Failure
 {
     public string ServiceName { get; }
 

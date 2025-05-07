@@ -21,6 +21,10 @@
         <EmbeddedResource Include="Portfolios\Resources\kraken.csv">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </EmbeddedResource>
+        <EmbeddedResource Update="BitcoinPrices\Failures\failures.en.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>failures.en.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
