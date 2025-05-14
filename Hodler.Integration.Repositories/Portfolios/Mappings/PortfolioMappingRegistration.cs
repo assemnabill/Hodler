@@ -38,6 +38,7 @@ public class PortfolioMappingRegistration : IRegister
                 new FiatAmount(transaction.FiatAmount, FiatCurrency.GetById(transaction.FiatCurrency)),
                 new BitcoinAmount(transaction.BtcAmount),
                 transaction.Timestamp.ToUniversalTime(),
+                new FiatAmount(transaction.MarketPrice, FiatCurrency.GetById(transaction.FiatCurrency)!),
                 (CryptoExchangeName)transaction.CryptoExchange
             ));
 

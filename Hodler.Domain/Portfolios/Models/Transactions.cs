@@ -1,8 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Domain.BitcoinPrices.Ports;
-using Hodler.Domain.CryptoExchanges.Models;
-using Hodler.Domain.Portfolios.Failures;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolios.Models;
@@ -35,36 +32,6 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         }
 
         return new SyncResult<ITransactions>(changed, changed ? new Transactions(currentTransactions) : this);
-    }
-
-
-    public ITransactions Add(
-        PortfolioId portfolioId,
-        TransactionType transactionType,
-        DateTimeOffset date,
-        FiatAmount fiatAmount,
-        BitcoinAmount bitcoinAmount,
-        CryptoExchangeName? cryptoExchange,
-        out IResult result
-    )
-    {
-        result = new SuccessResult();
-
-        var newTransaction = new Transaction(
-            portfolioId,
-            new TransactionId(Guid.NewGuid()),
-            transactionType,
-            fiatAmount,
-            bitcoinAmount,
-            date,
-            cryptoExchange
-        );
-
-        if (!AlreadyExists(newTransaction))
-            return new Transactions(Items.Append(newTransaction));
-
-        result = new FailureResult(new TransactionAlreadyExistsFailure(newTransaction));
-        return this;
     }
 
     public ITransactions Remove(TransactionId transactionId) => new Transactions(Items.Where(x => x.Id != transactionId));
@@ -126,7 +93,7 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         );
     }
 
-    private bool AlreadyExists(Transaction newTransaction) =>
+    public bool AlreadyExists(Transaction newTransaction) =>
         Items.Any(x => x.Timestamp == newTransaction.Timestamp
                        && x.FiatAmount == newTransaction.FiatAmount
                        && x.BtcAmount == newTransaction.BtcAmount

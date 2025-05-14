@@ -5,6 +5,7 @@ using Corz.Extensions.Enumeration;
 using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Portfolios.Failures;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using Microsoft.Extensions.Internal;
@@ -13,6 +14,10 @@ namespace Hodler.Domain.Portfolios.Models;
 
 public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
 {
+    public PortfolioId Id { get; }
+    public UserId UserId { get; }
+    public ITransactions Transactions { get; private set; }
+
     public Portfolio(PortfolioId portfolioId, ITransactions transactions, UserId userId)
     {
         ArgumentNullException.ThrowIfNull(transactions);
@@ -21,10 +26,6 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         UserId = userId;
         Id = portfolioId;
     }
-
-    public PortfolioId Id { get; }
-    public UserId UserId { get; }
-    public ITransactions Transactions { get; private set; }
 
     public SyncResult<IPortfolio> SyncTransactions(IEnumerable<Transaction> transactions)
     {
@@ -77,18 +78,37 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     ) =>
         Transactions.GetSummaryReportAsync(currentBitcoinPriceProvider, cancellationToken);
 
-    public IResult AddTransaction(
+    public async Task<IResult> AddTransactionAsync(
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         TransactionType transactionType,
         DateTime date,
-        FiatAmount price,
+        FiatAmount fiatAmount,
         BitcoinAmount bitcoinAmount,
-        CryptoExchangeName? cryptoExchange
+        CryptoExchangeName? cryptoExchange,
+        CancellationToken cancellationToken = default
     )
     {
-        Transactions = Transactions
-            .Add(Id, transactionType, date, price, bitcoinAmount, cryptoExchange, out var result);
+        var marketPrice = await historicalBitcoinPriceProvider
+            .GetHistoricalPriceOnDateAsync(fiatAmount.FiatCurrency, date.ToDate(), cancellationToken);
 
-        return result;
+        var newTransaction = new Transaction(
+            Id,
+            new TransactionId(Guid.NewGuid()),
+            transactionType,
+            fiatAmount,
+            bitcoinAmount,
+            date,
+            marketPrice.Price,
+            cryptoExchange
+        );
+
+        if (Transactions.AlreadyExists(newTransaction))
+            return new FailureResult(new TransactionAlreadyExistsFailure(newTransaction));
+
+
+        Transactions = new Transactions(Transactions.Append(newTransaction));
+
+        return new SuccessResult();
     }
 
     public IResult RemoveTransaction(TransactionId transactionId)
@@ -101,7 +121,6 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         Transactions = Transactions.Remove(transactionId);
 
         return new SuccessResult();
-
     }
 
     private FiatAmount CalculatePortfolioValueOnDateAsync(IBitcoinPrice btcPriceOnDate)

@@ -29,12 +29,14 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
         CancellationToken cancellationToken = default
     );
 
-    IResult AddTransaction(
+    Task<IResult> AddTransactionAsync(
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         TransactionType transactionType,
         DateTime date,
-        FiatAmount price,
+        FiatAmount fiatAmount,
         BitcoinAmount bitcoinAmount,
-        CryptoExchangeName? cryptoExchange
+        CryptoExchangeName? cryptoExchange,
+        CancellationToken cancellationToken = default
     );
 
     IResult RemoveTransaction(TransactionId transactionId);

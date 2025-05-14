@@ -11,4 +11,10 @@ public interface IHistoricalBitcoinPriceProvider
         DateOnly endDate,
         CancellationToken cancellationToken = default
     );
+
+    Task<IBitcoinPrice> GetHistoricalPriceOnDateAsync(
+        FiatCurrency fiatCurrency,
+        DateOnly date,
+        CancellationToken cancellationToken = default
+    );
 }

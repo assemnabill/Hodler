@@ -26,6 +26,7 @@ public class PortfolioInfoMapping : IRegister
                 src.transactionInfo.FiatAmount,
                 src.transactionInfo.BtcAmount,
                 src.transactionInfo.Timestamp,
+                src.transactionInfo.MarketPrice,
                 src.transactionInfo.CryptoExchange
             ));
 

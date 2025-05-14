@@ -1,6 +1,7 @@
 using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Application.Portfolios.Commands.AddTransaction;
 using Hodler.Application.Portfolios.Commands.RemoveTransaction;
+using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Portfolios.Services;
 
@@ -10,14 +11,17 @@ public class PortfolioCommandService : IPortfolioCommandService
 {
     private readonly IPortfolioQueryService _portfolioQueryService;
     private readonly IPortfolioRepository _portfolioRepository;
+    private readonly IHistoricalBitcoinPriceProvider _historicalBitcoinPriceProvider;
 
     public PortfolioCommandService(
         IPortfolioQueryService portfolioQueryService,
-        IPortfolioRepository portfolioRepository
+        IPortfolioRepository portfolioRepository,
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider
     )
     {
         _portfolioQueryService = portfolioQueryService;
         _portfolioRepository = portfolioRepository;
+        _historicalBitcoinPriceProvider = historicalBitcoinPriceProvider;
     }
 
     public async Task<IResult> AddTransactionAsync(
@@ -29,18 +33,18 @@ public class PortfolioCommandService : IPortfolioCommandService
 
         var portfolio = await _portfolioQueryService.FindOrCreatePortfolioAsync(request.UserId, cancellationToken);
 
-        var result = portfolio.AddTransaction(
+        var result = await portfolio.AddTransactionAsync(
+            _historicalBitcoinPriceProvider,
             request.Type,
             request.Date,
             request.Price,
             request.Amount,
-            request.CryptoExchange
+            request.CryptoExchange,
+            cancellationToken
         );
 
         if (result.IsSuccess)
-        {
             await _portfolioRepository.StoreAsync(portfolio, cancellationToken);
-        }
 
         return result;
     }
