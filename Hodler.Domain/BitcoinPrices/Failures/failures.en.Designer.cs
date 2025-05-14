@@ -7,10 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Hodler.Integration.ExternalApis.Failures {
-    using System;
-    
-    
+namespace Hodler.Domain.BitcoinPrices.Failures {
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>

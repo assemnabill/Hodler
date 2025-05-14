@@ -19,4 +19,9 @@ public interface IPortfolioQueryService
         UserId userId,
         CancellationToken cancellationToken = default
     );
+
+    Task<IPortfolio?> FindPortfolioAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    );
 }

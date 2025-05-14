@@ -123,6 +123,45 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         return new SuccessResult();
     }
 
+    public async Task<IResult> ModifyTransactionAsync(
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        TransactionId transactionId,
+        TransactionType newTransactionType,
+        DateTime newDate,
+        FiatAmount newAmount,
+        BitcoinAmount newBitcoinAmount,
+        CryptoExchangeName? newCryptoExchange,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(historicalBitcoinPriceProvider);
+        ArgumentNullException.ThrowIfNull(transactionId);
+
+        var transaction = Transactions.FirstOrDefault(x => x.Id == transactionId);
+        if (transaction is null)
+            return new FailureResult(new TransactionDoesNotExistFailure(transactionId));
+
+        var marketPrice = await historicalBitcoinPriceProvider
+            .GetHistoricalPriceOnDateAsync(newAmount.FiatCurrency, newDate.ToDate(), cancellationToken);
+
+        var newTransaction = transaction with
+        {
+            Type = newTransactionType,
+            FiatAmount = newAmount,
+            BtcAmount = newBitcoinAmount,
+            Timestamp = newDate,
+            MarketPrice = marketPrice.Price,
+            CryptoExchange = newCryptoExchange
+        };
+
+        if (Transactions.AlreadyExists(newTransaction))
+            return new FailureResult(new TransactionAlreadyExistsFailure(newTransaction));
+
+        Transactions = new Transactions(Transactions.Remove(transactionId).Append(newTransaction));
+
+        return new SuccessResult();
+    }
+
     private FiatAmount CalculatePortfolioValueOnDateAsync(IBitcoinPrice btcPriceOnDate)
     {
         var transactionsTillDate = Transactions

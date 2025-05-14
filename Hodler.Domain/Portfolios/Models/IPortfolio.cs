@@ -40,4 +40,15 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
     );
 
     IResult RemoveTransaction(TransactionId transactionId);
+
+    Task<IResult> ModifyTransactionAsync(
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        TransactionId transactionId,
+        TransactionType newTransactionType,
+        DateTime newDate,
+        FiatAmount newAmount,
+        BitcoinAmount newBitcoinAmount,
+        CryptoExchangeName? newCryptoExchange,
+        CancellationToken cancellationToken = default
+    );
 }
