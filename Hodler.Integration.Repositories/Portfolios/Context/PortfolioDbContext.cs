@@ -1,11 +1,13 @@
+using Hodler.Integration.Repositories.Portfolios.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hodler.Integration.Repositories.Portfolios.Context;
 
 public class PortfolioDbContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<Entities.Portfolio> Portfolios => Set<Entities.Portfolio>();
-    public DbSet<Entities.Transaction> Transactions => Set<Entities.Transaction>();
+    public DbSet<Portfolio> Portfolios => Set<Portfolio>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<BitcoinWallet> BitcoinWallets => Set<BitcoinWallet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -13,5 +15,6 @@ public class PortfolioDbContext(DbContextOptions options) : DbContext(options)
 
         modelBuilder.ApplyConfiguration(new PortfolioConfiguration());
         modelBuilder.ApplyConfiguration(new TransactionConfiguration());
+        modelBuilder.ApplyConfiguration(new BitcoinWalletConfiguration());
     }
 }

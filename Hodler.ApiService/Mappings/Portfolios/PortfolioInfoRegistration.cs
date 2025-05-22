@@ -1,6 +1,7 @@
 using Hodler.Contracts.Portfolios.PortfolioSummary;
 using Hodler.Contracts.Shared;
 using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Mapster;
 
 namespace Hodler.ApiService.Mappings.Portfolios;
@@ -28,5 +29,6 @@ public class PortfolioInfoRegistration : IRegister
                     src.MarketPrice.Adapt<FiatAmountDto>(),
                     src.Timestamp
                 ));
+
     }
 }

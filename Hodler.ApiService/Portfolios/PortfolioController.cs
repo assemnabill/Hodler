@@ -11,7 +11,7 @@ using Hodler.Contracts.Portfolios.PortfolioSummary;
 using Hodler.Contracts.Portfolios.PortfolioValueChart;
 using Hodler.Contracts.Shared;
 using Hodler.Domain.CryptoExchanges.Models;
-using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 using Mapster;
 using MediatR;
@@ -118,7 +118,7 @@ public class PortfolioController(IMediator mediator) : ApiController
             addTransactionRequestContract.BitcoinAmount,
             addTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
             addTransactionRequestContract.Type,
-            (CryptoExchangeName?)addTransactionRequestContract.CryptoExchange
+            addTransactionRequestContract.TransactionSource.Adapt<ITransactionSource>()
         );
 
         var result = await mediator.Send(request, cancellationToken);
@@ -159,7 +159,7 @@ public class PortfolioController(IMediator mediator) : ApiController
             modifyTransactionRequestContract.BitcoinAmount,
             modifyTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
             modifyTransactionRequestContract.Type,
-            (CryptoExchangeName?)modifyTransactionRequestContract.CryptoExchange
+            modifyTransactionRequestContract.TransactionSource.Adapt<ITransactionSource>()
         );
 
         var result = await mediator.Send(request, cancellationToken);
@@ -195,20 +195,7 @@ public class PortfolioController(IMediator mediator) : ApiController
         return result.IsSuccess ? NoContent() : BadRequest(result.Failures);
     }
 
-    /// <summary>
-    /// Synchronizes the user's portfolio transactions with the specified cryptocurrency exchange,
-    /// retrieving and updating transactions based on the exchange's data.
-    /// </summary>
-    /// <param name="exchangeNamesName">
-    /// The name of the cryptocurrency exchange to synchronize with. Supported values are defined
-    /// in the <see cref="CryptoExchangeNames"/> enumeration.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// A token to monitor for cancellation requests, used to terminate the asynchronous operation early if necessary.
-    /// </param>
-    /// <returns>
-    /// An <see cref="IActionResult"/> containing the synchronized portfolio transactions encapsulated in a <see cref="PortfolioTransactionsDto"/> object.
-    /// </returns>
+
     [HttpPost("sync/{exchangeNamesName}")]
     [ProducesResponseType(typeof(PortfolioTransactionsDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> SyncWithExchangeAsync(

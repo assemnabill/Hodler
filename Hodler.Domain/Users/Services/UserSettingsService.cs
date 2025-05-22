@@ -37,7 +37,6 @@ public class UserSettingsService : IUserSettingsService
         CancellationToken cancellationToken
     )
     {
-        ArgumentNullException.ThrowIfNull(apiKeyName);
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         ArgumentNullException.ThrowIfNull(userId);
 

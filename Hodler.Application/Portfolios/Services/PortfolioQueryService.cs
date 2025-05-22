@@ -1,5 +1,6 @@
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Portfolios.Services;
 using Hodler.Domain.Users.Models;
@@ -93,7 +94,7 @@ internal class PortfolioQueryService : IPortfolioQueryService
 
         return portfolio;
     }
-    
+
     public async Task<IPortfolio?> FindPortfolioAsync(
         UserId userId,
         CancellationToken cancellationToken = default
@@ -102,5 +103,16 @@ internal class PortfolioQueryService : IPortfolioQueryService
         var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);
 
         return portfolio;
+    }
+
+    public async Task<IReadOnlyCollection<IBitcoinWallet>> RetrieveBitcoinWalletsAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(userId);
+
+        var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);
+        return portfolio?.BitcoinWallets ?? [];
     }
 }

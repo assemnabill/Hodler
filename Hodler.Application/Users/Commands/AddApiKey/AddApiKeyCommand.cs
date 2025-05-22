@@ -13,7 +13,6 @@ public class AddApiKeyCommand : IRequest<bool>
 
     public AddApiKeyCommand(ApiKeyName apiKeyName, string value, UserId userId, string? secret)
     {
-        ArgumentNullException.ThrowIfNull(apiKeyName);
         ArgumentException.ThrowIfNullOrEmpty(value);
         ArgumentNullException.ThrowIfNull(userId);
 

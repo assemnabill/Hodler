@@ -6,7 +6,7 @@ using Corz.Extensions.Enumeration;
 using Hodler.Domain.BitcoinPrices.Failures;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
-using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using Hodler.Domain.Users.Services;

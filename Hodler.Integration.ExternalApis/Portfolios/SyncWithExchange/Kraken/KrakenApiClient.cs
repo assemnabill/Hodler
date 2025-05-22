@@ -7,7 +7,7 @@ using CryptoExchange.Net.Authentication;
 using Hodler.Domain.BitcoinPrices.Failures;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
-using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using Hodler.Domain.Users.Services;
@@ -141,7 +141,7 @@ public class KrakenApiClient : IKrakenApiClient
                     bitcoinAmount,
                     marketPrice,
                     spendingEntry.Timestamp.ToDateTimeOffset().ToUniversalTime(),
-                    CryptoExchangeName.Kraken
+                    TransactionSource.FromExchange(CryptoExchangeName.Kraken)
                 );
             });
 

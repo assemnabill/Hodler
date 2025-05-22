@@ -1,7 +1,7 @@
 ﻿using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.Portfolios.Models;
+namespace Hodler.Domain.Portfolios.Models.Transactions;
 
 public interface ITransactions : IReadOnlyCollection<Transaction>
 {

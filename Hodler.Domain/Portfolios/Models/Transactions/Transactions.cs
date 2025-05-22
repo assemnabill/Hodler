@@ -2,10 +2,22 @@
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.Portfolios.Models;
+namespace Hodler.Domain.Portfolios.Models.Transactions;
 
 public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
 {
+    public ITransactions BuyTransactions => new Transactions(Items.Where(x => x.Type == TransactionType.Buy));
+    public ITransactions SellTransactions => new Transactions(Items.Where(x => x.Type == TransactionType.Sell));
+    public ITransactions SentTransactions => new Transactions(Items.Where(x => x.Type == TransactionType.Sent));
+    public ITransactions ReceivedTransactions => new Transactions(Items.Where(x => x.Type == TransactionType.Received));
+
+    public BitcoinAmount NetBitcoinAmount =>
+        BuyTransactions.Sum(x => x.BtcAmount)
+        + ReceivedTransactions.Sum(x => x.BtcAmount)
+        - SellTransactions.Sum(x => x.BtcAmount)
+        - SentTransactions.Sum(x => x.BtcAmount);
+
+
     public Transactions(IEnumerable<Transaction> transactions)
         : base(transactions.OrderBy(x => x.Timestamp).ToList())
     {
@@ -56,18 +68,14 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
             )
             .ToList();
 
-        var buyTransactions = transactions.Where(x => x.Type == TransactionType.Buy).ToList();
-        var sellTransactions = transactions.Where(x => x.Type == TransactionType.Sell).ToList();
+        var netInvestedFiat = BuyTransactions.Sum(x => x.FiatAmount.Amount)
+                              - SellTransactions.Sum(x => x.FiatAmount.Amount);
 
-        var netInvestedFiat = buyTransactions.Sum(x => x.FiatAmount.Amount)
-                              - sellTransactions.Sum(x => x.FiatAmount.Amount);
-
-        var netInvestedBtc = buyTransactions.Sum(x => x.BtcAmount.Amount)
-                             - sellTransactions.Sum(x => x.BtcAmount.Amount);
-
-        var currentValue = netInvestedBtc * currentBtcPriceInUsd.Amount;
+        var currentValue = NetBitcoinAmount * currentBtcPriceInUsd.Amount;
         var totalProfitFiat = currentValue - netInvestedFiat;
         var totalProfitPercentage = Convert.ToDouble(totalProfitFiat / netInvestedFiat * 100);
+
+        // todo: either all in usd or convert to user currency
         var avgBtcPrice = transactions.Average(x => x.MarketPrice);
 
         // todo: this is only true for germany, fix this for other countries
@@ -82,7 +90,7 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
 
         return new PortfolioSummaryInfo(
             new FiatAmount(netInvestedFiat, fiatCurrency),
-            netInvestedBtc,
+            NetBitcoinAmount,
             currentBtcPriceInUsd,
             new FiatAmount(currentValue, fiatCurrency),
             new FiatAmount(totalProfitFiat, fiatCurrency),

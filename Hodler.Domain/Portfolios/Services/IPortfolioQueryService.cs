@@ -1,4 +1,5 @@
 using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Hodler.Domain.Users.Models;
 
 namespace Hodler.Domain.Portfolios.Services;
@@ -21,6 +22,11 @@ public interface IPortfolioQueryService
     );
 
     Task<IPortfolio?> FindPortfolioAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<IReadOnlyCollection<IBitcoinWallet>> RetrieveBitcoinWalletsAsync(
         UserId userId,
         CancellationToken cancellationToken = default
     );

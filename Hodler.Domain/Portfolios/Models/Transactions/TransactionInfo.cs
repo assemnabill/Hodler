@@ -1,7 +1,6 @@
-using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.Portfolios.Models;
+namespace Hodler.Domain.Portfolios.Models.Transactions;
 
 public record TransactionInfo(
     TransactionId Id,
@@ -10,5 +9,5 @@ public record TransactionInfo(
     BitcoinAmount BtcAmount,
     FiatAmount MarketPrice,
     DateTimeOffset Timestamp,
-    CryptoExchangeName? CryptoExchange
+    ITransactionSource? TransactionSource
 );

@@ -1,4 +1,5 @@
 ﻿using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 
 namespace Hodler.Domain.Portfolios.Services;
 

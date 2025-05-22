@@ -11,9 +11,9 @@ namespace Hodler.Application.Portfolios.Services;
 
 public class PortfolioCommandService : IPortfolioCommandService
 {
+    private readonly IHistoricalBitcoinPriceProvider _historicalBitcoinPriceProvider;
     private readonly IPortfolioQueryService _portfolioQueryService;
     private readonly IPortfolioRepository _portfolioRepository;
-    private readonly IHistoricalBitcoinPriceProvider _historicalBitcoinPriceProvider;
 
     public PortfolioCommandService(
         IPortfolioQueryService portfolioQueryService,
@@ -41,7 +41,7 @@ public class PortfolioCommandService : IPortfolioCommandService
             request.Date,
             request.Price,
             request.Amount,
-            request.CryptoExchange,
+            request.TransactionSource,
             cancellationToken
         );
 
@@ -69,7 +69,7 @@ public class PortfolioCommandService : IPortfolioCommandService
         var portfolio = await _portfolioQueryService.FindPortfolioAsync(request.UserId, cancellationToken);
 
         if (portfolio is null)
-            return new FailureResult(new PortfolioDoesNotExistFailure(request.UserId));
+            return new FailureResult(new NoPortfolioFoundForUserFailure(request.UserId));
 
         var result = await portfolio.ModifyTransactionAsync(
             _historicalBitcoinPriceProvider,
@@ -78,7 +78,7 @@ public class PortfolioCommandService : IPortfolioCommandService
             request.Date,
             request.Price,
             request.Amount,
-            request.CryptoExchange,
+            request.TransactionSource,
             cancellationToken
         );
 

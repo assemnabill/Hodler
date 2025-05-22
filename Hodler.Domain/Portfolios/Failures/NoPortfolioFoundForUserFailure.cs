@@ -3,11 +3,11 @@ using Hodler.Domain.Users.Models;
 
 namespace Hodler.Domain.Portfolios.Failures;
 
-public class PortfolioDoesNotExistFailure : Failure
+public class NoPortfolioFoundForUserFailure : Failure
 {
     public UserId UserId { get; }
 
-    public PortfolioDoesNotExistFailure(UserId userId)
+    public NoPortfolioFoundForUserFailure(UserId userId)
     {
         UserId = userId;
     }

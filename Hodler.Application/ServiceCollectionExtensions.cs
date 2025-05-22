@@ -20,13 +20,16 @@ public static class ServiceCollectionExtensions
         TypeAdapterConfig.GlobalSettings.Scan(assembly);
 
         services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(assembly); });
-        services.AddTransient<IPortfolioQueryService, PortfolioQueryService>();
-        services.AddTransient<IPortfolioCommandService, PortfolioCommandService>();
-        services.AddTransient<IHistoricalBitcoinPriceProvider, HistoricalBitcoinPriceProvider>();
+
+        services.AddScoped<IPortfolioQueryService, PortfolioQueryService>();
+        services.AddScoped<IPortfolioCommandService, PortfolioCommandService>();
+        services.AddScoped<IBitcoinBlockchainService, BitcoinBlockchainService>();
+
+        services.AddScoped<IHistoricalBitcoinPriceProvider, HistoricalBitcoinPriceProvider>();
 
         services
-            .AddKeyedTransient<IPortfolioSyncService, BitPandaPortfolioSyncService>(CryptoExchangeName.BitPanda)
-            .AddKeyedTransient<IPortfolioSyncService, KrakenPortfolioSyncService>(CryptoExchangeName.Kraken);
+            .AddKeyedScoped<IPortfolioSyncService, BitPandaPortfolioSyncService>(CryptoExchangeName.BitPanda)
+            .AddKeyedScoped<IPortfolioSyncService, KrakenPortfolioSyncService>(CryptoExchangeName.Kraken);
 
         return services;
     }
