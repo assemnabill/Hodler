@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
@@ -13,7 +14,8 @@ namespace Hodler.Application.Portfolios.Services;
 
 public class BitcoinBlockchainService : IBitcoinBlockchainService
 {
-    private static JsonSerializerOptions _jsonOptions = null!;
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = false };
+
     private readonly IDistributedCache _cache;
     private readonly HttpClient _httpClient;
     private readonly ILogger<BitcoinBlockchainService> _logger;
@@ -28,7 +30,6 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
         _httpClient.BaseAddress = new Uri("https://blockstream.info/api/");
         _cache = cache;
         _logger = logger;
-        _jsonOptions = new JsonSerializerOptions { WriteIndented = false };
     }
 
     public async Task<List<Transaction>> GetTransactionsAsync(IBitcoinWallet wallet, CancellationToken cancellationToken = default)
@@ -41,7 +42,7 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
             var cachedData = await _cache.GetStringAsync(cacheKey, cancellationToken);
             if (!string.IsNullOrWhiteSpace(cachedData))
             {
-                var cachedTxs = JsonSerializer.Deserialize<List<Transaction>>(cachedData, _jsonOptions);
+                var cachedTxs = JsonSerializer.Deserialize<List<Transaction>>(cachedData, JsonOptions);
                 return cachedTxs ?? [];
             }
 
@@ -54,18 +55,17 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
                 return [];
 
             // Fetch details for each transaction (parallel with limit)
-            var transactions = new List<BlockchainTransaction>();
+            var transactions = new ConcurrentBag<BlockchainTransaction>();
             var options = new ParallelOptions { MaxDegreeOfParallelism = 3 };
 
-            await Parallel
-                .ForEachAsync(transactionIds, options,
-                    async (txId, ct) =>
-                    {
-                        var tx = await GetTransactionDetails(txId, address.Value, ct);
+            await Parallel.ForEachAsync(transactionIds, options,
+                async (txId, ct) =>
+                {
+                    var tx = await GetTransactionDetails(txId, address.Value, ct);
 
-                        if (tx != null)
-                            transactions.Add(tx);
-                    });
+                    if (tx != null)
+                        transactions.Add(tx);
+                });
 
             var result = transactions
                 .OrderByDescending(t => t.Timestamp)
@@ -79,7 +79,7 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
 
             await _cache.SetStringAsync(
                 cacheKey,
-                JsonSerializer.Serialize(result, _jsonOptions),
+                JsonSerializer.Serialize(result, JsonOptions),
                 cacheOptions,
                 cancellationToken
             );
