@@ -6,7 +6,7 @@ using Mapster;
 
 namespace Hodler.ApiService.Mappings.Users;
 
-public class AccountSettingsRegistration : IRegister
+public class AccountSettingsMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

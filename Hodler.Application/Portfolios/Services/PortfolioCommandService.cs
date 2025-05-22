@@ -66,7 +66,8 @@ public class PortfolioCommandService : IPortfolioCommandService
 
     public async Task<IResult> ModifyTransactionAsync(ModifyTransactionCommand request, CancellationToken cancellationToken = default)
     {
-        var portfolio = await _portfolioQueryService.FindPortfolioAsync(request.UserId, cancellationToken);
+        var portfolio = await _portfolioQueryService
+            .FindPortfolioAsync(request.UserId, cancellationToken);
 
         if (portfolio is null)
             return new FailureResult(new NoPortfolioFoundForUserFailure(request.UserId));

@@ -5,7 +5,7 @@ using Mapster;
 
 namespace Hodler.ApiService.Mappings.Portfolios;
 
-public class PortfolioSummaryRegistration : IRegister
+public class PortfolioSummaryMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

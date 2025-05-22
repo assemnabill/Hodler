@@ -1,3 +1,4 @@
+using Corz.Extensions.Enumeration;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Portfolios.Models;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
@@ -11,7 +12,7 @@ using Transaction = Hodler.Integration.Repositories.Portfolios.Entities.Transact
 
 namespace Hodler.Integration.Repositories.Portfolios.Mappings;
 
-public class PortfolioMappingRegistration : IRegister
+public class PortfolioMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
@@ -49,10 +50,12 @@ public class PortfolioMappingRegistration : IRegister
                 new FiatAmount(transaction.FiatAmount, FiatCurrency.GetById(transaction.FiatCurrency)),
                 new BitcoinAmount(transaction.BtcAmount),
                 transaction.Timestamp.ToUniversalTime(),
-                new FiatAmount(transaction.MarketPrice, FiatCurrency.GetById(transaction.FiatCurrency)!),
-                transaction.SourceType == (int)TransactionSourceType.Wallet
-                    ? TransactionSource.FromWallet(new BitcoinWalletId(Guid.Parse(transaction.SourceIdentifier)))
-                    : TransactionSource.FromExchange((CryptoExchangeName)int.Parse(transaction.SourceIdentifier)),
+                new FiatAmount(transaction.MarketPrice, FiatCurrency.GetById(transaction.FiatCurrency)),
+                transaction.SourceIdentifier == null
+                    ? null
+                    : transaction.SourceType == (int)TransactionSourceType.Wallet
+                        ? TransactionSource.FromWallet(new BitcoinWalletId(Guid.Parse(transaction.SourceIdentifier)))
+                        : TransactionSource.FromExchange((CryptoExchangeName)int.Parse(transaction.SourceIdentifier)),
                 null
             ));
 
@@ -66,8 +69,8 @@ public class PortfolioMappingRegistration : IRegister
             .Map(dest => dest.BtcAmount, src => src.BtcAmount.Amount)
             .Map(dest => dest.MarketPrice, src => src.MarketPrice)
             .Map(dest => dest.Timestamp, src => src.Timestamp.UtcDateTime)
-            .Map(dest => dest.SourceType, src => (int)src.Source.Type)
-            .Map(dest => dest.SourceIdentifier, src => src.Source.Identifier);
+            .Map(dest => dest.SourceType, src => src.TransactionSource == null ? (int?)null : src.TransactionSource.Type.ToInt())
+            .Map(dest => dest.SourceIdentifier, src => src.TransactionSource == null ? null : src.TransactionSource.Identifier);
 
         config
             .NewConfig<BitcoinWallet, IBitcoinWallet>()

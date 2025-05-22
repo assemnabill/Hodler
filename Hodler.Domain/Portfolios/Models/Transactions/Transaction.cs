@@ -10,7 +10,7 @@ public record Transaction(
     BitcoinAmount BtcAmount,
     DateTimeOffset Timestamp,
     FiatAmount MarketPrice,
-    ITransactionSource? Source,
+    ITransactionSource? TransactionSource,
     BitcoinAmount? TransactionFee = null
 )
 {

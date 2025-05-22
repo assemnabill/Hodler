@@ -4,7 +4,7 @@ using Mapster;
 
 namespace Hodler.ApiService.Mappings.Portfolios;
 
-public class ChartCandleRegistration : IRegister
+public class ChartCandleMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

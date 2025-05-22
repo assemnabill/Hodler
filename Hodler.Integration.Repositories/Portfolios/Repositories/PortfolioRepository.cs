@@ -110,7 +110,8 @@ internal class PortfolioRepository : IPortfolioRepository
         catch (Exception e)
         {
             _logger.LogError(e,
-                $"Error while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}.");
+                $"Error while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace(e)}.");
+            throw;
         }
     }
 

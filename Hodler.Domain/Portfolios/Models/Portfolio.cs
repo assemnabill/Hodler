@@ -168,7 +168,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             BtcAmount = newBitcoinAmount,
             Timestamp = newDate,
             MarketPrice = marketPrice.Price,
-            Source = source ?? transaction.Source
+            TransactionSource = source ?? transaction.TransactionSource
         };
 
         if (Transactions.AlreadyExists(newTransaction))

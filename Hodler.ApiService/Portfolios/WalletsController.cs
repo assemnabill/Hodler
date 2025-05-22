@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hodler.ApiService.Portfolios;
 
-public class WalletConnectionController(IMediator mediator) : ApiController
+[Route("api/Portfolio/[controller]")]
+public class WalletsController(IMediator mediator) : ApiController
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -29,7 +30,7 @@ public class WalletConnectionController(IMediator mediator) : ApiController
     }
 
     [HttpPost("connect")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ConnectBitcoinWalletAsync(
         [FromBody] ConnectBitcoinWalletRequest dto,
@@ -43,13 +44,11 @@ public class WalletConnectionController(IMediator mediator) : ApiController
             new BlockchainNetwork(dto.ChainId)
         );
 
-        var wallet = await mediator.Send(command, cancellationToken);
-        var response = wallet.Adapt<ConnectedWalletDto>();
+        var result = await mediator.Send(command, cancellationToken);
 
-        return Created(
-            Url.Action(nameof(ConnectBitcoinWalletAsync), new { walletId = response.Id }),
-            response
-        );
+        return result.IsSuccess
+            ? Ok()
+            : BadRequest(result.Failures);
 
     }
 
