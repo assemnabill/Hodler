@@ -1,3 +1,5 @@
+using Hodler.Domain.Portfolios.Models.Transactions;
+
 namespace Hodler.Domain.Portfolios.Models;
 
 public class PortfolioInfo

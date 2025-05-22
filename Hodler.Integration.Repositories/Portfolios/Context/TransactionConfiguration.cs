@@ -24,6 +24,11 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
                 nameof(Transaction.BtcAmount)
             );
 
+        builder
+            .HasOne(x => x.Portfolio)
+            .WithMany(x => x.Transactions)
+            .HasForeignKey(x => x.PortfolioId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     private static class SqlFunctions

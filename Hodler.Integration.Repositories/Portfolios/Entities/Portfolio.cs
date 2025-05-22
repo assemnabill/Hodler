@@ -6,4 +6,5 @@ public class Portfolio : Entity
     public string UserId { get; set; }
 
     public virtual ICollection<Transaction> Transactions { get; set; }
+    public virtual ICollection<BitcoinWallet> BitcoinWallets { get; set; }
 }

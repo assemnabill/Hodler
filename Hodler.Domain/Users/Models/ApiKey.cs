@@ -19,7 +19,6 @@ public class ApiKey
     )
     {
         ArgumentNullException.ThrowIfNull(apiKeyId);
-        ArgumentNullException.ThrowIfNull(apiKeyName);
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         ArgumentNullException.ThrowIfNull(userId);
 

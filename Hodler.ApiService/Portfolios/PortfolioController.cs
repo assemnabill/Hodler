@@ -1,15 +1,17 @@
 using Hodler.Application.Portfolios.Commands.AddTransaction;
+using Hodler.Application.Portfolios.Commands.ModifyTransaction;
 using Hodler.Application.Portfolios.Commands.RemoveTransaction;
 using Hodler.Application.Portfolios.Commands.SyncWithExchange;
 using Hodler.Application.Portfolios.Queries.PortfolioInfo;
 using Hodler.Application.Portfolios.Queries.PortfolioSummary;
 using Hodler.Application.Portfolios.Queries.PortfolioValueChart;
 using Hodler.Contracts.Portfolios.AddTransaction;
+using Hodler.Contracts.Portfolios.ModifyTransaction;
 using Hodler.Contracts.Portfolios.PortfolioSummary;
 using Hodler.Contracts.Portfolios.PortfolioValueChart;
 using Hodler.Contracts.Shared;
 using Hodler.Domain.CryptoExchanges.Models;
-using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 using Mapster;
 using MediatR;
@@ -116,13 +118,55 @@ public class PortfolioController(IMediator mediator) : ApiController
             addTransactionRequestContract.BitcoinAmount,
             addTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
             addTransactionRequestContract.Type,
-            (CryptoExchangeName?)addTransactionRequestContract.CryptoExchange
+            addTransactionRequestContract.TransactionSource.Adapt<ITransactionSource>()
         );
 
         var result = await mediator.Send(request, cancellationToken);
 
         return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
     }
+
+
+    /// <summary>
+    /// Modify a new transaction to the user's portfolio, including details such as date, Bitcoin amount, fiat amount,
+    /// transaction type, and optionally the crypto exchange through which the transaction was executed.
+    /// </summary>
+    /// <param name="transactionId">the unique identifier of the transaction</param>
+    /// <param name="modifyTransactionRequestContract">
+    /// The request containing the transaction details, including date, Bitcoin amount, fiat amount, transaction type,
+    /// and the optional crypto exchange name.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// A token to monitor for cancellation requests, used to terminate the asynchronous operation early if necessary.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IActionResult"/> indicating the outcome of the operation. A successful addition returns a StatusCodes.Status200OK OK
+    /// response, while failures return a 400 Bad Request response.
+    /// </returns>
+    [HttpPost("transactions/{transactionId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ModifyTransactionAsync(
+        [FromRoute] Guid transactionId,
+        [FromBody] ModifyTransactionRequestContract modifyTransactionRequestContract,
+        CancellationToken cancellationToken
+    )
+    {
+        var request = new ModifyTransactionCommand(
+            new TransactionId(transactionId),
+            UserId,
+            modifyTransactionRequestContract.Date,
+            modifyTransactionRequestContract.BitcoinAmount,
+            modifyTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
+            modifyTransactionRequestContract.Type,
+            modifyTransactionRequestContract.TransactionSource.Adapt<ITransactionSource>()
+        );
+
+        var result = await mediator.Send(request, cancellationToken);
+
+        return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
+    }
+
 
     /// <summary>
     /// Removes a transaction from the user's portfolio based on the specified transaction ID.
@@ -151,20 +195,7 @@ public class PortfolioController(IMediator mediator) : ApiController
         return result.IsSuccess ? NoContent() : BadRequest(result.Failures);
     }
 
-    /// <summary>
-    /// Synchronizes the user's portfolio transactions with the specified cryptocurrency exchange,
-    /// retrieving and updating transactions based on the exchange's data.
-    /// </summary>
-    /// <param name="exchangeNamesName">
-    /// The name of the cryptocurrency exchange to synchronize with. Supported values are defined
-    /// in the <see cref="CryptoExchangeNames"/> enumeration.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// A token to monitor for cancellation requests, used to terminate the asynchronous operation early if necessary.
-    /// </param>
-    /// <returns>
-    /// An <see cref="IActionResult"/> containing the synchronized portfolio transactions encapsulated in a <see cref="PortfolioTransactionsDto"/> object.
-    /// </returns>
+
     [HttpPost("sync/{exchangeNamesName}")]
     [ProducesResponseType(typeof(PortfolioTransactionsDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> SyncWithExchangeAsync(
@@ -172,8 +203,6 @@ public class PortfolioController(IMediator mediator) : ApiController
         CancellationToken cancellationToken
     )
     {
-        ArgumentNullException.ThrowIfNull(exchangeNamesName);
-
         var request = new SyncWithExchangeCommand(UserId, (CryptoExchangeName)exchangeNamesName);
         var result = await mediator.Send(request, cancellationToken);
         var dto = result.Adapt<PortfolioTransactionsDto>();

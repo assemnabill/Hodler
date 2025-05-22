@@ -1,6 +1,5 @@
 using Corz.DomainDriven.Abstractions.Models.Results;
-using Hodler.Domain.CryptoExchanges.Models;
-using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using MediatR;
@@ -14,7 +13,7 @@ public class AddTransactionCommand : IRequest<IResult>
     public BitcoinAmount Amount { get; }
     public FiatAmount Price { get; }
     public TransactionType Type { get; }
-    public CryptoExchangeName? CryptoExchange { get; }
+    public ITransactionSource? TransactionSource { get; }
 
     public AddTransactionCommand(
         UserId userId,
@@ -22,7 +21,7 @@ public class AddTransactionCommand : IRequest<IResult>
         BitcoinAmount amount,
         FiatAmount price,
         TransactionType type,
-        CryptoExchangeName? cryptoExchange
+        ITransactionSource? transactionSource
     )
     {
         ArgumentNullException.ThrowIfNull(userId);
@@ -32,6 +31,6 @@ public class AddTransactionCommand : IRequest<IResult>
         Amount = amount;
         Price = price;
         Type = type;
-        CryptoExchange = cryptoExchange;
+        TransactionSource = transactionSource;
     }
 }

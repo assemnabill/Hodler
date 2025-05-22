@@ -1,4 +1,5 @@
 using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 using Mapster;
 
@@ -26,7 +27,9 @@ public class PortfolioInfoMapping : IRegister
                 src.transactionInfo.FiatAmount,
                 src.transactionInfo.BtcAmount,
                 src.transactionInfo.Timestamp,
-                src.transactionInfo.CryptoExchange
+                src.transactionInfo.MarketPrice,
+                src.transactionInfo.TransactionSource,
+                null
             ));
 
         config

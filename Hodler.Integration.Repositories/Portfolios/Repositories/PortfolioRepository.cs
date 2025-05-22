@@ -1,26 +1,29 @@
 using System.Diagnostics;
 using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.BitcoinWallets;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Users.Models;
 using Hodler.Integration.Repositories.Portfolios.Context;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using BitcoinWallet = Hodler.Integration.Repositories.Portfolios.Entities.BitcoinWallet;
 using Portfolio = Hodler.Integration.Repositories.Portfolios.Entities.Portfolio;
 
 namespace Hodler.Integration.Repositories.Portfolios.Repositories;
 
 internal class PortfolioRepository : IPortfolioRepository
 {
-    private readonly PortfolioDbContext _dbContext;
+    private readonly PortfolioDbContext _context;
     private readonly ILogger<PortfolioRepository> _logger;
 
     public PortfolioRepository(
-        PortfolioDbContext dbContext,
+        PortfolioDbContext context,
         ILogger<PortfolioRepository> logger
     )
     {
-        _dbContext = dbContext;
+        _context = context;
         _logger = logger;
     }
 
@@ -31,7 +34,10 @@ internal class PortfolioRepository : IPortfolioRepository
         aggregateRoot.OnAfterStore();
     }
 
-    public async Task<IPortfolio?> FindByAsync(UserId userId, CancellationToken cancellationToken)
+    public async Task<IPortfolio?> FindByAsync(
+        UserId userId,
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentNullException.ThrowIfNull(userId);
 
@@ -42,13 +48,36 @@ internal class PortfolioRepository : IPortfolioRepository
         return entity?.Adapt<Portfolio, IPortfolio>();
     }
 
+    public async Task<IPortfolio?> FindByAsync(
+        PortfolioId portfolioId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var portfolio = await IncludeAggregate()
+            .FirstOrDefaultAsync(x => x.PortfolioId == portfolioId.Value, cancellationToken);
+
+        return portfolio?.Adapt<IPortfolio>();
+    }
+
+
+    public async Task<IPortfolio?> FindByAsync(
+        BitcoinWalletId walletId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var portfolio = await IncludeAggregate()
+            .FirstOrDefaultAsync(x => x.BitcoinWallets.Any(w => w.BitcoinWalletId == walletId.Value), cancellationToken);
+
+        return portfolio?.Adapt<IPortfolio>();
+    }
+
     private async Task SaveChangesAsync(IPortfolio aggregateRoot, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(aggregateRoot);
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (_dbContext.Database.CurrentTransaction is null)
+        if (_context.Database.CurrentTransaction is null)
             _logger.LogWarning
             (
                 $"No active database transaction found while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}."
@@ -56,7 +85,7 @@ internal class PortfolioRepository : IPortfolioRepository
 
         try
         {
-            var existingDbEntity = await _dbContext.Portfolios
+            var existingDbEntity = await _context.Portfolios
                 .Include(x => x.Transactions)
                 .FirstOrDefaultAsync(t => t.PortfolioId == aggregateRoot.Id, cancellationToken);
 
@@ -64,23 +93,56 @@ internal class PortfolioRepository : IPortfolioRepository
             if (existingDbEntity is null)
             {
                 entity.CreatedAt = DateTimeOffset.UtcNow;
-                await _dbContext.AddAsync(entity, cancellationToken);
+                await _context.AddAsync(entity, cancellationToken);
             }
             else
             {
                 entity.UpdatedAt = DateTimeOffset.UtcNow;
-                _dbContext.Entry(existingDbEntity).CurrentValues.SetValues(entity);
-                _dbContext.Entry(existingDbEntity).State = EntityState.Modified;
+                _context.Entry(existingDbEntity).CurrentValues.SetValues(entity);
+                _context.Entry(existingDbEntity).State = EntityState.Modified;
             }
 
             await ChangeTransactions(aggregateRoot, entity, cancellationToken);
+            await ChangeBitcoinWallets(aggregateRoot, entity, cancellationToken);
 
-            var rows = await _dbContext.SaveChangesAsync(cancellationToken);
+            var rows = await _context.SaveChangesAsync(cancellationToken);
         }
         catch (Exception e)
         {
             _logger.LogError(e,
-                $"Error while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace()}.");
+                $"Error while storing portfolio ({aggregateRoot.Id}). Stack Trace: {new StackTrace(e)}.");
+            throw;
+        }
+    }
+
+    private async Task ChangeBitcoinWallets(IPortfolio aggregateRoot, Portfolio entity, CancellationToken cancellationToken)
+    {
+        var existingEntities = _context.BitcoinWallets
+            .Where(x => x.PortfolioId == entity.PortfolioId)
+            .ToList();
+
+        var newEntities = aggregateRoot.BitcoinWallets
+            .Select(x => x.Adapt<IBitcoinWallet, BitcoinWallet>())
+            .ToList();
+
+        var toRemove = existingEntities.Except(newEntities).ToList();
+        _context.RemoveRange(toRemove);
+
+        foreach (var newEntity in newEntities)
+        {
+            var existingEntity = existingEntities
+                .FirstOrDefault(x => x.BitcoinWalletId == newEntity.BitcoinWalletId);
+
+            if (existingEntity is not null)
+            {
+                newEntity.UpdatedAt = DateTimeOffset.UtcNow;
+                _context.Entry(existingEntity).CurrentValues.SetValues(newEntity);
+                _context.Entry(existingEntity).State = EntityState.Modified;
+                continue;
+            }
+
+            newEntity.CreatedAt = DateTimeOffset.UtcNow;
+            await _context.AddAsync(newEntity, cancellationToken);
         }
     }
 
@@ -90,7 +152,7 @@ internal class PortfolioRepository : IPortfolioRepository
         CancellationToken cancellationToken
     )
     {
-        var existingEntities = _dbContext.Transactions
+        var existingEntities = _context.Transactions
             .Where(x => x.PortfolioId == entity.PortfolioId)
             .ToList();
 
@@ -99,7 +161,7 @@ internal class PortfolioRepository : IPortfolioRepository
             .ToList();
 
         var toRemove = existingEntities.Except(newEntities).ToList();
-        _dbContext.RemoveRange(toRemove);
+        _context.RemoveRange(toRemove);
 
         foreach (var newEntity in newEntities)
         {
@@ -109,21 +171,22 @@ internal class PortfolioRepository : IPortfolioRepository
             if (existingEntity is not null)
             {
                 newEntity.UpdatedAt = DateTimeOffset.UtcNow;
-                _dbContext.Entry(existingEntity).CurrentValues.SetValues(newEntity);
-                _dbContext.Entry(existingEntity).State = EntityState.Modified;
+                _context.Entry(existingEntity).CurrentValues.SetValues(newEntity);
+                _context.Entry(existingEntity).State = EntityState.Modified;
                 continue;
             }
 
             newEntity.CreatedAt = DateTimeOffset.UtcNow;
-            await _dbContext.AddAsync(newEntity, cancellationToken);
+            await _context.AddAsync(newEntity, cancellationToken);
         }
     }
 
     private IQueryable<Portfolio> IncludeAggregate()
     {
-        return _dbContext.Portfolios
+        return _context.Portfolios
             .AsNoTracking()
             .AsSplitQuery()
-            .Include(x => x.Transactions);
+            .Include(x => x.Transactions)
+            .Include(x => x.BitcoinWallets);
     }
 }

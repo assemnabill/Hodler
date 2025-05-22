@@ -1,9 +1,10 @@
 using Bitpanda.RestClient;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 using Mapster;
-using TransactionType = Hodler.Domain.Portfolios.Models.TransactionType;
+using TransactionType = Hodler.Domain.Portfolios.Models.Transactions.TransactionType;
 
 namespace Hodler.Integration.ExternalApis.Portfolios.SyncWithExchange.BitPanda;
 
@@ -20,7 +21,9 @@ public class TradeAttributesRegistration : IRegister
                 new FiatAmount(src.Amount_fiat, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
                 new BitcoinAmount(src.Amount_cryptocoin),
                 DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(src.Time.Unix)).ToUniversalTime(),
-                CryptoExchangeName.BitPanda
+                new FiatAmount(src.Price, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
+                TransactionSource.FromExchange(CryptoExchangeName.BitPanda),
+                null
             ));
 
         config
@@ -32,7 +35,7 @@ public class TradeAttributesRegistration : IRegister
                 new BitcoinAmount(src.Amount_cryptocoin),
                 new FiatAmount(src.Price, FiatCurrency.GetById(int.Parse(src.Fiat_id))),
                 src.Time.Date_iso8601.ToUniversalTime(),
-                CryptoExchangeName.BitPanda
+                TransactionSource.FromExchange(CryptoExchangeName.BitPanda)
             ));
     }
 }

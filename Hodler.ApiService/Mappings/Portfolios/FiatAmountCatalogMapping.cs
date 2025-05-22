@@ -7,7 +7,7 @@ using FiatCurrency = Hodler.Contracts.Shared.FiatCurrency;
 
 namespace Hodler.ApiService.Mappings.Portfolios;
 
-public class FiatAmountCatalogRegistration : IRegister
+public class FiatAmountCatalogMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

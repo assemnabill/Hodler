@@ -1,7 +1,6 @@
-using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Shared.Models;
 
-namespace Hodler.Domain.Portfolios.Models;
+namespace Hodler.Domain.Portfolios.Models.Transactions;
 
 public record Transaction(
     PortfolioId PortfolioId,
@@ -10,13 +9,10 @@ public record Transaction(
     FiatAmount FiatAmount,
     BitcoinAmount BtcAmount,
     DateTimeOffset Timestamp,
-    CryptoExchangeName? CryptoExchange = null
+    FiatAmount MarketPrice,
+    ITransactionSource? TransactionSource,
+    BitcoinAmount? TransactionFee = null
 )
 {
-    public FiatAmount MarketPrice =>
-        BtcAmount == 0
-            ? new(0, FiatAmount.FiatCurrency)
-            : new(FiatAmount / BtcAmount, FiatAmount.FiatCurrency);
-
     public bool IsInCurrency(FiatCurrency fiatCurrency) => FiatAmount.FiatCurrency.Id == fiatCurrency.Id;
 }

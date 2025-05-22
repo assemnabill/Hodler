@@ -1,7 +1,9 @@
 using Corz.DomainDriven.Abstractions.Models.Bases;
 using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Domain.BitcoinPrices.Ports;
-using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Portfolios.Models.BitcoinWallets;
+using Hodler.Domain.Portfolios.Models.Transactions;
+using Hodler.Domain.Portfolios.Services;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using Microsoft.Extensions.Internal;
@@ -13,6 +15,7 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
     PortfolioId Id { get; }
     UserId UserId { get; }
     ITransactions Transactions { get; }
+    IReadOnlyCollection<IBitcoinWallet> BitcoinWallets { get; }
 
     SyncResult<IPortfolio> SyncTransactions(IEnumerable<Transaction> transactions);
 
@@ -29,13 +32,40 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
         CancellationToken cancellationToken = default
     );
 
-    IResult AddTransaction(
+    Task<IResult> AddTransactionAsync(
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         TransactionType transactionType,
         DateTime date,
-        FiatAmount price,
+        FiatAmount fiatAmount,
         BitcoinAmount bitcoinAmount,
-        CryptoExchangeName? cryptoExchange
+        ITransactionSource cryptoExchange,
+        CancellationToken cancellationToken = default
     );
 
     IResult RemoveTransaction(TransactionId transactionId);
+
+    Task<IResult> ModifyTransactionAsync(
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
+        TransactionId transactionId,
+        TransactionType newTransactionType,
+        DateTime newDate,
+        FiatAmount newAmount,
+        BitcoinAmount newBitcoinAmount,
+        ITransactionSource? source,
+        CancellationToken cancellationToken = default
+    );
+
+    IResult ConnectBitcoinWallet(
+        BitcoinAddress address,
+        string walletName,
+        BlockchainNetwork network
+    );
+
+    IResult DisconnectBitcoinWallet(BitcoinWalletId walletId);
+
+    Task<SyncResult<IPortfolio>> SyncBitcoinWalletAsync(
+        BitcoinWalletId walletId,
+        IBitcoinBlockchainService blockchainService,
+        CancellationToken cancellationToken = default
+    );
 }

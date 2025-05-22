@@ -17,10 +17,61 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Hodler.Integration.Repositories.Portfolios.Entities.BitcoinWallet", b =>
+                {
+                    b.Property<Guid>("BitcoinWalletId")
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTimeOffset>("ConnectedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LastSynced")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Network")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PortfolioId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WalletName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("BitcoinWalletId");
+
+                    b.HasIndex("Address")
+                        .IsUnique();
+
+                    b.HasIndex("PortfolioId");
+
+                    b.ToTable("BitcoinWallets");
+                });
 
             modelBuilder.Entity("Hodler.Integration.Repositories.Portfolios.Entities.Portfolio", b =>
                 {
@@ -64,8 +115,8 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("CryptoExchange")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("Fee")
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("FiatAmount")
                         .HasColumnType("numeric");
@@ -78,6 +129,12 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
 
                     b.Property<Guid>("PortfolioId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("SourceIdentifier")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("SourceType")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("Timestamp")
                         .HasColumnType("timestamp with time zone");
@@ -100,6 +157,17 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
                     b.ToTable("Transactions");
                 });
 
+            modelBuilder.Entity("Hodler.Integration.Repositories.Portfolios.Entities.BitcoinWallet", b =>
+                {
+                    b.HasOne("Hodler.Integration.Repositories.Portfolios.Entities.Portfolio", "Portfolio")
+                        .WithMany("BitcoinWallets")
+                        .HasForeignKey("PortfolioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Portfolio");
+                });
+
             modelBuilder.Entity("Hodler.Integration.Repositories.Portfolios.Entities.Transaction", b =>
                 {
                     b.HasOne("Hodler.Integration.Repositories.Portfolios.Entities.Portfolio", "Portfolio")
@@ -113,6 +181,8 @@ namespace Hodler.Integration.Repositories.Migrations.Portfolio
 
             modelBuilder.Entity("Hodler.Integration.Repositories.Portfolios.Entities.Portfolio", b =>
                 {
+                    b.Navigation("BitcoinWallets");
+
                     b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618

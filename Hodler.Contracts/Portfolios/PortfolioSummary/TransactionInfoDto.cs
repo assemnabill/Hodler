@@ -1,5 +1,6 @@
+using Hodler.Contracts.Portfolios.AddTransaction;
 using Hodler.Contracts.Shared;
-using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 
 namespace Hodler.Contracts.Portfolios.PortfolioSummary;
 
@@ -9,5 +10,6 @@ public record TransactionInfoDto(
     FiatAmountDto FiatAmount,
     decimal BtcAmount,
     FiatAmountDto MarketPrice,
-    DateTimeOffset Timestamp
+    DateTimeOffset Timestamp,
+    TransactionSourceDto? Source
 );

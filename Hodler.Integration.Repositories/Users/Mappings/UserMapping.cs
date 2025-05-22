@@ -8,7 +8,7 @@ using User = Hodler.Integration.Repositories.Users.Entities.User;
 
 namespace Hodler.Integration.Repositories.Users.Mappings;
 
-public class UserMappingRegistration : IRegister
+public class UserMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

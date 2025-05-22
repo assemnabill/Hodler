@@ -1,5 +1,6 @@
 using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
 using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Portfolios.Services;
 using Hodler.Domain.Users.Models;

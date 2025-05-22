@@ -1,4 +1,4 @@
-using Hodler.Domain.Portfolios.Models;
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Users.Models;
 
 namespace Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
