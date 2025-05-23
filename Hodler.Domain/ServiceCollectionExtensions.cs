@@ -1,5 +1,5 @@
-﻿using Corz.DomainDriven.Abstractions.DomainEvents;
-using Hodler.Domain.BitcoinPrices.Services;
+﻿using Hodler.Domain.BitcoinPrices.Services;
+using Hodler.Domain.Shared.Events;
 using Hodler.Domain.Shared.Services;
 using Hodler.Domain.Users.Services;
 using Microsoft.Extensions.DependencyInjection;

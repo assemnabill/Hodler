@@ -1,7 +1,7 @@
-using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Application.Portfolios.Commands.AddTransaction;
 using Hodler.Application.Portfolios.Commands.ModifyTransaction;
 using Hodler.Application.Portfolios.Commands.RemoveTransaction;
+using Hodler.Domain.Shared.Results;
 
 namespace Hodler.Application.Portfolios.Services;
 

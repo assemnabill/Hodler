@@ -1,18 +1,19 @@
 using System.Diagnostics;
-using Corz.DomainDriven.Abstractions.DomainEvents;
+using Hodler.Domain.Shared.Events;
 using Hodler.Domain.Users.Models;
 using Hodler.Domain.Users.Ports;
 using Hodler.Integration.Repositories.Users.Context;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using User = Hodler.Integration.Repositories.Users.Entities.User;
 
 namespace Hodler.Integration.Repositories.Users.Repositories;
 
 internal class UserRepository : IUserRepository
 {
-    private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly UserDbContext _dbContext;
+    private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly ILogger<UserRepository> _logger;
 
     public UserRepository(
@@ -24,6 +25,28 @@ internal class UserRepository : IUserRepository
         _dbContext = dbContext;
         _logger = logger;
         _domainEventDispatcher = domainEventDispatcher;
+    }
+
+    public async Task StoreAsync(IUser aggregateRoot, CancellationToken cancellationToken)
+    {
+        aggregateRoot.OnBeforeStore();
+        await SaveChangesAsync(aggregateRoot, cancellationToken);
+        await _domainEventDispatcher.PublishEventsOfAsync(aggregateRoot.DomainEventQueue, cancellationToken);
+        aggregateRoot.OnAfterStore();
+    }
+
+    public async Task<IUser?> FindByAsync(
+        UserId userId,
+        CancellationToken cancellationToken
+    )
+    {
+        ArgumentNullException.ThrowIfNull(userId);
+
+        var entity = await IncludeAggregate()
+            .Where(x => x.Id == userId.Value.ToString())
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return entity?.Adapt<User, IUser>();
     }
 
     private async Task SaveChangesAsync(IUser aggregateRoot, CancellationToken cancellationToken)
@@ -45,7 +68,7 @@ internal class UserRepository : IUserRepository
                 .Include(x => x.ApiKeys)
                 .FirstOrDefaultAsync(t => t.Id == aggregateRoot.Id.Value.ToString(), cancellationToken);
 
-            var newEntity = aggregateRoot.Adapt<IUser, Entities.User>();
+            var newEntity = aggregateRoot.Adapt<IUser, User>();
             if (existingEntity is null)
             {
                 await _dbContext.AddAsync(newEntity, cancellationToken);
@@ -68,7 +91,7 @@ internal class UserRepository : IUserRepository
         }
     }
 
-    private async Task ChangeUserApiKeys(IUser aggregateRoot, Entities.User entity, CancellationToken cancellationToken)
+    private async Task ChangeUserApiKeys(IUser aggregateRoot, User entity, CancellationToken cancellationToken)
     {
         var existingEntities = _dbContext.ApiKeys
             .Where(x => x.UserId == entity.Id)
@@ -91,7 +114,7 @@ internal class UserRepository : IUserRepository
 
     private async Task ChangeUserSettings(
         IUser aggregateRoot,
-        Entities.User entity,
+        User entity,
         CancellationToken cancellationToken
     )
     {
@@ -105,32 +128,10 @@ internal class UserRepository : IUserRepository
     }
 
 
-    private IQueryable<Entities.User> IncludeAggregate() =>
+    private IQueryable<User> IncludeAggregate() =>
         _dbContext.Users
             .AsNoTracking()
             .AsSplitQuery()
             .Include(x => x.UserSettings)
             .Include(x => x.ApiKeys);
-
-    public async Task StoreAsync(IUser aggregateRoot, CancellationToken cancellationToken)
-    {
-        aggregateRoot.OnBeforeStore();
-        await SaveChangesAsync(aggregateRoot, cancellationToken);
-        await _domainEventDispatcher.PublishEventsOfAsync(aggregateRoot.DomainEventQueue, cancellationToken);
-        aggregateRoot.OnAfterStore();
-    }
-
-    public async Task<IUser?> FindByAsync(
-        UserId userId,
-        CancellationToken cancellationToken
-    )
-    {
-        ArgumentNullException.ThrowIfNull(userId);
-
-        var entity = await IncludeAggregate()
-            .Where(x => x.Id == userId.Value.ToString())
-            .FirstOrDefaultAsync(cancellationToken);
-
-        return entity?.Adapt<Entities.User, IUser>();
-    }
 }

@@ -1,4 +1,4 @@
-using Corz.DomainDriven.Abstractions.Models.Bases;
+using Hodler.Domain.Shared.Aggregate;
 
 namespace Hodler.Domain.Shared.Models;
 

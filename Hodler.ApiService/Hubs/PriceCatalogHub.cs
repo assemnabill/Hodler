@@ -16,7 +16,7 @@ public class PriceCatalogHub : Hub
 
     public async Task BitcoinPriceCatalog()
     {
-        var currentPriceCatalog = await _currentBitcoinPriceProvider.GetBitcoinPriceCatalogAsync(default);
+        var currentPriceCatalog = await _currentBitcoinPriceProvider.GetBitcoinPriceCatalogAsync(CancellationToken.None);
         var dto = currentPriceCatalog.Adapt<BitcoinPricePerCurrencyCatalogDto>();
 
         await Clients.All.SendAsync("BitcoinPriceChanged", dto);

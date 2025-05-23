@@ -1,5 +1,3 @@
-using Corz.DomainDriven.Abstractions.Models.Bases;
-using Corz.DomainDriven.Abstractions.Models.Results;
 using Corz.Extensions.DateTime;
 using Corz.Extensions.Enumeration;
 using Hodler.Domain.BitcoinPrices.Models;
@@ -8,7 +6,9 @@ using Hodler.Domain.Portfolios.Failures;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Portfolios.Services;
+using Hodler.Domain.Shared.Aggregate;
 using Hodler.Domain.Shared.Models;
+using Hodler.Domain.Shared.Results;
 using Hodler.Domain.Users.Models;
 using Microsoft.Extensions.Internal;
 using ZLinq;

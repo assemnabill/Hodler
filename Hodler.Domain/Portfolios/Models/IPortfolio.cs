@@ -1,10 +1,10 @@
-using Corz.DomainDriven.Abstractions.Models.Bases;
-using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Portfolios.Services;
+using Hodler.Domain.Shared.Aggregate;
 using Hodler.Domain.Shared.Models;
+using Hodler.Domain.Shared.Results;
 using Hodler.Domain.Users.Models;
 using Microsoft.Extensions.Internal;
 

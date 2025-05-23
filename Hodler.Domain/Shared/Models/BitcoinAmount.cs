@@ -8,7 +8,7 @@ public record BitcoinAmount
 
     public BitcoinAmount(decimal amountInBtc)
     {
-        Amount = Math.Abs(amountInBtc);
+        Amount = System.Math.Abs(amountInBtc);
     }
 
     public static implicit operator decimal(BitcoinAmount bitcoinAmount) => bitcoinAmount.Amount;

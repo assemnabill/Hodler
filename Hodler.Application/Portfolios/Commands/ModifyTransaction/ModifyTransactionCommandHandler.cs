@@ -1,5 +1,5 @@
-using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Application.Portfolios.Services;
+using Hodler.Domain.Shared.Results;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 

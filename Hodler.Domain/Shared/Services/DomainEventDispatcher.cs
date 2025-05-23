@@ -1,5 +1,4 @@
-using Corz.DomainDriven.Abstractions.DomainEvents;
-using Microsoft.Extensions.DependencyInjection;
+using Hodler.Domain.Shared.Events;
 
 namespace Hodler.Domain.Shared.Services;
 
@@ -14,17 +13,18 @@ internal sealed class DomainEventDispatcher : IDomainEventDispatcher
 
     public async Task PublishAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
+        // todo: implement transactional outbox pattern
         var domainEventType = domainEvent.GetType();
-        var serviceType = typeof(IDomainEventHandler<>).MakeGenericType(domainEventType);
-        var services = _serviceProvider.GetServices(serviceType);
-
-        foreach (var service in services)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (service != null)
-                await ExecuteHandler(serviceType, service, domainEvent, cancellationToken);
-        }
+        // var serviceType = typeof(IRequestHandler<>).MakeGenericType(domainEventType);
+        // var services = _serviceProvider.GetServices(serviceType);
+        //
+        // foreach (var service in services)
+        // {
+        //     cancellationToken.ThrowIfCancellationRequested();
+        //
+        //     if (service != null)
+        //         await ExecuteHandler(serviceType, service, domainEvent, cancellationToken);
+        // }
 
     }
 

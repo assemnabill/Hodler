@@ -1,4 +1,4 @@
-using Corz.DomainDriven.Abstractions.Failures;
+using Hodler.Domain.Shared.Failures;
 using BitcoinAddress = Hodler.Domain.Portfolios.Models.BitcoinWallets.BitcoinAddress;
 
 namespace Hodler.Domain.Portfolios.Failures;
