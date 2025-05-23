@@ -54,9 +54,15 @@ public class PortfolioMapping : IRegister
                 transaction.SourceIdentifier == null
                     ? null
                     : transaction.SourceType == (int)TransactionSourceType.Wallet
-                        ? TransactionSource.FromWallet(new BitcoinWalletId(Guid.Parse(transaction.SourceIdentifier)))
-                        : TransactionSource.FromExchange((CryptoExchangeName)int.Parse(transaction.SourceIdentifier)),
-                null
+                        ? TransactionSource.FromWallet(
+                            new BitcoinWalletId(Guid.Parse(transaction.SourceIdentifier)),
+                            transaction.SourceName
+                        )
+                        : TransactionSource.FromExchange(
+                            (CryptoExchangeName)int.Parse(transaction.SourceIdentifier),
+                            transaction.SourceName
+                        ),
+                transaction.Fee
             ));
 
         config
@@ -70,7 +76,9 @@ public class PortfolioMapping : IRegister
             .Map(dest => dest.MarketPrice, src => src.MarketPrice)
             .Map(dest => dest.Timestamp, src => src.Timestamp.UtcDateTime)
             .Map(dest => dest.SourceType, src => src.TransactionSource == null ? (int?)null : src.TransactionSource.Type.ToInt())
-            .Map(dest => dest.SourceIdentifier, src => src.TransactionSource == null ? null : src.TransactionSource.Identifier);
+            .Map(dest => dest.SourceIdentifier, src => src.TransactionSource == null ? null : src.TransactionSource.Identifier)
+            .Map(dest => dest.SourceName,
+                src => src.TransactionSource == null || src.TransactionSource.Name == null ? null : src.TransactionSource.Name);
 
         config
             .NewConfig<BitcoinWallet, IBitcoinWallet>()

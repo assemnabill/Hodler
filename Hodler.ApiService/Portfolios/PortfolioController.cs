@@ -114,7 +114,7 @@ public class PortfolioController(IMediator mediator) : ApiController
     {
         var request = new AddTransactionCommand(
             UserId,
-            addTransactionRequestContract.Date,
+            addTransactionRequestContract.Timestamp,
             addTransactionRequestContract.BitcoinAmount,
             addTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
             addTransactionRequestContract.Type,
@@ -155,7 +155,7 @@ public class PortfolioController(IMediator mediator) : ApiController
         var request = new ModifyTransactionCommand(
             new TransactionId(transactionId),
             UserId,
-            modifyTransactionRequestContract.Date,
+            modifyTransactionRequestContract.Timestamp,
             modifyTransactionRequestContract.BitcoinAmount,
             modifyTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
             modifyTransactionRequestContract.Type,

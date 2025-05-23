@@ -35,7 +35,7 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
     Task<IResult> AddTransactionAsync(
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         TransactionType transactionType,
-        DateTime date,
+        DateTimeOffset timestamp,
         FiatAmount fiatAmount,
         BitcoinAmount bitcoinAmount,
         ITransactionSource cryptoExchange,
@@ -48,7 +48,7 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         TransactionId transactionId,
         TransactionType newTransactionType,
-        DateTime newDate,
+        DateTimeOffset newTimestamp,
         FiatAmount newAmount,
         BitcoinAmount newBitcoinAmount,
         ITransactionSource? source,

@@ -1,7 +1,7 @@
 using Hodler.Application.Portfolios.Commands.ConnectBitcoinWallet;
 using Hodler.Application.Portfolios.Commands.DisconnectBitcoinWallet;
 using Hodler.Application.Portfolios.Queries.ConnectedWallets;
-using Hodler.Contracts.WalletConnections;
+using Hodler.Contracts.Portfolios.Wallets;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Mapster;
 using MediatR;

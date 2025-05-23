@@ -17,9 +17,7 @@ public class PortfolioInfoMapping : IRegister
             ));
 
         config
-            .NewConfig<
-                (PortfolioId portfolioId, TransactionInfo transactionInfo),
-                Transaction>()
+            .NewConfig<(PortfolioId portfolioId, TransactionInfo transactionInfo), Transaction>()
             .MapWith(src => new Transaction(
                 src.portfolioId,
                 src.transactionInfo.Id,
@@ -35,5 +33,6 @@ public class PortfolioInfoMapping : IRegister
         config
             .NewConfig<FiatAmount, decimal>()
             .MapWith(src => src.Amount);
+
     }
 }

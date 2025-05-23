@@ -37,14 +37,15 @@ public class PortfolioInfoMapping : IRegister
         config
             .NewConfig<ITransactionSource, TransactionSourceDto>()
             .Map(dest => dest.Type, src => src.Type)
-            .Map(dest => dest.Identifier, src => src.Identifier);
+            .Map(dest => dest.Identifier, src => src.Identifier)
+            .Map(dest => dest.Name, src => src.Name);
 
         config
             .NewConfig<TransactionSourceDto, ITransactionSource>()
             .MapWith(src =>
                 src.Type == (int)TransactionSourceType.Wallet
-                    ? TransactionSource.FromWallet(new BitcoinWalletId(Guid.Parse(src.Identifier)))
-                    : TransactionSource.FromExchange((CryptoExchangeName)int.Parse(src.Identifier))
+                    ? TransactionSource.FromWallet(new BitcoinWalletId(Guid.Parse(src.Identifier)), src.Name)
+                    : TransactionSource.FromExchange((CryptoExchangeName)int.Parse(src.Identifier), src.Name)
             );
     }
 }

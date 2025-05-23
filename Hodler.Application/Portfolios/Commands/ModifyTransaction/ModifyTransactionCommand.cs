@@ -10,7 +10,7 @@ public class ModifyTransactionCommand : IRequest<IResult>
 {
     public TransactionId TransactionId { get; }
     public UserId UserId { get; }
-    public DateTime Date { get; }
+    public DateTimeOffset Timestamp { get; }
     public BitcoinAmount Amount { get; }
     public FiatAmount Price { get; }
     public TransactionType Type { get; }
@@ -19,7 +19,7 @@ public class ModifyTransactionCommand : IRequest<IResult>
     public ModifyTransactionCommand(
         TransactionId transactionId,
         UserId userId,
-        DateTime date,
+        DateTimeOffset timestamp,
         BitcoinAmount amount,
         FiatAmount price,
         TransactionType type,
@@ -31,7 +31,7 @@ public class ModifyTransactionCommand : IRequest<IResult>
 
         TransactionId = transactionId;
         UserId = userId;
-        Date = date;
+        Timestamp = timestamp;
         Amount = amount;
         Price = price;
         Type = type;

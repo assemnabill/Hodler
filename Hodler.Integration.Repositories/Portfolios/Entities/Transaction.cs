@@ -13,6 +13,7 @@ public class Transaction : Entity
     public int FiatCurrency { get; init; }
     public int? SourceType { get; init; }
     public string? SourceIdentifier { get; init; }
+    public string? SourceName { get; init; }
 
 
     public virtual Portfolio Portfolio { get; init; }

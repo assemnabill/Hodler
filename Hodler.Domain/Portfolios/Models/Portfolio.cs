@@ -28,7 +28,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         ArgumentNullException.ThrowIfNull(userId);
 
         Transactions = transactions;
-        BitcoinWallets = bitcoinWallets ?? Array.Empty<IBitcoinWallet>();
+        BitcoinWallets = bitcoinWallets ?? [];
         UserId = userId;
         Id = portfolioId;
     }
@@ -94,7 +94,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     public async Task<IResult> AddTransactionAsync(
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         TransactionType transactionType,
-        DateTime date,
+        DateTimeOffset timestamp,
         FiatAmount fiatAmount,
         BitcoinAmount bitcoinAmount,
         ITransactionSource? newSource,
@@ -102,7 +102,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     )
     {
         var marketPrice = await historicalBitcoinPriceProvider
-            .GetHistoricalPriceOnDateAsync(fiatAmount.FiatCurrency, date.ToDate(), cancellationToken);
+            .GetHistoricalPriceOnDateAsync(fiatAmount.FiatCurrency, timestamp.ToDate(), cancellationToken);
 
         var newTransaction = new Transaction(
             Id,
@@ -110,7 +110,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             transactionType,
             fiatAmount,
             bitcoinAmount,
-            date,
+            timestamp,
             marketPrice.Price,
             newSource
         );
@@ -141,7 +141,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
         TransactionId transactionId,
         TransactionType newTransactionType,
-        DateTime newDate,
+        DateTimeOffset newTimestamp,
         FiatAmount newAmount,
         BitcoinAmount newBitcoinAmount,
         ITransactionSource? source,
@@ -159,14 +159,14 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             return new FailureResult(new TransactionDoesNotExistFailure(transactionId));
 
         var marketPrice = await historicalBitcoinPriceProvider
-            .GetHistoricalPriceOnDateAsync(newAmount.FiatCurrency, newDate.ToDate(), cancellationToken);
+            .GetHistoricalPriceOnDateAsync(newAmount.FiatCurrency, newTimestamp.ToDate(), cancellationToken);
 
         var newTransaction = transaction with
         {
             Type = newTransactionType,
             FiatAmount = newAmount,
             BtcAmount = newBitcoinAmount,
-            Timestamp = newDate,
+            Timestamp = newTimestamp,
             MarketPrice = marketPrice.Price,
             TransactionSource = source ?? transaction.TransactionSource
         };
