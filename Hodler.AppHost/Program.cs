@@ -10,7 +10,6 @@ const string dbName = $"{serviceName}-db";
 
 var postgresComponent = builder
     .AddPostgres("postgres")
-    .WithPgWeb()
     .WithDataVolume();
 
 var hodlerDb = postgresComponent.AddDatabase(dbName);

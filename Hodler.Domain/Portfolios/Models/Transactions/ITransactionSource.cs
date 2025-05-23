@@ -4,4 +4,5 @@ public interface ITransactionSource
 {
     TransactionSourceType Type { get; }
     string Identifier { get; }
+    string? Name { get; }
 }

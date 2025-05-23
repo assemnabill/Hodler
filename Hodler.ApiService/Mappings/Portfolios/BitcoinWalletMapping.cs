@@ -1,4 +1,4 @@
-using Hodler.Contracts.WalletConnections;
+using Hodler.Contracts.Portfolios.Wallets;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Mapster;
 
@@ -8,18 +8,20 @@ public class BitcoinWalletMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<IBitcoinWallet, ConnectedWalletDto>()
+        config
+            .NewConfig<IBitcoinWallet, BitcoinWalletDto>()
             .Map(dest => dest.Id, src => src.Id.Value)
-            .Map(dest => dest.Name, src => src.WalletName)
-            .Map(dest => dest.Address, src => src.Address)
-            .Map(dest => dest.Network, src => src.Network.Name)
+            .Map(dest => dest.WalletName, src => src.WalletName)
+            .Map(dest => dest.Address, src => src.Address.Value)
+            .Map(dest => dest.Balance, src => src.Balance.Amount)
             .Map(dest => dest.ConnectedDate, src => src.ConnectedDate)
             .Map(dest => dest.LastSynced, src => src.LastSynced);
 
-        config.NewConfig<IReadOnlyCollection<IBitcoinWallet>, ConnectedWalletsDto>()
+        config
+            .NewConfig<IReadOnlyCollection<IBitcoinWallet>, ConnectedWalletsDto>()
             .Map(dest => dest.Wallets,
                 src => src
-                    .Select(x => x.Adapt<ConnectedWalletDto>())
+                    .Select(x => x.Adapt<BitcoinWalletDto>())
                     .ToList()
             );
     }

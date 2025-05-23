@@ -38,7 +38,7 @@ public class PortfolioCommandService : IPortfolioCommandService
         var result = await portfolio.AddTransactionAsync(
             _historicalBitcoinPriceProvider,
             request.Type,
-            request.Date,
+            request.Timestamp,
             request.Price,
             request.Amount,
             request.TransactionSource,
@@ -76,7 +76,7 @@ public class PortfolioCommandService : IPortfolioCommandService
             _historicalBitcoinPriceProvider,
             request.TransactionId,
             request.Type,
-            request.Date,
+            request.Timestamp,
             request.Price,
             request.Amount,
             request.TransactionSource,

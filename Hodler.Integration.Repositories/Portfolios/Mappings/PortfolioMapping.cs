@@ -1,4 +1,3 @@
-using Corz.Extensions.Enumeration;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Portfolios.Models;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
@@ -30,16 +29,17 @@ public class PortfolioMapping : IRegister
 
         config
             .NewConfig<IPortfolio, Portfolio>()
-            .Map(dest => dest.PortfolioId, src => src.Id.Value)
-            .Map(dest => dest.UserId, src => src.UserId.Value)
-            .Map(dest => dest.Transactions,
-                src => src.Transactions
-                    .Select(x => x.Adapt<Domain.Portfolios.Models.Transactions.Transaction, Transaction>())
-                    .ToList())
-            .Map(dest => dest.BitcoinWallets,
-                src => src.BitcoinWallets
-                    .Select(x => x.Adapt<IBitcoinWallet, BitcoinWallet>())
-                    .ToList());
+            .MapWith(x => new Portfolio
+            {
+                PortfolioId = x.Id.Value,
+                UserId = x.UserId.Value.ToString(),
+                Transactions = x.Transactions
+                    .Select(t => t.Adapt<Domain.Portfolios.Models.Transactions.Transaction, Transaction>())
+                    .ToList(),
+                BitcoinWallets = x.BitcoinWallets
+                    .Select(t => t.Adapt<IBitcoinWallet, BitcoinWallet>())
+                    .ToList()
+            });
 
         config
             .NewConfig<Transaction, Domain.Portfolios.Models.Transactions.Transaction>()
@@ -54,23 +54,34 @@ public class PortfolioMapping : IRegister
                 transaction.SourceIdentifier == null
                     ? null
                     : transaction.SourceType == (int)TransactionSourceType.Wallet
-                        ? TransactionSource.FromWallet(new BitcoinWalletId(Guid.Parse(transaction.SourceIdentifier)))
-                        : TransactionSource.FromExchange((CryptoExchangeName)int.Parse(transaction.SourceIdentifier)),
-                null
-            ));
+                        ? TransactionSource.FromWallet(
+                            new BitcoinWalletId(Guid.Parse(transaction.SourceIdentifier)),
+                            transaction.SourceName
+                        )
+                        : TransactionSource.FromExchange(
+                            (CryptoExchangeName)int.Parse(transaction.SourceIdentifier),
+                            transaction.SourceName
+                        ),
+                transaction.Fee == null ? null : new BitcoinAmount(transaction.Fee.Value))
+            );
 
         config
             .NewConfig<Domain.Portfolios.Models.Transactions.Transaction, Transaction>()
-            .Map(dest => dest.Type, src => (int)src.Type)
-            .Map(dest => dest.PortfolioId, src => src.PortfolioId.Value)
-            .Map(dest => dest.TransactionId, src => src.Id.Value)
-            .Map(dest => dest.FiatAmount, src => src.FiatAmount.Amount)
-            .Map(dest => dest.FiatCurrency, src => src.FiatAmount.FiatCurrency.Id)
-            .Map(dest => dest.BtcAmount, src => src.BtcAmount.Amount)
-            .Map(dest => dest.MarketPrice, src => src.MarketPrice)
-            .Map(dest => dest.Timestamp, src => src.Timestamp.UtcDateTime)
-            .Map(dest => dest.SourceType, src => src.TransactionSource == null ? (int?)null : src.TransactionSource.Type.ToInt())
-            .Map(dest => dest.SourceIdentifier, src => src.TransactionSource == null ? null : src.TransactionSource.Identifier);
+            .MapWith(x => new Transaction
+            {
+                PortfolioId = x.PortfolioId.Value,
+                TransactionId = x.Id.Value,
+                Type = (int)x.Type,
+                FiatAmount = x.FiatAmount.Amount,
+                FiatCurrency = x.FiatAmount.FiatCurrency.Id,
+                BtcAmount = x.BtcAmount.Amount,
+                MarketPrice = x.MarketPrice.Amount,
+                Timestamp = x.Timestamp.UtcDateTime,
+                Fee = x.TransactionFee == null ? null : x.TransactionFee.Amount,
+                SourceType = x.TransactionSource == null ? null : (int)x.TransactionSource.Type,
+                SourceIdentifier = x.TransactionSource == null ? null : x.TransactionSource.Identifier,
+                SourceName = x.TransactionSource == null ? null : x.TransactionSource.Name
+            });
 
         config
             .NewConfig<BitcoinWallet, IBitcoinWallet>()

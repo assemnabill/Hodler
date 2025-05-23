@@ -1,14 +1,14 @@
+using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Hodler.Domain.Portfolios.Services;
-using Mapster;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hodler.Application.Portfolios.Queries.ConnectedWallets;
 
 public class ConnectedWalletsQueryHandler(IServiceScopeFactory serviceScopeFactory)
-    : IRequestHandler<ConnectedWalletsQuery, IReadOnlyCollection<BitcoinWalletDto>>
+    : IRequestHandler<ConnectedWalletsQuery, IReadOnlyCollection<IBitcoinWallet>>
 {
-    public async Task<IReadOnlyCollection<BitcoinWalletDto>> Handle(
+    public async Task<IReadOnlyCollection<IBitcoinWallet>> Handle(
         ConnectedWalletsQuery query,
         CancellationToken cancellationToken
     )
@@ -20,6 +20,6 @@ public class ConnectedWalletsQueryHandler(IServiceScopeFactory serviceScopeFacto
         var wallets = await portfolioQueryService
             .RetrieveBitcoinWalletsAsync(query.UserId, cancellationToken);
 
-        return wallets.Adapt<IReadOnlyCollection<BitcoinWalletDto>>();
+        return wallets;
     }
 }
