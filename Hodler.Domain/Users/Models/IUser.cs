@@ -1,5 +1,5 @@
-using Corz.DomainDriven.Abstractions.Models.Bases;
 using Hodler.Domain.CryptoExchanges.Models;
+using Hodler.Domain.Shared.Aggregate;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Users.Models;

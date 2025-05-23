@@ -1,4 +1,4 @@
-using Corz.DomainDriven.Abstractions.Failures;
+using Hodler.Domain.Shared.Failures;
 
 namespace Hodler.Domain.BitcoinPrices.Failures;
 

@@ -1,5 +1,5 @@
-using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Domain.Portfolios.Models.Transactions;
+using Hodler.Domain.Shared.Results;
 using Hodler.Domain.Users.Models;
 using MediatR;
 

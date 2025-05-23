@@ -1,5 +1,5 @@
-using Corz.DomainDriven.Abstractions.Failures;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
+using Hodler.Domain.Shared.Failures;
 
 namespace Hodler.Domain.Portfolios.Failures;
 

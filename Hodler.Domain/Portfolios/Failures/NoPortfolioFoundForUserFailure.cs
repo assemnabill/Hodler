@@ -1,4 +1,4 @@
-﻿using Corz.DomainDriven.Abstractions.Failures;
+﻿using Hodler.Domain.Shared.Failures;
 using Hodler.Domain.Users.Models;
 
 namespace Hodler.Domain.Portfolios.Failures;

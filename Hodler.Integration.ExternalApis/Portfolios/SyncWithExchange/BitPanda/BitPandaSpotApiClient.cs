@@ -1,12 +1,12 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Bitpanda.RestClient;
-using Corz.DomainDriven.Abstractions.Exceptions;
 using Corz.Extensions.Enumeration;
 using Hodler.Domain.BitcoinPrices.Failures;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.CryptoExchanges.Ports.CryptoExchangeApis;
 using Hodler.Domain.Portfolios.Models.Transactions;
+using Hodler.Domain.Shared.Exceptions;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
 using Hodler.Domain.Users.Services;

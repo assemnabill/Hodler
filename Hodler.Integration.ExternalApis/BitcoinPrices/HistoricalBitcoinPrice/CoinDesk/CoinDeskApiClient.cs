@@ -1,10 +1,10 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using Corz.DomainDriven.Abstractions.Exceptions;
 using Hodler.Domain.BitcoinPrices.Failures;
 using Hodler.Domain.BitcoinPrices.Models;
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Shared;
+using Hodler.Domain.Shared.Exceptions;
 using Hodler.Domain.Shared.Models;
 using Mapster;
 using Microsoft.Extensions.Configuration;

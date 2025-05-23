@@ -1,4 +1,3 @@
-using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Application.Portfolios.Commands.AddTransaction;
 using Hodler.Application.Portfolios.Commands.ModifyTransaction;
 using Hodler.Application.Portfolios.Commands.RemoveTransaction;
@@ -6,6 +5,7 @@ using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Portfolios.Failures;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Portfolios.Services;
+using Hodler.Domain.Shared.Results;
 
 namespace Hodler.Application.Portfolios.Services;
 

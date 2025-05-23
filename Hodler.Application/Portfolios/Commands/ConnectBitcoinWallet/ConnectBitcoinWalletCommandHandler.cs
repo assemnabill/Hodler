@@ -1,6 +1,6 @@
-using Corz.DomainDriven.Abstractions.Models.Results;
 using Hodler.Domain.Portfolios.Failures;
 using Hodler.Domain.Portfolios.Ports.Repositories;
+using Hodler.Domain.Shared.Results;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 

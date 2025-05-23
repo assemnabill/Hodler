@@ -1,6 +1,6 @@
-using Corz.DomainDriven.Abstractions.Models.Bases;
 using Hodler.Domain.Portfolios.Models;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
+using Hodler.Domain.Shared.Aggregate;
 using Hodler.Domain.Users.Models;
 
 namespace Hodler.Domain.Portfolios.Ports.Repositories;

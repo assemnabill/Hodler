@@ -9,7 +9,7 @@ public record FiatAmount
 
     public FiatAmount(decimal Amount, FiatCurrency FiatCurrency)
     {
-        this.Amount = Math.Abs(Amount);
+        this.Amount = System.Math.Abs(Amount);
         this.FiatCurrency = FiatCurrency;
     }
 
