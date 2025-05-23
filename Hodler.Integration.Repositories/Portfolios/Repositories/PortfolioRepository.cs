@@ -87,6 +87,7 @@ internal class PortfolioRepository : IPortfolioRepository
         {
             var existingDbEntity = await _context.Portfolios
                 .Include(x => x.Transactions)
+                .Include(x => x.BitcoinWallets)
                 .FirstOrDefaultAsync(t => t.PortfolioId == aggregateRoot.Id, cancellationToken);
 
             var entity = aggregateRoot.Adapt<IPortfolio, Portfolio>();

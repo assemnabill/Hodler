@@ -38,6 +38,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     public ITransactions Transactions { get; private set; }
     public IReadOnlyCollection<IBitcoinWallet> BitcoinWallets { get; private set; }
 
+
     public SyncResult<IPortfolio> SyncTransactions(IEnumerable<Transaction> transactions)
     {
         ArgumentNullException.ThrowIfNull(transactions);

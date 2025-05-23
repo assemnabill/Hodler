@@ -31,7 +31,7 @@ public record TransactionSource : ITransactionSource
     public static TransactionSource FromExchange(CryptoExchangeName exchangeName, string? name = null) =>
         new(
             TransactionSourceType.CryptoExchange,
-            $"{exchangeName}",
+            $"{(int)exchangeName}",
             name ?? exchangeName.GetDescription()
         );
 }
