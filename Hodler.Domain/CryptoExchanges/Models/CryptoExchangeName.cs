@@ -4,6 +4,7 @@ namespace Hodler.Domain.CryptoExchanges.Models;
 
 public enum CryptoExchangeName
 {
+    [Description("Unknown")] Unknown = 0,
     [Description("BitPanda")] BitPanda = 1,
     [Description("Kraken")] Kraken = 2
 }

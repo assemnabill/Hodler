@@ -93,7 +93,7 @@ public class PortfolioController(IMediator mediator) : ApiController
     /// Adds a new transaction to the user's portfolio, including details such as date, Bitcoin amount, fiat amount,
     /// transaction type, and optionally the crypto exchange through which the transaction was executed.
     /// </summary>
-    /// <param name="addTransactionRequestContract">
+    /// <param name="request">
     /// The request containing the transaction details, including date, Bitcoin amount, fiat amount, transaction type,
     /// and the optional crypto exchange name.
     /// </param>
@@ -108,20 +108,20 @@ public class PortfolioController(IMediator mediator) : ApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddTransactionAsync(
-        [FromBody] AddTransactionRequestContract addTransactionRequestContract,
+        [FromBody] AddTransactionRequestContract request,
         CancellationToken cancellationToken
     )
     {
-        var request = new AddTransactionCommand(
+        var command = new AddTransactionCommand(
             UserId,
-            addTransactionRequestContract.Timestamp,
-            addTransactionRequestContract.BitcoinAmount,
-            addTransactionRequestContract.FiatAmount.Adapt<FiatAmount>(),
-            addTransactionRequestContract.Type,
-            addTransactionRequestContract.TransactionSource.Adapt<ITransactionSource>()
+            request.Timestamp,
+            request.BitcoinAmount,
+            request.FiatAmount.Adapt<FiatAmount>(),
+            request.Type,
+            request.TransactionSource?.Adapt<ITransactionSource>()
         );
 
-        var result = await mediator.Send(request, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         return result.IsSuccess ? Ok(result) : BadRequest(result.Failures);
     }

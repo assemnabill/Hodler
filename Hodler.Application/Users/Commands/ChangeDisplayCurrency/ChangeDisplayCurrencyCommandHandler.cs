@@ -4,18 +4,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Hodler.Application.Users.Commands.ChangeDisplayCurrency;
 
-public class ChangeDisplayCurrencyCommandHandler : IRequestHandler<ChangeDisplayCurrencyCommand, bool>
+public class ChangeDisplayCurrencyCommandHandler(IServiceScopeFactory serviceScopeFactory)
+    : IRequestHandler<ChangeDisplayCurrencyCommand, bool>
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public ChangeDisplayCurrencyCommandHandler(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public async Task<bool> Handle(ChangeDisplayCurrencyCommand request, CancellationToken cancellationToken)
     {
-        var domainService = _serviceProvider.GetRequiredService<IUserSettingsService>();
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.UserId);
+        ArgumentNullException.ThrowIfNull(request.FiatCurrency);
+
+        using var scope = serviceScopeFactory.CreateScope();
+        var serviceProvider = scope.ServiceProvider;
+        var domainService = serviceProvider.GetRequiredService<IUserSettingsService>();
 
         var result = await domainService.ChangeDisplayCurrencyAsync(
             request.UserId,

@@ -159,8 +159,13 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         if (transaction is null)
             return new FailureResult(new TransactionDoesNotExistFailure(transactionId));
 
-        var marketPrice = await historicalBitcoinPriceProvider
-            .GetHistoricalPriceOnDateAsync(newAmount.FiatCurrency, newTimestamp.ToDate(), cancellationToken);
+        var marketPrice = transaction.MarketPrice;
+        if (newTimestamp.ToDate() != transaction.Timestamp.ToDate())
+        {
+            marketPrice = (await historicalBitcoinPriceProvider
+                    .GetHistoricalPriceOnDateAsync(newAmount.FiatCurrency, newTimestamp.ToDate(), cancellationToken))
+                .Price;
+        }
 
         var newTransaction = transaction with
         {
@@ -168,7 +173,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             FiatAmount = newAmount,
             BtcAmount = newBitcoinAmount,
             Timestamp = newTimestamp,
-            MarketPrice = marketPrice.Price,
+            MarketPrice = marketPrice,
             TransactionSource = source ?? transaction.TransactionSource
         };
 

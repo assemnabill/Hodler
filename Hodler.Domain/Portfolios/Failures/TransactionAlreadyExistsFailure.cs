@@ -5,10 +5,10 @@ namespace Hodler.Domain.Portfolios.Failures;
 
 public class TransactionAlreadyExistsFailure : Failure
 {
-    public Transaction NewTransaction { get; }
+    public TransactionId NewTransactionId { get; }
 
     public TransactionAlreadyExistsFailure(Transaction newTransaction)
     {
-        NewTransaction = newTransaction;
+        NewTransactionId = newTransaction.Id;
     }
 }

@@ -75,7 +75,8 @@ internal class UserRepository : IUserRepository
             }
             else
             {
-                _dbContext.Entry(existingEntity).CurrentValues.SetValues(newEntity);
+                // TODO: Adjust mapping to avoid setting all values, including user login data..
+                // _dbContext.Entry(existingEntity).CurrentValues.SetValues(newEntity);
                 _dbContext.Entry(existingEntity).State = EntityState.Modified;
             }
 
@@ -108,7 +109,11 @@ internal class UserRepository : IUserRepository
             if (existingEntity is null)
             {
                 await _dbContext.AddAsync(newEntity, cancellationToken);
+                continue;
             }
+
+            _dbContext.Entry(existingEntity).CurrentValues.SetValues(newEntity);
+            _dbContext.Entry(existingEntity).State = EntityState.Modified;
         }
     }
 
@@ -124,7 +129,13 @@ internal class UserRepository : IUserRepository
         var userSettings = aggregateRoot.UserSettings.Adapt<UserSettings, Entities.UserSettings>();
 
         if (existingEntity is null)
+        {
             await _dbContext.AddAsync(userSettings, cancellationToken);
+            return;
+        }
+
+        _dbContext.Entry(existingEntity).CurrentValues.SetValues(userSettings);
+        _dbContext.Entry(existingEntity).State = EntityState.Modified;
     }
 
 
