@@ -73,7 +73,9 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
 
         var currentValue = NetBitcoinAmount * currentBtcPriceInUsd.Amount;
         var totalProfitFiat = currentValue - netInvestedFiat;
-        var totalProfitPercentage = Convert.ToDouble(totalProfitFiat / netInvestedFiat * 100);
+        var totalProfitPercentage = netInvestedFiat > 0
+            ? Convert.ToDouble(totalProfitFiat / netInvestedFiat * 100)
+            : 0.0;
 
         // todo: either all in usd or convert to user currency
         var avgBtcPrice = transactions.Average(x => x.MarketPrice);
@@ -105,7 +107,10 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
         Items.Any(x => x.Timestamp == newTransaction.Timestamp
                        && x.FiatAmount == newTransaction.FiatAmount
                        && x.BtcAmount == newTransaction.BtcAmount
-                       && x.Type == newTransaction.Type);
+                       && x.Type == newTransaction.Type
+                       && x.TransactionSource == newTransaction.TransactionSource
+                       && x.TransactionFee == newTransaction.TransactionFee
+        );
 
     private void EnsureAllHaveSamePortfolioId()
     {

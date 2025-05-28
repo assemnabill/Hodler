@@ -31,6 +31,18 @@ public class PortfolioInfoMapping : IRegister
             ));
 
         config
+            .NewConfig<Transaction, TransactionInfo>()
+            .MapWith(src => new TransactionInfo(
+                src.Id,
+                src.Type,
+                src.FiatAmount,
+                src.BtcAmount,
+                src.MarketPrice,
+                src.Timestamp,
+                src.TransactionSource
+            ));
+
+        config
             .NewConfig<FiatAmount, decimal>()
             .MapWith(src => src.Amount);
 

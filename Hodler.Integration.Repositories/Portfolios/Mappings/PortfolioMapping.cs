@@ -51,15 +51,15 @@ public class PortfolioMapping : IRegister
                 new BitcoinAmount(transaction.BtcAmount),
                 transaction.Timestamp.ToUniversalTime(),
                 new FiatAmount(transaction.MarketPrice, FiatCurrency.GetById(transaction.FiatCurrency)),
-                transaction.SourceIdentifier == null
+                transaction.SourceType == null
                     ? null
                     : transaction.SourceType == (int)TransactionSourceType.Wallet
                         ? TransactionSource.FromWallet(
-                            new BitcoinWalletId(Guid.Parse(transaction.SourceIdentifier)),
+                            transaction.SourceIdentifier == null ? null : new BitcoinWalletId(Guid.Parse(transaction.SourceIdentifier)),
                             transaction.SourceName
                         )
                         : TransactionSource.FromExchange(
-                            (CryptoExchangeName)int.Parse(transaction.SourceIdentifier),
+                            transaction.SourceIdentifier == null ? null : (CryptoExchangeName)int.Parse(transaction.SourceIdentifier),
                             transaction.SourceName
                         ),
                 transaction.Fee == null ? null : new BitcoinAmount(transaction.Fee.Value))

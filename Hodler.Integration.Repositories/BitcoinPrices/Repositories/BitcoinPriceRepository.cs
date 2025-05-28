@@ -69,8 +69,11 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
             foreach (var price in prices)
             {
                 var entity = price.Adapt<BitcoinPrice>();
-                var existingEntity = _dbContext.BitcoinPrices
-                    .FirstOrDefault(x => x.Date == price.Date && x.Currency == price.Currency.Id);
+                var existingEntity = await _dbContext.BitcoinPrices
+                    .FirstOrDefaultAsync(
+                        x => x.Date == price.Date && x.Currency == price.Currency.Id,
+                        cancellationToken: cancellationToken
+                    );
 
                 if (existingEntity is not null)
                     continue;

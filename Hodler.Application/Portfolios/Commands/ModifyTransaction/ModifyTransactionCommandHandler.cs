@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Hodler.Application.Portfolios.Commands.ModifyTransaction;
 
-public class ModifyTransactionCommandHandler(IServiceScopeFactory serviceScopeFactory) : IRequestHandler<ModifyTransactionCommand, IResult>
+public class ModifyTransactionCommandHandler(IServiceScopeFactory serviceScopeFactory)
+    : IRequestHandler<ModifyTransactionCommand, IResult>
 {
     public async Task<IResult> Handle(
         ModifyTransactionCommand request,

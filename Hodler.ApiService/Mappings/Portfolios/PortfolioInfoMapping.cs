@@ -31,7 +31,7 @@ public class PortfolioInfoMapping : IRegister
                     src.BtcAmount.Amount,
                     src.MarketPrice.Adapt<FiatAmountDto>(),
                     src.Timestamp,
-                    src.TransactionSource == null ? null : src.TransactionSource.Adapt<TransactionSourceDto>()
+                    src.TransactionSource == null ? null : src.TransactionSource.Adapt<TransactionSourceDto>() //
                 ));
 
         config
@@ -44,8 +44,12 @@ public class PortfolioInfoMapping : IRegister
             .NewConfig<TransactionSourceDto, ITransactionSource>()
             .MapWith(src =>
                 src.Type == (int)TransactionSourceType.Wallet
-                    ? TransactionSource.FromWallet(new BitcoinWalletId(Guid.Parse(src.Identifier)), src.Name)
-                    : TransactionSource.FromExchange((CryptoExchangeName)int.Parse(src.Identifier), src.Name)
+                    ? TransactionSource.FromWallet(string.IsNullOrWhiteSpace(src.Identifier)
+                        ? null
+                        : new BitcoinWalletId(Guid.Parse(src.Identifier)), src.Name)
+                    : TransactionSource.FromExchange(string.IsNullOrWhiteSpace(src.Identifier)
+                        ? null
+                        : (CryptoExchangeName)int.Parse(src.Identifier), src.Name)
             );
     }
 }

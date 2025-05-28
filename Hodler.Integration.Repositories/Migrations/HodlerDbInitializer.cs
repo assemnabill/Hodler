@@ -76,6 +76,7 @@ internal class HodlerDbInitializer(
                 return;
             }
 
+            // todo: still unnecessarily syncing prices
             var bitcoinPrices = await bitcoinPriceSyncService
                 .SyncMissingPricesAsync(FiatCurrency.UsDollar, from, to, cancellationToken);
 

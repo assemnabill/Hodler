@@ -33,7 +33,11 @@ public class PortfolioCommandService : IPortfolioCommandService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var portfolio = await _portfolioQueryService.FindOrCreatePortfolioAsync(request.UserId, cancellationToken);
+        var portfolio = await _portfolioQueryService
+            .FindPortfolioAsync(request.UserId, cancellationToken);
+
+        if (portfolio is null)
+            return new FailureResult(new NoPortfolioFoundForUserFailure(request.UserId));
 
         var result = await portfolio.AddTransactionAsync(
             _historicalBitcoinPriceProvider,
@@ -55,7 +59,12 @@ public class PortfolioCommandService : IPortfolioCommandService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var portfolio = await _portfolioQueryService.FindOrCreatePortfolioAsync(request.UserId, cancellationToken);
+        var portfolio = await _portfolioQueryService
+            .FindPortfolioAsync(request.UserId, cancellationToken);
+
+        if (portfolio is null)
+            return new FailureResult(new NoPortfolioFoundForUserFailure(request.UserId));
+
         var result = portfolio.RemoveTransaction(request.TransactionId);
 
         if (result.IsSuccess)
