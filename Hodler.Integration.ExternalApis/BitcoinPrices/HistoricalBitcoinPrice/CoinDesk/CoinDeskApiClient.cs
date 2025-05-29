@@ -49,7 +49,7 @@ public class CoinDeskApiClient : ICoinDeskApiClient
         {
             var client = CreateClient();
             var rateLimit = CalculateRateLimit(startDate, endDate);
-            var requestsCount = (int)Math.Ceiling((endDate.DayNumber - startDate.DayNumber) / rateLimit);
+            var requestsCount = (int)Math.Ceiling((endDate.DayNumber - startDate.DayNumber + 1) / rateLimit);
             var totalSecondsOfDay = (long)TimeSpan.FromDays(1).TotalSeconds;
             var bitcoinPrices = new List<IBitcoinPrice>();
             var endDateInLinuxEpochSeconds = endDate.ToUnixTimeSeconds();
