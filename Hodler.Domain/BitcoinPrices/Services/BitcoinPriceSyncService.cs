@@ -5,20 +5,11 @@ using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.BitcoinPrices.Services;
 
-public class BitcoinPriceSyncService : IBitcoinPriceSyncService
+public class BitcoinPriceSyncService(
+    ICoinDeskApiClient coinDeskApiClient,
+    IBitcoinPriceRepository bitcoinPriceRepository
+) : IBitcoinPriceSyncService
 {
-    private readonly IBitcoinPriceRepository _bitcoinPriceRepository;
-    private readonly ICoinDeskApiClient _coinDeskApiClient;
-
-    public BitcoinPriceSyncService(
-        ICoinDeskApiClient coinDeskApiClient,
-        IBitcoinPriceRepository bitcoinPriceRepository
-    )
-    {
-        _coinDeskApiClient = coinDeskApiClient;
-        _bitcoinPriceRepository = bitcoinPriceRepository;
-    }
-
     public async Task<IReadOnlyCollection<IBitcoinPrice>> SyncMissingPricesAsync(
         FiatCurrency fiatCurrency,
         DateOnly startDate,
@@ -26,12 +17,11 @@ public class BitcoinPriceSyncService : IBitcoinPriceSyncService
         CancellationToken cancellationToken = default
     )
     {
-
-        var prices = await _coinDeskApiClient
+        var prices = await coinDeskApiClient
             .GetHistoricalDailyBitcoinPricesAsync(fiatCurrency, startDate, endDate, cancellationToken);
 
         if (!prices.IsNullOrEmpty())
-            await _bitcoinPriceRepository.StoreAsync(prices, cancellationToken);
+            await bitcoinPriceRepository.StoreAsync(prices, cancellationToken);
 
         return prices;
     }
