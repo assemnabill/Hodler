@@ -19,12 +19,9 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
 
 
     public Transactions(IEnumerable<Transaction> transactions)
-        : base(transactions.OrderBy(x => x.Timestamp).ToList())
+        : base(EnsureIsValid(transactions))
     {
-        EnsureNoDuplicates();
-        EnsureAllHaveSamePortfolioId();
     }
-
 
     public SyncResult<ITransactions> Sync(List<Transaction> newTransactions)
     {
@@ -112,21 +109,34 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
                        && x.TransactionFee == newTransaction.TransactionFee
         );
 
-    private void EnsureAllHaveSamePortfolioId()
+    private static IList<Transaction> EnsureIsValid(IEnumerable<Transaction> transactions)
     {
-        if (Items.Count == 0)
+        var items = transactions.ToList();
+
+        EnsureNoDuplicates(items);
+        EnsureAllHaveSamePortfolioId(items);
+
+        return items
+            .OrderByDescending(x => x.Timestamp)
+            .ToList();
+    }
+
+    private static void EnsureAllHaveSamePortfolioId(List<Transaction> transactions)
+    {
+
+        if (transactions.Count == 0)
             return;
 
-        var portfolioId = Items.First().PortfolioId;
+        var portfolioId = transactions.First().PortfolioId;
 
-        if (Items.Any(transaction => transaction.PortfolioId != portfolioId))
+        if (transactions.Any(transaction => transaction.PortfolioId != portfolioId))
             throw new ArgumentException("All transactions must have the same PortfolioId");
     }
 
 
-    private void EnsureNoDuplicates()
+    private static void EnsureNoDuplicates(List<Transaction> transactions)
     {
-        var duplicates = Items.Count - Items.Distinct().Count();
+        var duplicates = transactions.Count - transactions.Distinct().Count();
 
         if (duplicates > 0)
         {
