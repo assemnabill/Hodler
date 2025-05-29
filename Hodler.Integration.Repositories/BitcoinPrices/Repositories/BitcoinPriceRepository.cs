@@ -68,8 +68,8 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
 
             foreach (var price in prices)
             {
-                var entity = price.Adapt<BitcoinPrice>();
                 var existingEntity = await _dbContext.BitcoinPrices
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(
                         x => x.Date == price.Date && x.Currency == price.Currency.Id,
                         cancellationToken: cancellationToken
@@ -78,6 +78,7 @@ public class BitcoinPriceRepository : IBitcoinPriceRepository
                 if (existingEntity is not null)
                     continue;
 
+                var entity = price.Adapt<BitcoinPrice>();
                 entity.CreatedAt = DateTimeOffset.UtcNow;
                 toBeInserted.Add(entity);
             }

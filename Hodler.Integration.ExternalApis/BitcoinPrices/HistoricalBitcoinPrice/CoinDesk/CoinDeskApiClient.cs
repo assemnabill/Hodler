@@ -9,6 +9,7 @@ using Hodler.Domain.Shared.Models;
 using Mapster;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using ZLinq;
 
 namespace Hodler.Integration.ExternalApis.BitcoinPrices.HistoricalBitcoinPrice.CoinDesk;
 
@@ -47,8 +48,8 @@ public class CoinDeskApiClient : ICoinDeskApiClient
         try
         {
             var client = CreateClient();
-            var rateLimit = startDate == endDate ? 1 : RateLimit;
-            var requestsCount = (int)Math.Ceiling((double)(endDate.DayNumber - startDate.DayNumber + 1) / rateLimit);
+            var rateLimit = CalculateRateLimit(startDate, endDate);
+            var requestsCount = (int)Math.Ceiling((endDate.DayNumber - startDate.DayNumber) / rateLimit);
             var totalSecondsOfDay = (long)TimeSpan.FromDays(1).TotalSeconds;
             var bitcoinPrices = new List<IBitcoinPrice>();
             var endDateInLinuxEpochSeconds = endDate.ToUnixTimeSeconds();
@@ -57,8 +58,12 @@ public class CoinDeskApiClient : ICoinDeskApiClient
             {
                 var queryString
                     = $"?market=cadli&instrument=BTC-{fiatCurrency.Ticker}&limit={rateLimit}&aggregate=1&fill=true&apply_mapping=true&response_format=JSON&to_ts={endDateInLinuxEpochSeconds}";
-                var request = Endpoints.HistoricalDailyBitcoinPrice + queryString;
-                var response = await client.GetFromJsonAsync<CoinDeskOhlcvResponse>(request, Converter.Settings, cancellationToken);
+                var requestUri = Endpoints.HistoricalDailyBitcoinPrice + queryString;
+                var response = await client.GetFromJsonAsync<CoinDeskOhlcvResponse>(
+                    requestUri,
+                    Converter.Settings,
+                    cancellationToken
+                );
 
                 if (response is null || response.Data.Length == 0)
                     continue;
@@ -67,11 +72,12 @@ public class CoinDeskApiClient : ICoinDeskApiClient
                     response.Data.Select(x => x.Adapt<BitcoinPrice>())
                 );
 
-                endDateInLinuxEpochSeconds = response.Data.Min(x => x.Timestamp)
+                endDateInLinuxEpochSeconds = response.Data.AsValueEnumerable().Min(x => x.Timestamp)
                                              - totalSecondsOfDay;
             }
 
             var processedResponse = bitcoinPrices
+                .AsValueEnumerable()
                 .Distinct()
                 .OrderBy(x => x.Date)
                 .ToList();
@@ -83,6 +89,19 @@ public class CoinDeskApiClient : ICoinDeskApiClient
             _logger.LogError(e, "Error while retrieving historical bitcoin prices from CoinDesk API");
             return [];
         }
+    }
+
+    private double CalculateRateLimit(DateOnly startDate, DateOnly endDate)
+    {
+        const int minimumResponseLimit = 1;
+        var totalDays = endDate.DayNumber - startDate.DayNumber;
+
+        if (startDate == endDate || totalDays <= 0)
+            return minimumResponseLimit;
+
+        ReadOnlySpan<int> readOnlySpan = [totalDays, RateLimit];
+
+        return readOnlySpan.AsValueEnumerable().Min();
     }
 
     private HttpClient CreateClient()
