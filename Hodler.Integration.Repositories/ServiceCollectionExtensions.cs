@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
         services.AddScoped<IBitcoinPriceRepository, BitcoinPriceRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
         // Database Initialization
         services.AddSingleton<HodlerDbInitializer>();

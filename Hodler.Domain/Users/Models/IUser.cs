@@ -9,7 +9,8 @@ public interface IUser : IAggregateRoot<IUser>
     UserId Id { get; }
     UserSettings UserSettings { get; }
     IReadOnlyCollection<ApiKey> ApiKeys { get; }
-
+    public ContactInfo ContactInfo { get; }
     bool AddApiKey(ApiKeyName apiKeyName, string value, string? secret);
     bool ChangeDisplayCurrency(FiatCurrency newDisplayCurrency);
+    public void AddContactInfo(string userName, string phoneNumber, string email);
 }
