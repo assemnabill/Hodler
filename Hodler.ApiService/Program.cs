@@ -17,8 +17,10 @@ TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 // Hodler Service Layers.
 builder.Services
     .AddDomain()
+    .AddCustomJwtAuthentication(builder.Configuration)
     .AddApplication()
-    .AddExternalApis();
+    .AddExternalApis()
+    .AddMailService(builder.Configuration);
 
 // Hodler Service Core
 builder.Services
@@ -47,7 +49,7 @@ builder.Services.AddCors();
 var app = builder.Build();
 // SignalR
 app.UseResponseCompression();
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline. 
 app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())

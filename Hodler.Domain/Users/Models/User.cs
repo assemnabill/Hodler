@@ -10,7 +10,7 @@ public class User : AggregateRoot<User>, IUser
     public UserId Id { get; }
     public UserSettings UserSettings { get; private set; }
     public IReadOnlyCollection<ApiKey>? ApiKeys { get; private set; }
-
+    public ContactInfo ContactInfo { get; private set; }
 
     public User(
         UserId userId,
@@ -57,5 +57,13 @@ public class User : AggregateRoot<User>, IUser
         EnqueueDomainEvent(new UserDisplayCurrencyChanged(newDisplayCurrency));
 
         return true;
+    }
+
+    public void AddContactInfo(string userName, string phoneNumber, string email)
+    {
+        ArgumentNullException.ThrowIfNull(userName);
+        ArgumentNullException.ThrowIfNull(phoneNumber);
+        ArgumentNullException.ThrowIfNull(email);
+        ContactInfo = new ContactInfo(userName, phoneNumber, email);
     }
 }
