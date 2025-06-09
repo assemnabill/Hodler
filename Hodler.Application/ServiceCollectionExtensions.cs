@@ -1,5 +1,6 @@
 ﻿using Hodler.Application.BitcoinPrices.Services;
 using Hodler.Application.Portfolios.Services;
+using Hodler.Application.Portfolios.Services.BitcoinBlockchain;
 using Hodler.Application.Portfolios.Services.SyncWithExchange;
 using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.CryptoExchanges.Models;

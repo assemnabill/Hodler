@@ -8,6 +8,5 @@ namespace Hodler.Application.Portfolios.Commands.ConnectBitcoinWallet;
 public record ConnectBitcoinWalletCommand(
     UserId UserId,
     BitcoinAddress Address,
-    string WalletName,
-    BlockchainNetwork Network
+    string WalletName
 ) : IRequest<IResult>;

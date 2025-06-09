@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hodler.Integration.Repositories.Portfolios.Context;
 
-public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
+public class ManualTransactionConfiguration : IEntityTypeConfiguration<ManualTransaction>
 {
-    public void Configure(EntityTypeBuilder<Transaction> builder)
+    public void Configure(EntityTypeBuilder<ManualTransaction> builder)
     {
         builder.HasKey(x => x.TransactionId);
 
@@ -17,22 +17,17 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
 
         builder
             .HasIndex(
-                nameof(Transaction.Timestamp),
-                nameof(Transaction.PortfolioId),
-                nameof(Transaction.Type),
-                nameof(Transaction.FiatAmount),
-                nameof(Transaction.BtcAmount)
+                nameof(ManualTransaction.Timestamp),
+                nameof(ManualTransaction.PortfolioId),
+                nameof(ManualTransaction.Type),
+                nameof(ManualTransaction.FiatAmount),
+                nameof(ManualTransaction.BtcAmount)
             );
 
         builder
             .HasOne(x => x.Portfolio)
-            .WithMany(x => x.Transactions)
+            .WithMany(x => x.ManualTransactions)
             .HasForeignKey(x => x.PortfolioId)
             .OnDelete(DeleteBehavior.Cascade);
-    }
-
-    private static class SqlFunctions
-    {
-        public const string NewId = "gen_random_uuid()";
     }
 }

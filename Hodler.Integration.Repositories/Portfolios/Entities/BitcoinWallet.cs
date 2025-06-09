@@ -12,4 +12,5 @@ public class BitcoinWallet : Entity
     public decimal Balance { get; set; }
 
     public virtual Portfolio Portfolio { get; set; }
+    public virtual ICollection<BlockchainTransaction> BlockchainTransactions { get; set; }
 }

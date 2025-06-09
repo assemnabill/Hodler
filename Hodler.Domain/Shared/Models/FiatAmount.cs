@@ -14,6 +14,45 @@ public record FiatAmount
     }
 
     public static implicit operator decimal(FiatAmount fiatAmount) => fiatAmount.Amount;
+    public static implicit operator FiatAmount(decimal amount) => new(amount, FiatCurrency.UsDollar);
+
+    public static FiatAmount operator +(FiatAmount left, FiatAmount right)
+    {
+        if (left.FiatCurrency != right.FiatCurrency)
+            throw new InvalidOperationException("Cannot add amounts in different currencies.");
+
+        return new FiatAmount(left.Amount + right.Amount, left.FiatCurrency);
+    }
+
+    public static FiatAmount operator -(FiatAmount left, FiatAmount right)
+    {
+        if (left.FiatCurrency != right.FiatCurrency)
+            throw new InvalidOperationException("Cannot subtract amounts in different currencies.");
+
+        return new FiatAmount(left.Amount - right.Amount, left.FiatCurrency);
+    }
+
+    public static FiatAmount operator *(FiatAmount left, FiatAmount right)
+    {
+        if (left.FiatCurrency != right.FiatCurrency)
+            throw new InvalidOperationException("Cannot multiply amounts in different currencies.");
+
+        return new FiatAmount(left.Amount * right.Amount, left.FiatCurrency);
+    }
+
+    public static FiatAmount operator /(FiatAmount left, FiatAmount right)
+    {
+        if (left.FiatCurrency != right.FiatCurrency)
+            throw new InvalidOperationException("Cannot multiply amounts in different currencies.");
+
+        if (right == 0)
+            throw new DivideByZeroException("Cannot divide by zero.");
+
+        return new FiatAmount(left.Amount / right.Amount, left.FiatCurrency);
+    }
+
+
+    public override string ToString() => $"{Amount} {FiatCurrency.Symbol}";
 
     public FiatAmount ConvertTo(FiatCurrency otherCurrency)
     {

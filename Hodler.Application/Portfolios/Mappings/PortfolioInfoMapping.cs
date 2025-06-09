@@ -13,7 +13,7 @@ public class PortfolioInfoMapping : IRegister
             .NewConfig<IPortfolio, PortfolioInfo>()
             .MapWith(src => new PortfolioInfo(
                 src.Id,
-                src.Transactions.Select(x => x.Adapt<TransactionInfo>()).ToList()
+                src.ManualTransactions.Select(x => x.Adapt<TransactionInfo>()).ToList()
             ));
 
         config

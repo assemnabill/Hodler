@@ -113,6 +113,6 @@ internal class PortfolioQueryService : IPortfolioQueryService
         ArgumentNullException.ThrowIfNull(userId);
 
         var portfolio = await _portfolioRepository.FindByAsync(userId, cancellationToken);
-        return portfolio?.BitcoinWallets ?? [];
+        return portfolio?.BitcoinWallets ?? new BitcoinWallets([]);
     }
 }

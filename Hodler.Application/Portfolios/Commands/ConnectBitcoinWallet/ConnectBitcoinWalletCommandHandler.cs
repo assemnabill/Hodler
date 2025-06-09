@@ -1,5 +1,6 @@
 using Hodler.Domain.Portfolios.Failures;
 using Hodler.Domain.Portfolios.Ports.Repositories;
+using Hodler.Domain.Portfolios.Services;
 using Hodler.Domain.Shared.Results;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,10 +19,13 @@ public class ConnectBitcoinWalletCommandHandler(IServiceScopeFactory serviceScop
         if (portfolio == null)
             return new FailureResult(new NoPortfolioFoundForUserFailure(command.UserId));
 
-        var result = portfolio.ConnectBitcoinWallet(
+        var blockchainService = scope.ServiceProvider.GetRequiredService<IBitcoinBlockchainService>();
+
+        var result = await portfolio.ConnectBitcoinWallet(
             command.Address,
             command.WalletName,
-            command.Network
+            blockchainService,
+            cancellationToken
         );
 
         if (result.IsSuccess)

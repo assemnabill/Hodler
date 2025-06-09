@@ -1,13 +1,15 @@
+using Corz.Extensions.Enumeration;
 using Hodler.Domain.CryptoExchanges.Models;
 using Hodler.Domain.Portfolios.Models;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
+using Hodler.Integration.Repositories.Portfolios.Entities;
 using Mapster;
 using BitcoinWallet = Hodler.Integration.Repositories.Portfolios.Entities.BitcoinWallet;
 using Portfolio = Hodler.Integration.Repositories.Portfolios.Entities.Portfolio;
-using Transaction = Hodler.Integration.Repositories.Portfolios.Entities.Transaction;
+using BlockchainTransaction = Hodler.Integration.Repositories.Portfolios.Entities.BlockchainTransaction;
 
 namespace Hodler.Integration.Repositories.Portfolios.Mappings;
 
@@ -19,12 +21,14 @@ public class PortfolioMapping : IRegister
             .NewConfig<Portfolio, IPortfolio>()
             .MapWith(portfolio => new Domain.Portfolios.Models.Portfolio(
                 new PortfolioId(portfolio.PortfolioId),
-                new Transactions(portfolio.Transactions.Select(x =>
-                    x.Adapt<Transaction, Domain.Portfolios.Models.Transactions.Transaction>())),
+                new ManualTransactions(portfolio.ManualTransactions.Select(x =>
+                    x.Adapt<ManualTransaction, Transaction>())
+                ),
                 new UserId(Guid.Parse(portfolio.UserId)),
-                portfolio.BitcoinWallets
+                new BitcoinWallets(portfolio.BitcoinWallets
                     .Select(x => x.Adapt<BitcoinWallet, IBitcoinWallet>())
                     .ToList()
+                )
             ));
 
         config
@@ -33,8 +37,8 @@ public class PortfolioMapping : IRegister
             {
                 PortfolioId = x.Id.Value,
                 UserId = x.UserId.Value.ToString(),
-                Transactions = x.Transactions
-                    .Select(t => t.Adapt<Domain.Portfolios.Models.Transactions.Transaction, Transaction>())
+                ManualTransactions = x.ManualTransactions
+                    .Select(t => t.Adapt<Transaction, ManualTransaction>())
                     .ToList(),
                 BitcoinWallets = x.BitcoinWallets
                     .Select(t => t.Adapt<IBitcoinWallet, BitcoinWallet>())
@@ -42,8 +46,8 @@ public class PortfolioMapping : IRegister
             });
 
         config
-            .NewConfig<Transaction, Domain.Portfolios.Models.Transactions.Transaction>()
-            .MapWith(transaction => new Domain.Portfolios.Models.Transactions.Transaction(
+            .NewConfig<ManualTransaction, Transaction>()
+            .MapWith(transaction => new Transaction(
                 new PortfolioId(transaction.PortfolioId),
                 new TransactionId(transaction.TransactionId),
                 (TransactionType)transaction.Type,
@@ -66,8 +70,8 @@ public class PortfolioMapping : IRegister
             );
 
         config
-            .NewConfig<Domain.Portfolios.Models.Transactions.Transaction, Transaction>()
-            .MapWith(x => new Transaction
+            .NewConfig<Transaction, ManualTransaction>()
+            .MapWith(x => new ManualTransaction
             {
                 PortfolioId = x.PortfolioId.Value,
                 TransactionId = x.Id.Value,
@@ -90,9 +94,12 @@ public class PortfolioMapping : IRegister
                 new PortfolioId(wallet.PortfolioId),
                 new BitcoinAddress(wallet.Address),
                 wallet.WalletName,
-                new BlockchainNetwork(wallet.Network),
+                BlockchainNetwork.FromChainId(wallet.Network),
                 wallet.ConnectedDate,
                 new BitcoinAmount(wallet.Balance),
+                wallet.BlockchainTransactions
+                    .Select(t => t.Adapt<BlockchainTransaction, Domain.Portfolios.Models.BitcoinWallets.BlockchainTransaction>())
+                    .ToList(),
                 wallet.LastSynced
             ));
 
@@ -105,6 +112,43 @@ public class PortfolioMapping : IRegister
             .Map(dest => dest.Network, src => src.Network.ChainId)
             .Map(dest => dest.ConnectedDate, src => src.ConnectedDate)
             .Map(dest => dest.LastSynced, src => src.LastSynced)
+            .Map(dest => dest.BlockchainTransactions, src => src.Transactions)
             .Map(dest => dest.Balance, src => src.Balance.Amount);
+
+        config
+            .NewConfig<BlockchainTransaction, Domain.Portfolios.Models.BitcoinWallets.BlockchainTransaction>()
+            .MapWith(x => new Domain.Portfolios.Models.BitcoinWallets.BlockchainTransaction(
+                new BitcoinAmount(x.BtcAmount),
+                new TransactionHash(x.TransactionHash),
+                new FiatAmount(x.MarketPriceInUsd, FiatCurrency.UsDollar),
+                new FiatAmount(x.FiatValueInUsd, FiatCurrency.UsDollar),
+                x.Timestamp,
+                x.Status.ToEnum<BlockchainTransactionStatus>(),
+                new BitcoinAddress(x.FromAddress),
+                new BitcoinAddress(x.ToAddress),
+                new BitcoinAmount(x.NetworkFeeInBtc),
+                new FiatAmount(x.NetworkFeeInUsd, FiatCurrency.UsDollar),
+                x.Note,
+                x.Type.ToEnum<TransactionType>(),
+                new PortfolioId(x.PortfolioId),
+                new BitcoinWalletId(x.BitcoinWalletId)
+            ));
+
+        config
+            .NewConfig<Domain.Portfolios.Models.BitcoinWallets.BlockchainTransaction, BlockchainTransaction>()
+            .Map(dest => dest.PortfolioId, src => src.PortfolioId.Value)
+            .Map(dest => dest.BitcoinWalletId, src => src.BitcoinWalletId.Value)
+            .Map(dest => dest.BtcAmount, src => src.Amount.Amount)
+            .Map(dest => dest.TransactionHash, src => src.TransactionHash.Value)
+            .Map(dest => dest.MarketPriceInUsd, src => src.MarketPrice.Amount)
+            .Map(dest => dest.FiatValueInUsd, src => src.FiatValue.Amount)
+            .Map(dest => dest.Timestamp, src => src.Timestamp)
+            .Map(dest => dest.Status, src => (int)src.Status)
+            .Map(dest => dest.FromAddress, src => src.FromAddress.Value)
+            .Map(dest => dest.ToAddress, src => src.ToAddress.Value)
+            .Map(dest => dest.NetworkFeeInBtc, src => src.NetworkFee.Amount)
+            .Map(dest => dest.NetworkFeeInUsd, src => src.FiatFee.Amount)
+            .Map(dest => dest.Note, src => src.Note)
+            .Map(dest => dest.Type, src => (int)src.TransactionType);
     }
 }

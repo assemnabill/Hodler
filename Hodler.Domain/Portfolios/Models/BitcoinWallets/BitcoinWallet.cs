@@ -13,6 +13,7 @@ public class BitcoinWallet : IBitcoinWallet
         BlockchainNetwork network,
         DateTimeOffset connectedDate,
         BitcoinAmount balance,
+        IReadOnlyCollection<BlockchainTransaction> transactions,
         DateTimeOffset? lastSynced = null
     )
     {
@@ -30,6 +31,7 @@ public class BitcoinWallet : IBitcoinWallet
         Network = network;
         ConnectedDate = connectedDate;
         Balance = balance;
+        Transactions = transactions;
         LastSynced = lastSynced;
     }
 
@@ -41,36 +43,38 @@ public class BitcoinWallet : IBitcoinWallet
     public DateTimeOffset ConnectedDate { get; }
     public DateTimeOffset? LastSynced { get; }
     public BitcoinAmount Balance { get; }
+    public IReadOnlyCollection<BlockchainTransaction> Transactions { get; }
 
-    public async Task<IBitcoinWallet> UpdateBalanceAsync(
+    public async Task<IBitcoinWallet> SyncAsync(
         IBitcoinBlockchainService blockchainService,
         CancellationToken cancellationToken = default
     )
     {
-        ArgumentNullException.ThrowIfNull(blockchainService);
+        var transactions = Transactions;
+        var newBalance = await blockchainService.GetCurrentBalanceAsync(Address, cancellationToken);
 
-        var balance = await blockchainService
-            .GetCurrentBalanceAsync(Address, cancellationToken);
+        if (newBalance != BitcoinAmount.Zero && Balance != newBalance)
+        {
+            transactions = await blockchainService.GetTransactionsAsync(this, cancellationToken);
+        }
 
-        return balance == Balance
-            ? this
-            : new BitcoinWallet(
-                id: Id,
-                portfolioId: PortfolioId,
-                address: Address,
-                walletName: WalletName,
-                network: Network,
-                connectedDate: ConnectedDate,
-                balance: balance,
-                lastSynced: DateTimeOffset.UtcNow
-            );
+        return new BitcoinWallet(
+            Id,
+            PortfolioId,
+            Address,
+            WalletName,
+            Network,
+            ConnectedDate,
+            newBalance,
+            transactions,
+            DateTimeOffset.Now
+        );
     }
 
-    public static BitcoinWallet Create(
+    public static IBitcoinWallet Create(
         PortfolioId portfolioId,
         BitcoinAddress address,
-        string walletName,
-        BlockchainNetwork network
+        string walletName
     )
     {
         return new BitcoinWallet(
@@ -78,9 +82,10 @@ public class BitcoinWallet : IBitcoinWallet
             portfolioId: portfolioId,
             address: address,
             walletName: walletName,
-            network: network,
+            network: BlockchainNetwork.BitcoinMainnet,
             connectedDate: DateTimeOffset.UtcNow,
-            balance: BitcoinAmount.Zero
+            balance: BitcoinAmount.Zero,
+            transactions: new List<BlockchainTransaction>()
         );
     }
 }
