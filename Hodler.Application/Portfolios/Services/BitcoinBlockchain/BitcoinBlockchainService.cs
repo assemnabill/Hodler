@@ -31,11 +31,8 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
     {
         try
         {
-            var response = await _httpClient
-                .GetFromJsonAsync<BlockstreamTransaction[]>(
-                    $"{BlockstreamUrl}/address/{wallet.Address}/txs",
-                    cancellationToken
-                );
+            var requestUri = $"{BlockstreamUrl}/address/{wallet.Address.Value}/txs";
+            var response = await _httpClient.GetFromJsonAsync<BlockstreamTransaction[]>(requestUri, cancellationToken);
 
             if (response == null)
                 return [];
@@ -43,11 +40,13 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
             // todo: replace with historical price data
             var btcPrice = await GetCurrentBitcoinPriceAsync(cancellationToken);
 
-            return RetrieveBlockchainTransactions(wallet, response, btcPrice);
+            var transactions = RetrieveBlockchainTransactions(wallet, response, btcPrice);
+
+            return transactions;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to fetch transactions for address {Address}", wallet);
+            _logger.LogError(ex, "Failed to fetch transactions for address {Address}", wallet.Address);
             throw;
         }
     }
@@ -59,11 +58,12 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<BlockstreamAddressInfo>(
-                $"{BlockstreamUrl}/address/{walletAddress}",
-                cancellationToken);
+            var requestUri = $"{BlockstreamUrl}/address/{walletAddress.Value}";
+            var response = await _httpClient.GetFromJsonAsync<BlockstreamAddressReponse>(requestUri, cancellationToken);
 
-            return BitcoinAmount.FromSatoshis(response?.ChainStats.FundedTxoSum ?? 0);
+            var netSats = (decimal)(response?.ChainStats.FundedTxoSum - response?.ChainStats.SpentTxoSum)!;
+            var balance = BitcoinAmount.FromSatoshis(netSats);
+            return balance;
         }
         catch (Exception ex)
         {
