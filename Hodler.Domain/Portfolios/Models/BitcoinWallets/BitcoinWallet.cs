@@ -55,7 +55,9 @@ public class BitcoinWallet : IBitcoinWallet
 
         if (newBalance != BitcoinAmount.Zero && Balance != newBalance)
         {
-            transactions = await blockchainService.GetTransactionsAsync(this, cancellationToken);
+            transactions = (await blockchainService.GetTransactionsAsync(this, cancellationToken))
+                .Where(t => t.Amount != BitcoinAmount.Zero)
+                .ToList();
         }
 
         return new BitcoinWallet(
@@ -67,7 +69,7 @@ public class BitcoinWallet : IBitcoinWallet
             ConnectedDate,
             newBalance,
             transactions,
-            DateTimeOffset.Now
+            DateTimeOffset.UtcNow
         );
     }
 
