@@ -4,7 +4,7 @@ using Hodler.Domain.Shared.Models;
 namespace Hodler.Domain.Portfolios.Models.BitcoinWallets;
 
 public record BlockchainTransaction(
-    BitcoinAmount Amount,
+    BitcoinAmount NetBitcoin,
     TransactionHash TransactionHash,
     FiatAmount MarketPrice,
     FiatAmount FiatValue,

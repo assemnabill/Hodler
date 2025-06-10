@@ -154,7 +154,7 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
                 : BlockchainTransactionStatus.Pending;
 
             result.Add(new BlockchainTransaction(
-                Amount: bitcoinAmount,
+                NetBitcoin: bitcoinAmount,
                 TransactionHash: new TransactionHash(tx.Txid),
                 MarketPrice: btcPriceOnTxDate.Price,
                 FiatValue: bitcoinAmount.Amount * btcPriceOnTxDate.Price,
