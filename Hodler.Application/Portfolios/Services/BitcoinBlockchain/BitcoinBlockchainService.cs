@@ -61,7 +61,13 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
             var requestUri = $"{BlockstreamUrl}/address/{walletAddress.Value}";
             var response = await _httpClient.GetFromJsonAsync<BlockstreamAddressReponse>(requestUri, cancellationToken);
 
-            var netSats = (decimal)(response?.ChainStats.FundedTxoSum - response?.ChainStats.SpentTxoSum)!;
+            if (response == null || response.ChainStats == null)
+            {
+                _logger.LogError("Incomplete or null response received for address {Address}", walletAddress);
+                return BitcoinAmount.Zero;
+            }
+
+            var netSats = (decimal)(response.ChainStats.FundedTxoSum - response.ChainStats.SpentTxoSum);
             var balance = BitcoinAmount.FromSatoshis(netSats);
             return balance;
         }
