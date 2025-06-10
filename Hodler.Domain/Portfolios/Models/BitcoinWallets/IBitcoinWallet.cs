@@ -13,9 +13,10 @@ public interface IBitcoinWallet
     DateTimeOffset ConnectedDate { get; }
     DateTimeOffset? LastSynced { get; }
     BitcoinAmount Balance { get; }
+    IReadOnlyCollection<BlockchainTransaction> Transactions { get; }
 
-    Task<IBitcoinWallet> UpdateBalanceAsync(
-        IBitcoinBlockchainService bitcoinBlockchainService,
+    Task<IBitcoinWallet> SyncAsync(
+        IBitcoinBlockchainService blockchainService,
         CancellationToken cancellationToken = default
     );
 }

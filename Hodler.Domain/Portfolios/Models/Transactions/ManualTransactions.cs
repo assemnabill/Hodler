@@ -4,26 +4,22 @@ using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolios.Models.Transactions;
 
-public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
+public class ManualTransactions : ReadOnlyCollection<Transaction>, IManualTransactions
 {
-    public ITransactions BuyTransactions => new Transactions(Items.Where(x => x.Type == TransactionType.Buy));
-    public ITransactions SellTransactions => new Transactions(Items.Where(x => x.Type == TransactionType.Sell));
-    public ITransactions SentTransactions => new Transactions(Items.Where(x => x.Type == TransactionType.Sent));
-    public ITransactions ReceivedTransactions => new Transactions(Items.Where(x => x.Type == TransactionType.Received));
+    public IManualTransactions BuyTransactions => new ManualTransactions(Items.Where(x => x.Type == TransactionType.Buy));
+    public IManualTransactions SellTransactions => new ManualTransactions(Items.Where(x => x.Type == TransactionType.Sell));
 
     public BitcoinAmount NetBitcoinAmount =>
         BuyTransactions.Sum(x => x.BtcAmount)
-        + ReceivedTransactions.Sum(x => x.BtcAmount)
-        - SellTransactions.Sum(x => x.BtcAmount)
-        - SentTransactions.Sum(x => x.BtcAmount);
+        - SellTransactions.Sum(x => x.BtcAmount);
 
 
-    public Transactions(IEnumerable<Transaction> transactions)
+    public ManualTransactions(IEnumerable<Transaction> transactions)
         : base(EnsureIsValid(transactions))
     {
     }
 
-    public SyncResult<ITransactions> Sync(List<Transaction> newTransactions)
+    public SyncResult<IManualTransactions> Sync(List<Transaction> newTransactions)
     {
         var changed = false;
         newTransactions = newTransactions
@@ -40,10 +36,10 @@ public class Transactions : ReadOnlyCollection<Transaction>, ITransactions
             changed = true;
         }
 
-        return new SyncResult<ITransactions>(changed, changed ? new Transactions(currentTransactions) : this);
+        return new SyncResult<IManualTransactions>(changed, changed ? new ManualTransactions(currentTransactions) : this);
     }
 
-    public ITransactions Remove(TransactionId transactionId) => new Transactions(Items.Where(x => x.Id != transactionId));
+    public IManualTransactions Remove(TransactionId transactionId) => new ManualTransactions(Items.Where(x => x.Id != transactionId));
 
     public async Task<PortfolioSummaryInfo> GetSummaryReportAsync(
         ICurrentBitcoinPriceProvider currentBitcoinPriceProvider,

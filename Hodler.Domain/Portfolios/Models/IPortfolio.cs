@@ -14,8 +14,8 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
 {
     PortfolioId Id { get; }
     UserId UserId { get; }
-    ITransactions Transactions { get; }
-    IReadOnlyCollection<IBitcoinWallet> BitcoinWallets { get; }
+    IManualTransactions ManualTransactions { get; }
+    IBitcoinWallets BitcoinWallets { get; }
 
     SyncResult<IPortfolio> SyncTransactions(IEnumerable<Transaction> transactions);
 
@@ -55,10 +55,11 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
         CancellationToken cancellationToken = default
     );
 
-    IResult ConnectBitcoinWallet(
+    Task<IResult> ConnectBitcoinWallet(
         BitcoinAddress address,
         string walletName,
-        BlockchainNetwork network
+        IBitcoinBlockchainService blockchainService,
+        CancellationToken cancellationToken
     );
 
     IResult DisconnectBitcoinWallet(BitcoinWalletId walletId);

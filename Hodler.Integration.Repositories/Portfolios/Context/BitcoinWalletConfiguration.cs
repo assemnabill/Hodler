@@ -24,10 +24,12 @@ public class BitcoinWalletConfiguration : IEntityTypeConfiguration<BitcoinWallet
             .WithMany(x => x.BitcoinWallets)
             .HasForeignKey(x => x.PortfolioId)
             .OnDelete(DeleteBehavior.Cascade);
-    }
 
-    private static class SqlFunctions
-    {
-        public const string NewId = "gen_random_uuid()";
+        builder
+            .HasMany(x => x.BlockchainTransactions)
+            .WithOne(x => x.BitcoinWallet)
+            .HasForeignKey(x => x.BitcoinWalletId)
+            .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

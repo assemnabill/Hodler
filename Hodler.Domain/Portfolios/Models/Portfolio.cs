@@ -19,34 +19,34 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
 {
     public Portfolio(
         PortfolioId portfolioId,
-        ITransactions transactions,
+        IManualTransactions manualTransactions,
         UserId userId,
-        IReadOnlyCollection<IBitcoinWallet>? bitcoinWallets = null
+        IBitcoinWallets? bitcoinWallets = null
     )
     {
-        ArgumentNullException.ThrowIfNull(transactions);
+        ArgumentNullException.ThrowIfNull(manualTransactions);
         ArgumentNullException.ThrowIfNull(userId);
 
-        Transactions = transactions;
-        BitcoinWallets = bitcoinWallets ?? [];
+        ManualTransactions = manualTransactions;
+        BitcoinWallets = bitcoinWallets ?? new BitcoinWallets.BitcoinWallets([]);
         UserId = userId;
         Id = portfolioId;
     }
 
     public PortfolioId Id { get; }
     public UserId UserId { get; }
-    public ITransactions Transactions { get; private set; }
-    public IReadOnlyCollection<IBitcoinWallet> BitcoinWallets { get; private set; }
+    public IManualTransactions ManualTransactions { get; private set; }
+    public IBitcoinWallets BitcoinWallets { get; private set; }
 
 
     public SyncResult<IPortfolio> SyncTransactions(IEnumerable<Transaction> transactions)
     {
         ArgumentNullException.ThrowIfNull(transactions);
 
-        var syncResult = Transactions.Sync(transactions.ToList());
+        var syncResult = ManualTransactions.Sync(transactions.ToList());
 
         if (syncResult.Changed)
-            Transactions = syncResult.CurrentState;
+            ManualTransactions = syncResult.CurrentState;
 
         return new SyncResult<IPortfolio>(syncResult.Changed, this);
     }
@@ -60,7 +60,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     {
         var today = systemClock.UtcNow.ToDate();
 
-        if (Transactions.IsNullOrEmpty())
+        if (ManualTransactions.IsNullOrEmpty())
         {
             return
             [
@@ -69,7 +69,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             ];
         }
 
-        var startDate = Transactions
+        var startDate = ManualTransactions
             .AsValueEnumerable()
             .Select(x => x.Timestamp.ToDate())
             .Min();
@@ -90,7 +90,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         FiatCurrency userSettingsCurrency, //todo: consider
         CancellationToken cancellationToken = default
     ) =>
-        Transactions.GetSummaryReportAsync(currentBitcoinPriceProvider, cancellationToken);
+        ManualTransactions.GetSummaryReportAsync(currentBitcoinPriceProvider, cancellationToken);
 
     public async Task<IResult> AddTransactionAsync(
         IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider,
@@ -116,24 +116,24 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             newSource
         );
 
-        if (Transactions.AlreadyExists(newTransaction))
+        if (ManualTransactions.AlreadyExists(newTransaction))
             return new FailureResult(new TransactionAlreadyExistsFailure(newTransaction));
 
-        Transactions = new Transactions.Transactions(Transactions.Append(newTransaction));
+        ManualTransactions = new ManualTransactions(ManualTransactions.Append(newTransaction));
 
         return new SuccessResult();
     }
 
     public IResult RemoveTransaction(TransactionId transactionId)
     {
-        var transaction = Transactions
+        var transaction = ManualTransactions
             .AsValueEnumerable()
             .FirstOrDefault(x => x.Id == transactionId);
 
         if (transaction is null)
             return new SuccessResult();
 
-        Transactions = Transactions.Remove(transactionId);
+        ManualTransactions = ManualTransactions.Remove(transactionId);
 
         return new SuccessResult();
     }
@@ -152,7 +152,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         ArgumentNullException.ThrowIfNull(historicalBitcoinPriceProvider);
         ArgumentNullException.ThrowIfNull(transactionId);
 
-        var transaction = Transactions
+        var transaction = ManualTransactions
             .AsValueEnumerable()
             .FirstOrDefault(x => x.Id == transactionId);
 
@@ -177,29 +177,34 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             TransactionSource = source ?? transaction.TransactionSource
         };
 
-        if (Transactions.AlreadyExists(newTransaction))
+        if (ManualTransactions.AlreadyExists(newTransaction))
             return new FailureResult(new TransactionAlreadyExistsFailure(newTransaction));
 
-        Transactions = new Transactions.Transactions(Transactions.Remove(transactionId).Append(newTransaction));
+        ManualTransactions = new ManualTransactions(ManualTransactions.Remove(transactionId).Append(newTransaction));
 
         return new SuccessResult();
     }
 
-    public IResult ConnectBitcoinWallet(
+    public async Task<IResult> ConnectBitcoinWallet(
         BitcoinAddress address,
         string walletName,
-        BlockchainNetwork network
+        IBitcoinBlockchainService blockchainService,
+        CancellationToken cancellationToken
     )
     {
         ArgumentNullException.ThrowIfNull(address);
         ArgumentException.ThrowIfNullOrWhiteSpace(walletName);
-        ArgumentNullException.ThrowIfNull(network);
 
-        if (BitcoinWallets.AsValueEnumerable().Any(w => w.Address.Value == address.Value))
+        if (BitcoinWallets.AlreadyConnected(address))
             return new FailureResult(new BitcoinWalletAlreadyExistsFailure(address));
 
-        var newWallet = BitcoinWallet.Create(Id, address, walletName, network);
-        BitcoinWallets = BitcoinWallets.Append(newWallet).ToList();
+        BitcoinWallets = await BitcoinWallets.ConnectWalletAsync(
+            Id,
+            address,
+            walletName,
+            blockchainService,
+            cancellationToken
+        );
 
         return new SuccessResult();
     }
@@ -209,17 +214,10 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
     {
         ArgumentNullException.ThrowIfNull(walletId);
 
-        var wallet = BitcoinWallets
-            .AsValueEnumerable()
-            .FirstOrDefault(w => w.Id == walletId);
-
-        if (wallet == null)
+        if (!BitcoinWallets.AlreadyConnected(walletId))
             return new FailureResult(new BitcoinWalletIsNotConnectedFailure(walletId));
 
-        BitcoinWallets = BitcoinWallets
-            .AsValueEnumerable()
-            .Where(w => w.Id != walletId)
-            .ToList();
+        BitcoinWallets = BitcoinWallets.Disconnect(walletId);
 
         return new SuccessResult();
     }
@@ -233,28 +231,14 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
         ArgumentNullException.ThrowIfNull(walletId);
         ArgumentNullException.ThrowIfNull(blockchainService);
 
-        var wallet = BitcoinWallets
-            .AsValueEnumerable()
-            .FirstOrDefault(w => w.Id == walletId);
+        var wallet = BitcoinWallets.FindById(walletId);
 
         if (wallet == null)
             return new SyncResult<IPortfolio>(false, this);
 
         try
         {
-            var walletTransactions = await blockchainService
-                .GetTransactionsAsync(wallet, cancellationToken);
-
-            var syncResult = Transactions.Sync(walletTransactions);
-            if (syncResult.Changed)
-                Transactions = syncResult.CurrentState;
-
-            var updatedWallet = await wallet.UpdateBalanceAsync(blockchainService, cancellationToken);
-
-            BitcoinWallets = BitcoinWallets
-                .AsValueEnumerable()
-                .Select(w => w.Id == walletId ? updatedWallet : w)
-                .ToList();
+            BitcoinWallets = await BitcoinWallets.SyncWalletAsync(walletId, blockchainService, cancellationToken);
 
             return new SyncResult<IPortfolio>(true, this);
         }
@@ -266,7 +250,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
 
     private FiatAmount CalculatePortfolioValueOnDateAsync(IBitcoinPrice btcPriceOnDate)
     {
-        var transactionsTillDate = Transactions
+        var transactionsTillDate = ManualTransactions
             .AsValueEnumerable()
             .Where(x => x.Timestamp.ToDate() <= btcPriceOnDate.Date)
             .OrderBy(x => x.Timestamp)
@@ -287,7 +271,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
 
         return new Portfolio(
             new PortfolioId(Guid.NewGuid()),
-            new Transactions.Transactions([]),
+            new ManualTransactions([]),
             userId
         );
     }

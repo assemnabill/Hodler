@@ -5,10 +5,12 @@ using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Users.Models;
 using Hodler.Integration.Repositories.Portfolios.Context;
+using Hodler.Integration.Repositories.Portfolios.Entities;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using BitcoinWallet = Hodler.Integration.Repositories.Portfolios.Entities.BitcoinWallet;
+using BlockchainTransaction = Hodler.Integration.Repositories.Portfolios.Entities.BlockchainTransaction;
 using Portfolio = Hodler.Integration.Repositories.Portfolios.Entities.Portfolio;
 
 namespace Hodler.Integration.Repositories.Portfolios.Repositories;
@@ -86,7 +88,7 @@ internal class PortfolioRepository : IPortfolioRepository
         try
         {
             var existingDbEntity = await _context.Portfolios
-                .Include(x => x.Transactions)
+                .Include(x => x.ManualTransactions)
                 .Include(x => x.BitcoinWallets)
                 .FirstOrDefaultAsync(t => t.PortfolioId == aggregateRoot.Id, cancellationToken);
 
@@ -134,16 +136,18 @@ internal class PortfolioRepository : IPortfolioRepository
             var existingEntity = existingEntities
                 .FirstOrDefault(x => x.BitcoinWalletId == newEntity.BitcoinWalletId);
 
-            if (existingEntity is not null)
+            if (existingEntity is not null && existingEntity != newEntity)
             {
                 newEntity.UpdatedAt = DateTimeOffset.UtcNow;
                 _context.Entry(existingEntity).CurrentValues.SetValues(newEntity);
                 _context.Entry(existingEntity).State = EntityState.Modified;
+                await ChangeBlockchainTransactions(newEntity, existingEntity, cancellationToken);
                 continue;
             }
 
             newEntity.CreatedAt = DateTimeOffset.UtcNow;
             await _context.AddAsync(newEntity, cancellationToken);
+            await _context.AddRangeAsync(newEntity.BlockchainTransactions, cancellationToken);
         }
     }
 
@@ -157,19 +161,22 @@ internal class PortfolioRepository : IPortfolioRepository
             .Where(x => x.PortfolioId == entity.PortfolioId)
             .ToList();
 
-        var newEntities = aggregateRoot.Transactions
-            .Select(x => x.Adapt<Transaction, Entities.Transaction>())
+        var newEntities = aggregateRoot.ManualTransactions
+            .Select(x => x.Adapt<Transaction, ManualTransaction>())
             .ToList();
 
         var toRemove = existingEntities.Except(newEntities).ToList();
-        _context.RemoveRange(toRemove);
 
+        if (toRemove.Count > 0)
+            _context.RemoveRange(toRemove);
+
+        var toAdd = new List<ManualTransaction>();
         foreach (var newEntity in newEntities)
         {
             var existingEntity = existingEntities
                 .FirstOrDefault(x => x.TransactionId == newEntity.TransactionId);
 
-            if (existingEntity is not null)
+            if (existingEntity is not null && existingEntity != newEntity)
             {
                 newEntity.UpdatedAt = DateTimeOffset.UtcNow;
                 _context.Entry(existingEntity).CurrentValues.SetValues(newEntity);
@@ -178,8 +185,49 @@ internal class PortfolioRepository : IPortfolioRepository
             }
 
             newEntity.CreatedAt = DateTimeOffset.UtcNow;
-            await _context.AddAsync(newEntity, cancellationToken);
+            toAdd.Add(newEntity);
         }
+
+        if (toAdd.Count > 0)
+            await _context.AddRangeAsync(toAdd, cancellationToken);
+    }
+
+    private async Task ChangeBlockchainTransactions(
+        BitcoinWallet currentWallet,
+        BitcoinWallet existingWallet,
+        CancellationToken cancellationToken
+    )
+    {
+        var existingEntities = _context.BlockchainTransactions
+            .Where(x => x.BitcoinWalletId == existingWallet.BitcoinWalletId)
+            .ToList();
+
+        var newEntities = currentWallet.BlockchainTransactions;
+
+        var toRemove = existingEntities.Except(newEntities).ToList();
+        _context.RemoveRange(toRemove);
+
+        var toAdd = new List<BlockchainTransaction>();
+
+        foreach (var newEntity in newEntities)
+        {
+            var existingEntity = existingEntities
+                .FirstOrDefault(x => x.TransactionHash == newEntity.TransactionHash);
+
+            if (existingEntity is not null && existingEntity != newEntity)
+            {
+                newEntity.UpdatedAt = DateTimeOffset.UtcNow;
+                _context.Entry(existingEntity).CurrentValues.SetValues(newEntity);
+                _context.Entry(existingEntity).State = EntityState.Modified;
+                continue;
+            }
+
+            newEntity.CreatedAt = DateTimeOffset.UtcNow;
+            toAdd.Add(newEntity);
+        }
+
+        if (toAdd.Count > 0)
+            await _context.AddRangeAsync(toAdd, cancellationToken);
     }
 
     private IQueryable<Portfolio> IncludeAggregate()
@@ -187,7 +235,8 @@ internal class PortfolioRepository : IPortfolioRepository
         return _context.Portfolios
             .AsNoTracking()
             .AsSplitQuery()
-            .Include(x => x.Transactions)
-            .Include(x => x.BitcoinWallets);
+            .Include(x => x.ManualTransactions)
+            .Include(x => x.BitcoinWallets)
+            .ThenInclude(x => x.BlockchainTransactions);
     }
 }

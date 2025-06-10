@@ -1,6 +1,6 @@
 namespace Hodler.Integration.Repositories.Portfolios.Entities;
 
-public class Transaction : Entity
+public class ManualTransaction : Entity
 {
     public Guid TransactionId { get; set; }
     public Guid PortfolioId { get; set; }

@@ -1,12 +1,21 @@
+using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Shared.Models;
 
 namespace Hodler.Domain.Portfolios.Models.BitcoinWallets;
 
-// todo: complete this with rest of properties in response of address/{address.Value}/txs endpoint
 public record BlockchainTransaction(
     BitcoinAmount Amount,
     TransactionHash TransactionHash,
-    decimal Price,
-    decimal FiatValue,
-    DateTimeOffset Timestamp
+    FiatAmount MarketPrice,
+    FiatAmount FiatValue,
+    DateTimeOffset Timestamp,
+    BlockchainTransactionStatus Status,
+    BitcoinAddress FromAddress,
+    BitcoinAddress ToAddress,
+    BitcoinAmount NetworkFee,
+    FiatAmount FiatFee,
+    string? Note,
+    TransactionType TransactionType,
+    PortfolioId PortfolioId,
+    BitcoinWalletId BitcoinWalletId
 );
