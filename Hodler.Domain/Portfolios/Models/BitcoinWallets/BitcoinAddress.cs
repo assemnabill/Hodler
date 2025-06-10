@@ -11,11 +11,13 @@ public partial class BitcoinAddress
         ArgumentException.ThrowIfNullOrWhiteSpace(bitcoinAddress, nameof(bitcoinAddress));
 
         if (!BitcoinAddressRegex().IsMatch(bitcoinAddress))
-            throw new ArgumentException("Invalid Bitcoin address format");
+            throw new ArgumentException($"Invalid Bitcoin address format for provided address ({bitcoinAddress}).");
 
         Value = bitcoinAddress;
     }
 
     [GeneratedRegex("^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}$")]
     private static partial Regex BitcoinAddressRegex();
+
+    public override string ToString() => Value;
 }

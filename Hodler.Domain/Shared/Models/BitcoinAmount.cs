@@ -15,6 +15,8 @@ public record BitcoinAmount
 
     public static implicit operator BitcoinAmount(decimal amount) => new(amount);
 
+    public override string ToString() => $"{Amount} {CryptoCurrency.Bitcoin.Symbol}";
+
     public static BitcoinAmount FromSatoshis(decimal amountInSatoshis)
     {
         return new BitcoinAmount(amountInSatoshis / 100_000_000);

@@ -1,4 +1,5 @@
 using Hodler.Contracts.Portfolios.Wallets;
+using Hodler.Contracts.Shared;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Mapster;
 
@@ -15,7 +16,8 @@ public class BitcoinWalletMapping : IRegister
             .Map(dest => dest.Address, src => src.Address.Value)
             .Map(dest => dest.Balance, src => src.Balance.Amount)
             .Map(dest => dest.ConnectedDate, src => src.ConnectedDate)
-            .Map(dest => dest.LastSynced, src => src.LastSynced);
+            .Map(dest => dest.LastSynced, src => src.LastSynced)
+            .Map(dest => dest.Transactions, src => src.Transactions);
 
         config
             .NewConfig<IReadOnlyCollection<IBitcoinWallet>, ConnectedWalletsDto>()
@@ -24,5 +26,23 @@ public class BitcoinWalletMapping : IRegister
                     .Select(x => x.Adapt<BitcoinWalletDto>())
                     .ToList()
             );
+
+        config
+            .NewConfig<BlockchainTransaction, BlockchainTransactionDto>()
+            .MapWith(x => new BlockchainTransactionDto(
+                x.NetBitcoin.Amount,
+                x.TransactionHash.Value,
+                x.MarketPrice.Adapt<FiatAmountDto>(),
+                x.FiatValue.Adapt<FiatAmountDto>(),
+                x.Timestamp,
+                x.Status,
+                x.FromAddress.Value,
+                x.ToAddress.Value,
+                x.NetworkFee.Amount,
+                x.FiatFee.Adapt<FiatAmountDto>(),
+                x.Note,
+                x.TransactionType,
+                x.BitcoinWalletId.Value
+            ));
     }
 }

@@ -138,7 +138,7 @@ public class PortfolioMapping : IRegister
             .NewConfig<Domain.Portfolios.Models.BitcoinWallets.BlockchainTransaction, BlockchainTransaction>()
             .Map(dest => dest.PortfolioId, src => src.PortfolioId.Value)
             .Map(dest => dest.BitcoinWalletId, src => src.BitcoinWalletId.Value)
-            .Map(dest => dest.BtcAmount, src => src.Amount.Amount)
+            .Map(dest => dest.BtcAmount, src => src.NetBitcoin.Amount)
             .Map(dest => dest.TransactionHash, src => src.TransactionHash.Value)
             .Map(dest => dest.MarketPriceInUsd, src => src.MarketPrice.Amount)
             .Map(dest => dest.FiatValueInUsd, src => src.FiatValue.Amount)

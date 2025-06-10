@@ -6,5 +6,6 @@ public record BitcoinWalletDto(
     string Address,
     decimal Balance,
     DateTimeOffset ConnectedDate,
-    DateTimeOffset? LastSynced
+    DateTimeOffset? LastSynced,
+    IReadOnlyCollection<BlockchainTransactionDto> Transactions
 );

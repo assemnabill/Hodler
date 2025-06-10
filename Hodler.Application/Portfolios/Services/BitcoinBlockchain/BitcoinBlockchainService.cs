@@ -1,4 +1,8 @@
 using System.Net.Http.Json;
+using System.Text.Json;
+using Corz.Extensions.DateTime;
+using Corz.Extensions.Enumeration;
+using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Portfolios.Models.BitcoinWallets;
 using Hodler.Domain.Portfolios.Models.Transactions;
 using Hodler.Domain.Portfolios.Services;
@@ -10,18 +14,20 @@ namespace Hodler.Application.Portfolios.Services.BitcoinBlockchain;
 
 public class BitcoinBlockchainService : IBitcoinBlockchainService
 {
-    private const string BlockchainInfoUrl = "https://blockchain.info";
     private const string BlockstreamUrl = "https://blockstream.info/api";
+    private readonly IHistoricalBitcoinPriceProvider _historicalBitcoinPriceProvider;
     private readonly HttpClient _httpClient;
     private readonly ILogger<BitcoinBlockchainService> _logger;
 
     public BitcoinBlockchainService(
         HttpClient httpClient,
-        ILogger<BitcoinBlockchainService> logger
+        ILogger<BitcoinBlockchainService> logger,
+        IHistoricalBitcoinPriceProvider historicalBitcoinPriceProvider
     )
     {
         _httpClient = httpClient;
         _logger = logger;
+        _historicalBitcoinPriceProvider = historicalBitcoinPriceProvider;
     }
 
     public async Task<IReadOnlyCollection<BlockchainTransaction>> GetTransactionsAsync(
@@ -31,16 +37,20 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
     {
         try
         {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new ScriptpubkeyTypeConverter() }
+            };
+
             var requestUri = $"{BlockstreamUrl}/address/{wallet.Address.Value}/txs";
-            var response = await _httpClient.GetFromJsonAsync<BlockstreamTransaction[]>(requestUri, cancellationToken);
+            var response = await _httpClient
+                .GetFromJsonAsync<BlockstreamAddressTransactionsResponse[]>(requestUri, options, cancellationToken);
 
             if (response == null)
                 return [];
 
-            // todo: replace with historical price data
-            var btcPrice = await GetCurrentBitcoinPriceAsync(cancellationToken);
-
-            var transactions = RetrieveBlockchainTransactions(wallet, response, btcPrice);
+            var transactions = await RetrieveBlockchainTransactionsAsync(wallet, response, cancellationToken);
 
             return transactions;
         }
@@ -59,15 +69,15 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
         try
         {
             var requestUri = $"{BlockstreamUrl}/address/{walletAddress.Value}";
-            var response = await _httpClient.GetFromJsonAsync<BlockstreamAddressReponse>(requestUri, cancellationToken);
+            var response = await _httpClient.GetFromJsonAsync<BlockstreamAddressResponse>(requestUri, cancellationToken);
 
-            if (response == null || response.ChainStats == null)
+            if (response == null || response.ChainStatistics == null)
             {
                 _logger.LogError("Incomplete or null response received for address {Address}", walletAddress);
                 return BitcoinAmount.Zero;
             }
 
-            var netSats = (decimal)(response.ChainStats.FundedTxoSum - response.ChainStats.SpentTxoSum);
+            var netSats = (decimal)(response.ChainStatistics.FundedTxoSum - response.ChainStatistics.SpentTxoSum);
             var balance = BitcoinAmount.FromSatoshis(netSats);
             return balance;
         }
@@ -78,87 +88,89 @@ public class BitcoinBlockchainService : IBitcoinBlockchainService
         }
     }
 
-    private static List<BlockchainTransaction> RetrieveBlockchainTransactions(
+    private async Task<List<BlockchainTransaction>> RetrieveBlockchainTransactionsAsync(
         IBitcoinWallet wallet,
-        BlockstreamTransaction[] response,
-        FiatAmount btcPrice
-    ) =>
-        response
-            .Select(tx =>
-            {
-                var bitcoinAmount = BitcoinAmount.FromSatoshis(tx.Outputs
-                    .Where(o => o.ScriptPubKeyAddress == wallet.Address.Value)
-                    .Sum(o => o.Value));
-
-                var networkFee = BitcoinAmount.FromSatoshis(tx.Fee);
-
-                var transactionType = tx.Outputs.Any(o => o.ScriptPubKeyAddress == wallet.Address.Value)
-                    ? TransactionType.Received
-                    : TransactionType.Sent;
-
-                // Get most relevant FROM address (exclude change addresses)
-                var fromAddress = tx.Inputs
-                    .Where(i => i.PrevOut.ScriptPubKeyAddress != wallet.Address.Value)
-                    .Select(i => i.PrevOut.ScriptPubKeyAddress)
-                    .FirstOrDefault() ?? string.Empty;
-
-                // Get most relevant TO address (exclude change addresses)
-                var toAddress = tx.Outputs
-                    .Where(o => o.ScriptPubKeyAddress != wallet.Address.Value)
-                    .Select(o => o.ScriptPubKeyAddress)
-                    .FirstOrDefault() ?? string.Empty;
-
-                // For receives, if all outputs are to us, show the first input
-                if (transactionType == TransactionType.Received && string.IsNullOrWhiteSpace(toAddress))
-                {
-                    toAddress = wallet.Address.Value;
-                    fromAddress = tx.Inputs.FirstOrDefault()?.PrevOut.ScriptPubKeyAddress ?? "Unknown";
-                }
-
-                // For sends, if all inputs are from us, show the first output
-                if (transactionType != TransactionType.Received && string.IsNullOrWhiteSpace(fromAddress))
-                {
-                    fromAddress = wallet.Address.Value;
-                    toAddress = tx.Outputs.FirstOrDefault()?.ScriptPubKeyAddress ?? "Unknown";
-                }
-
-                var blockchainTransactionStatus = tx.Status.Confirmed ? BlockchainTransactionStatus.Confirmed : BlockchainTransactionStatus.Pending;
-
-                return new BlockchainTransaction(
-                    Amount: bitcoinAmount,
-                    TransactionHash: new TransactionHash(tx.TxId),
-                    MarketPrice: btcPrice,
-                    FiatValue: bitcoinAmount.Amount * btcPrice,
-                    Timestamp: DateTimeOffset.FromUnixTimeSeconds(tx.Status.BlockTime),
-                    Status: blockchainTransactionStatus,
-                    FromAddress: new BitcoinAddress(fromAddress),
-                    ToAddress: new BitcoinAddress(toAddress),
-                    NetworkFee: networkFee,
-                    FiatFee: networkFee * btcPrice,
-                    Note: null,
-                    TransactionType: transactionType,
-                    PortfolioId: wallet.PortfolioId,
-                    BitcoinWalletId: wallet.Id
-                );
-            })
-            .ToList();
-
-    public async Task<FiatAmount> GetCurrentBitcoinPriceAsync(
-        CancellationToken cancellationToken = default
+        BlockstreamAddressTransactionsResponse[] response,
+        CancellationToken cancellationToken
     )
     {
-        try
-        {
-            var response = await _httpClient.GetFromJsonAsync<BlockchainInfoTicker>(
-                $"{BlockchainInfoUrl}/ticker",
-                cancellationToken);
 
-            return new FiatAmount(response?.USD?.Last ?? 0, FiatCurrency.UsDollar);
-        }
-        catch (Exception ex)
+        if (response.IsNullOrEmpty())
+            return [];
+
+        var result = new List<BlockchainTransaction>();
+        foreach (var tx in response)
         {
-            _logger.LogError(ex, "Failed to fetch current Bitcoin price");
-            return FiatAmount.ZeroUsDollars;
+            var timestamp = DateTimeOffset.FromUnixTimeSeconds(tx.BitcoinTransactionStatus.BlockTime);
+
+            var btcPriceOnTxDate = await _historicalBitcoinPriceProvider
+                .GetHistoricalPriceOnDateAsync(FiatCurrency.UsDollar, timestamp.ToDate(), cancellationToken);
+
+            // Calculate the NET amount for this specific transaction
+            var receivedAmount = tx.Vout
+                .Where(o => o.ScriptpubkeyAddress == wallet.Address.Value)
+                .Sum(o => o.Value);
+
+            var sentAmount = tx.Vin
+                .Where(i => i.Prevout.ScriptpubkeyAddress == wallet.Address.Value)
+                .Sum(i => i.Prevout.Value);
+
+            var netAmount = receivedAmount - sentAmount;
+            var bitcoinAmount = BitcoinAmount.FromSatoshis(netAmount);
+            var networkFee = BitcoinAmount.FromSatoshis(tx.Fee);
+
+            var transactionType = tx.Vout.Any(o => o.ScriptpubkeyAddress == wallet.Address.Value)
+                ? TransactionType.Received
+                : TransactionType.Sent;
+
+            // Get most relevant FROM address (exclude change addresses)
+            var fromAddress = tx.Vin
+                .Where(i => i.Prevout.ScriptpubkeyAddress != wallet.Address.Value)
+                .Select(i => i.Prevout.ScriptpubkeyAddress)
+                .FirstOrDefault() ?? string.Empty;
+
+            // Get most relevant TO address (exclude change addresses)
+            var toAddress = tx.Vout
+                .Where(o => o.ScriptpubkeyAddress != wallet.Address.Value)
+                .Select(o => o.ScriptpubkeyAddress)
+                .FirstOrDefault() ?? string.Empty;
+
+            // For receives, if all outputs are to us, show the first input
+            if (transactionType == TransactionType.Received && string.IsNullOrWhiteSpace(toAddress))
+            {
+                toAddress = wallet.Address.Value;
+                fromAddress = tx.Vin.FirstOrDefault()?.Prevout.ScriptpubkeyAddress;
+            }
+
+            // For sends, if all inputs are from us, show the first output
+            if (transactionType != TransactionType.Received && string.IsNullOrWhiteSpace(fromAddress))
+            {
+                fromAddress = wallet.Address.Value;
+                toAddress = tx.Vout.FirstOrDefault()?.ScriptpubkeyAddress;
+            }
+
+            var blockchainTransactionStatus = tx.BitcoinTransactionStatus.Confirmed
+                ? BlockchainTransactionStatus.Confirmed
+                : BlockchainTransactionStatus.Pending;
+
+            result.Add(new BlockchainTransaction(
+                NetBitcoin: bitcoinAmount,
+                TransactionHash: new TransactionHash(tx.Txid),
+                MarketPrice: btcPriceOnTxDate.Price,
+                FiatValue: bitcoinAmount.Amount * btcPriceOnTxDate.Price,
+                Timestamp: timestamp,
+                Status: blockchainTransactionStatus,
+                FromAddress: new BitcoinAddress(fromAddress!),
+                ToAddress: new BitcoinAddress(toAddress!),
+                NetworkFee: networkFee,
+                FiatFee: networkFee * btcPriceOnTxDate.Price,
+                Note: null,
+                TransactionType: transactionType,
+                PortfolioId: wallet.PortfolioId,
+                BitcoinWalletId: wallet.Id
+            ));
         }
+
+        return result;
     }
 }
