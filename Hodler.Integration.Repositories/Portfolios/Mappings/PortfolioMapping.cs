@@ -93,14 +93,15 @@ public class PortfolioMapping : IRegister
                 new BitcoinWalletId(wallet.BitcoinWalletId),
                 new PortfolioId(wallet.PortfolioId),
                 new BitcoinAddress(wallet.Address),
-                wallet.WalletName,
+                new WalletName(wallet.WalletName),
                 BlockchainNetwork.FromChainId(wallet.Network),
                 wallet.ConnectedDate,
                 new BitcoinAmount(wallet.Balance),
                 wallet.BlockchainTransactions
                     .Select(t => t.Adapt<BlockchainTransaction, Domain.Portfolios.Models.BitcoinWallets.BlockchainTransaction>())
                     .ToList(),
-                wallet.LastSynced
+                wallet.LastSynced,
+                new WalletAvatar(new WalletIcon(wallet.AvatarIcon), new WalletColor(wallet.AvatarColor))
             ));
 
         config
@@ -113,7 +114,9 @@ public class PortfolioMapping : IRegister
             .Map(dest => dest.ConnectedDate, src => src.ConnectedDate)
             .Map(dest => dest.LastSynced, src => src.LastSynced)
             .Map(dest => dest.BlockchainTransactions, src => src.Transactions)
-            .Map(dest => dest.Balance, src => src.Balance.Amount);
+            .Map(dest => dest.Balance, src => src.Balance.Amount)
+            .Map(dest => dest.AvatarIcon, src => src.Avatar.Icon.Value)
+            .Map(dest => dest.AvatarColor, src => src.Avatar.Color.Value);
 
         config
             .NewConfig<BlockchainTransaction, Domain.Portfolios.Models.BitcoinWallets.BlockchainTransaction>()

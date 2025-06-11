@@ -40,7 +40,8 @@ public class WalletsController(IMediator mediator) : ApiController
         var command = new ConnectBitcoinWalletCommand(
             UserId,
             new BitcoinAddress(dto.Address),
-            dto.Name
+            new WalletName(dto.Name),
+            new WalletAvatar(new WalletIcon(dto.Icon), new WalletColor(dto.Color))
         );
 
         var result = await mediator.Send(command, cancellationToken);

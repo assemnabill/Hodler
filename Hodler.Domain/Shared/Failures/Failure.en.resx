@@ -33,4 +33,7 @@
     <data name="TermStartIsAfterTermEndFailure" xml:space="preserve">
         <value>Term with id (ID: {SchoolTermId}) starts after it's end date (TermStart: {TermStart}, TermEnd: {TermEnd}).</value>
     </data>
+    <data name="BitcoinWalletAlreadyExistsFailure" xml:space="preserve">
+        <value>Bitcoin wallet is already connected.</value>
+    </data>
 </root>

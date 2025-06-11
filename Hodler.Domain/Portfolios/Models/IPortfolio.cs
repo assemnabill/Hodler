@@ -57,9 +57,10 @@ public interface IPortfolio : IAggregateRoot<IPortfolio>
 
     Task<IResult> ConnectBitcoinWallet(
         BitcoinAddress address,
-        string walletName,
+        WalletName walletName,
         IBitcoinBlockchainService blockchainService,
-        CancellationToken cancellationToken
+        WalletAvatar? avatar = null,
+        CancellationToken cancellationToken = default
     );
 
     IResult DisconnectBitcoinWallet(BitcoinWalletId walletId);

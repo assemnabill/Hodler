@@ -8,7 +8,8 @@ public interface IBitcoinWallet
     BitcoinWalletId Id { get; }
     PortfolioId PortfolioId { get; }
     BitcoinAddress Address { get; }
-    string WalletName { get; }
+    WalletName WalletName { get; }
+    WalletAvatar Avatar { get; }
     BlockchainNetwork Network { get; }
     DateTimeOffset ConnectedDate { get; }
     DateTimeOffset? LastSynced { get; }

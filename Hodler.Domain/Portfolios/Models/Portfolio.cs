@@ -187,13 +187,14 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
 
     public async Task<IResult> ConnectBitcoinWallet(
         BitcoinAddress address,
-        string walletName,
+        WalletName walletName,
         IBitcoinBlockchainService blockchainService,
-        CancellationToken cancellationToken
+        WalletAvatar? avatar = null,
+        CancellationToken cancellationToken = default
     )
     {
         ArgumentNullException.ThrowIfNull(address);
-        ArgumentException.ThrowIfNullOrWhiteSpace(walletName);
+        ArgumentNullException.ThrowIfNull(walletName);
 
         if (BitcoinWallets.AlreadyConnected(address))
             return new FailureResult(new BitcoinWalletAlreadyExistsFailure(address));
@@ -203,6 +204,7 @@ public class Portfolio : AggregateRoot<Portfolio>, IPortfolio
             address,
             walletName,
             blockchainService,
+            avatar,
             cancellationToken
         );
 
