@@ -25,6 +25,7 @@ public class ConnectBitcoinWalletCommandHandler(IServiceScopeFactory serviceScop
             command.Address,
             command.WalletName,
             blockchainService,
+            command.Avatar,
             cancellationToken
         );
 

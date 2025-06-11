@@ -7,9 +7,10 @@ public interface IBitcoinWallets : IReadOnlyCollection<IBitcoinWallet>
     Task<IBitcoinWallets> ConnectWalletAsync(
         PortfolioId id,
         BitcoinAddress address,
-        string walletName,
+        WalletName walletName,
         IBitcoinBlockchainService blockchainService,
-        CancellationToken cancellationToken
+        WalletAvatar? avatar = null,
+        CancellationToken cancellationToken = default
     );
 
     Task<IBitcoinWallets> SyncWalletAsync(

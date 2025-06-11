@@ -22,16 +22,17 @@ public class BitcoinWallets : ReadOnlyCollection<IBitcoinWallet>, IBitcoinWallet
     public async Task<IBitcoinWallets> ConnectWalletAsync(
         PortfolioId id,
         BitcoinAddress address,
-        string walletName,
+        WalletName walletName,
         IBitcoinBlockchainService blockchainService,
-        CancellationToken cancellationToken
+        WalletAvatar? avatar = null,
+        CancellationToken cancellationToken = default
     )
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(address);
-        ArgumentException.ThrowIfNullOrWhiteSpace(walletName);
+        ArgumentNullException.ThrowIfNull(walletName);
 
-        var newWallet = BitcoinWallet.Create(id, address, walletName);
+        var newWallet = BitcoinWallet.Create(id, address, walletName, avatar);
 
         // TODO: Do syncing async with events after implementing transactional outbox
         newWallet = await newWallet.SyncAsync(blockchainService, cancellationToken);

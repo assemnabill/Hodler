@@ -19,7 +19,7 @@ public class BitPandaSpotTickerApiClient : IBitPandaTickerApiClient
         var response = await _httpClient
             .GetFromJsonAsync<Dictionary<string, Dictionary<string, decimal>>>(tickerUri, cancellationToken);
 
-        if (!response.TryGetValue(CryptoCurrency.Bitcoin.Symbol, out var bitcoinPrice))
+        if (!response.TryGetValue(CryptoCurrency.Bitcoin.Ticker, out var bitcoinPrice))
         {
             throw new ApplicationException("Bitcoin price not found in API response.");
         }

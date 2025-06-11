@@ -17,7 +17,9 @@ public class BitcoinWalletMapping : IRegister
             .Map(dest => dest.Balance, src => src.Balance.Amount)
             .Map(dest => dest.ConnectedDate, src => src.ConnectedDate)
             .Map(dest => dest.LastSynced, src => src.LastSynced)
-            .Map(dest => dest.Transactions, src => src.Transactions);
+            .Map(dest => dest.Transactions, src => src.Transactions)
+            .Map(dest => dest.Icon, src => src.Avatar.Icon.Value)
+            .Map(dest => dest.Color, src => src.Avatar.Color.Value);
 
         config
             .NewConfig<IReadOnlyCollection<IBitcoinWallet>, ConnectedWalletsDto>()

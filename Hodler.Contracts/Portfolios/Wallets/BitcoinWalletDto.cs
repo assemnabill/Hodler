@@ -7,5 +7,7 @@ public record BitcoinWalletDto(
     decimal Balance,
     DateTimeOffset ConnectedDate,
     DateTimeOffset? LastSynced,
-    IReadOnlyCollection<BlockchainTransactionDto> Transactions
+    IReadOnlyCollection<BlockchainTransactionDto> Transactions,
+    string Icon,
+    string Color
 );

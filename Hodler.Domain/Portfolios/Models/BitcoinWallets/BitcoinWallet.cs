@@ -9,18 +9,19 @@ public class BitcoinWallet : IBitcoinWallet
         BitcoinWalletId id,
         PortfolioId portfolioId,
         BitcoinAddress address,
-        string walletName,
+        WalletName walletName,
         BlockchainNetwork network,
         DateTimeOffset connectedDate,
         BitcoinAmount balance,
         IReadOnlyCollection<BlockchainTransaction> transactions,
-        DateTimeOffset? lastSynced = null
+        DateTimeOffset? lastSynced = null,
+        WalletAvatar? avatar = null
     )
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(portfolioId);
         ArgumentNullException.ThrowIfNull(address);
-        ArgumentException.ThrowIfNullOrWhiteSpace(walletName);
+        ArgumentNullException.ThrowIfNull(walletName);
         ArgumentNullException.ThrowIfNull(network);
         ArgumentNullException.ThrowIfNull(balance);
 
@@ -33,17 +34,19 @@ public class BitcoinWallet : IBitcoinWallet
         Balance = balance;
         Transactions = transactions;
         LastSynced = lastSynced;
+        Avatar = avatar ?? new WalletAvatar();
     }
 
     public BitcoinWalletId Id { get; }
     public PortfolioId PortfolioId { get; }
     public BitcoinAddress Address { get; }
-    public string WalletName { get; }
+    public WalletName WalletName { get; }
     public BlockchainNetwork Network { get; }
     public DateTimeOffset ConnectedDate { get; }
     public DateTimeOffset? LastSynced { get; }
     public BitcoinAmount Balance { get; }
     public IReadOnlyCollection<BlockchainTransaction> Transactions { get; }
+    public WalletAvatar Avatar { get; }
 
     public async Task<IBitcoinWallet> SyncAsync(
         IBitcoinBlockchainService blockchainService,
@@ -76,7 +79,8 @@ public class BitcoinWallet : IBitcoinWallet
     public static IBitcoinWallet Create(
         PortfolioId portfolioId,
         BitcoinAddress address,
-        string walletName
+        WalletName walletName,
+        WalletAvatar? avatar = null
     )
     {
         return new BitcoinWallet(
@@ -87,7 +91,8 @@ public class BitcoinWallet : IBitcoinWallet
             network: BlockchainNetwork.BitcoinMainnet,
             connectedDate: DateTimeOffset.UtcNow,
             balance: BitcoinAmount.Zero,
-            transactions: new List<BlockchainTransaction>()
+            transactions: new List<BlockchainTransaction>(),
+            avatar: avatar ?? new WalletAvatar()
         );
     }
 }

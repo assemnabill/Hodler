@@ -10,6 +10,8 @@ public class BitcoinWallet : Entity
     public DateTimeOffset ConnectedDate { get; set; }
     public DateTimeOffset? LastSynced { get; set; }
     public decimal Balance { get; set; }
+    public string AvatarIcon { get; set; }
+    public string AvatarColor { get; set; }
 
     public virtual Portfolio Portfolio { get; set; }
     public virtual ICollection<BlockchainTransaction> BlockchainTransactions { get; set; }
