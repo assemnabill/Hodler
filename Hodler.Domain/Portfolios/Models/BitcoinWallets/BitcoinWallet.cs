@@ -72,7 +72,8 @@ public class BitcoinWallet : IBitcoinWallet
             ConnectedDate,
             newBalance,
             transactions,
-            DateTimeOffset.UtcNow
+            DateTimeOffset.UtcNow,
+            Avatar
         );
     }
 
