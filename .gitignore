@@ -29,3 +29,4 @@
 /Hodler.Contracts/bin/*
 /Hodler.Contracts/obj/*
 
+obj/Hodler.Integration.Repositories.csproj.EntityFrameworkCore.targets
