@@ -7,6 +7,7 @@ services:
     networks:
       - "aspire"
     restart: "always"
+
   cache:
     image: "docker.io/library/redis:7-alpine"
     container_name: "redis-cache"
@@ -21,6 +22,7 @@ services:
       - "6379"
     networks:
       - "aspire"
+
   postgres:
     image: "docker.io/library/postgres:15-alpine"
     container_name: "hodler-db"
@@ -38,6 +40,7 @@ services:
         read_only: false
     networks:
       - "aspire"
+        
   hodler-api:
     image: "${HODLER_API_IMAGE}"
     environment:
@@ -58,9 +61,11 @@ services:
         condition: "service_started"
     networks:
       - "aspire"
+        
 networks:
   aspire:
     driver: "bridge"
+    
 volumes:
   hodler-db-vol:
     driver: "local"
