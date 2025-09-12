@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 COPY Hodler.ApiService/Hodler.ApiService.csproj Hodler.ApiService/
 RUN dotnet restore "Hodler.ApiService/Hodler.ApiService.csproj"
