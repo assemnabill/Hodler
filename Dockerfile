@@ -1,10 +1,10 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy AS build
+FROM mcr.microsoft.com/dotnet/aspnet:9.4 AS build
 WORKDIR /src
 
 # Copy project files
 COPY ["Hodler.ApiService/Hodler.ApiService.csproj", "Hodler.ApiService/"]
-RUN dotnet restore .\Hodler.ApiService\Hodler.ApiService.csproj
+RUN dotnet restore "Hodler.ApiService\Hodler.ApiService.csproj"
 
 # Copy everything else
 COPY . .
@@ -17,10 +17,7 @@ RUN dotnet publish "Hodler.ApiService.csproj" -c Release -o /app/publish \
     --no-restore
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.4 AS runtime
 WORKDIR /app
-
-COPY --from=build /app/publish .
-EXPOSE 3000
-
-ENTRYPOINT ["./Hodler.ApiService"]
+COPY ./publish .
+ENTRYPOINT ["dotnet", "Hodler.ApiService.dll"]
