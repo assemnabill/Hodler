@@ -20,11 +20,7 @@ RUN dotnet publish "Hodler.ApiService.csproj" -c Release -o /app/publish \
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled AS runtime
 WORKDIR /app
 
-# Create a non-root user
-RUN adduser --disabled-password --gecos '' appuser && chown -R appuser:appuser /app
-USER appuser
-
-COPY --from=build --chown=appuser:appuser /app/publish .
+COPY --from=build /app/publish .
 EXPOSE 3000
 
 ENTRYPOINT ["./Hodler.ApiService"]
