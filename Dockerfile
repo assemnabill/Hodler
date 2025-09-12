@@ -3,16 +3,15 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["hodler-api/hodler-api.csproj", "hodler-api/"]
 COPY ["Hodler.ApiService/Hodler.ApiService.csproj", "Hodler.ApiService/"]
-RUN dotnet restore "hodler-api/hodler-api.csproj"
+RUN dotnet restore .\Hodler.ApiService\Hodler.ApiService.csproj
 
 # Copy everything else
 COPY . .
 
 # Build and publish
-WORKDIR "/src/hodler-api"
-RUN dotnet publish "hodler-api.csproj" -c Release -o /app/publish \
+WORKDIR "/src/Hodler.ApiService"
+RUN dotnet publish "Hodler.ApiService.csproj" -c Release -o /app/publish \
     -r linux-arm64 \
     --self-contained false \
     --no-restore
@@ -34,4 +33,4 @@ USER appuser
 COPY --from=build --chown=appuser:appuser /app/publish .
 EXPOSE 3000
 
-ENTRYPOINT ["./hodler-api"]
+ENTRYPOINT ["./Hodler.ApiService"]
