@@ -20,12 +20,6 @@ RUN dotnet publish "Hodler.ApiService.csproj" -c Release -o /app/publish \
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled AS runtime
 WORKDIR /app
 
-# Install required dependencies for ARM64
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser:appuser /app
 USER appuser
