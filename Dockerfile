@@ -4,7 +4,7 @@ WORKDIR /src
 
 # Copy project files
 COPY ["hodler-api/hodler-api.csproj", "hodler-api/"]
-COPY ["AspireApp.ApiService/AspireApp.ApiService.csproj", "AspireApp.ApiService/"]
+COPY ["Hodler.ApiService/Hodler.ApiService.csproj", "Hodler.ApiService/"]
 RUN dotnet restore "hodler-api/hodler-api.csproj"
 
 # Copy everything else
