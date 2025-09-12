@@ -40,7 +40,6 @@ services:
         read_only: false
     networks:
       - "aspire"
-        
   hodler-api:
     image: "${HODLER_API_IMAGE}"
     environment:
