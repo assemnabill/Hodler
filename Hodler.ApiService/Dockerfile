@@ -8,4 +8,8 @@ RUN dotnet publish "Hodler.ApiService/Hodler.ApiService.csproj" -c Release -o /a
 FROM --platform=$TARGETPLATFORM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=build /app/publish .
+# Create a non-root user and group
+RUN useradd --no-log-init --system --user-group --home-dir /app appuser
+RUN chown -R appuser:appuser /app
+USER appuser
 ENTRYPOINT ["dotnet", "Hodler.ApiService.dll"]
