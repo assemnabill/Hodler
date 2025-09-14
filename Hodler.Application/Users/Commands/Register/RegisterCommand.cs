@@ -1,9 +1,9 @@
-﻿using Hodler.Domain.Users.AuthenticationResult;
-using MediatR;
+﻿using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Hodler.Application.Users.Commands.Register
 {
-    public class RegisterCommand : IRequest<RegisterResult>
+    public class RegisterCommand : IRequest<IdentityResult>
     {
         public required string Email { get; init; }
         public required string UserName { get; init; }

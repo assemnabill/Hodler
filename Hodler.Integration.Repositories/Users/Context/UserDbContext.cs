@@ -1,5 +1,7 @@
 using Hodler.Domain.Shared.Models;
 using Hodler.Domain.Users.Models;
+using Hodler.Integration.Repositories.Users.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -14,6 +16,7 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) :
 {
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
+    public DbSet<UserRefreshTokens> UserRefreshTokens => Set<UserRefreshTokens>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

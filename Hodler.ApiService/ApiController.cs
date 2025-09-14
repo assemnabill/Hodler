@@ -8,6 +8,7 @@ namespace Hodler.ApiService;
 
 [ApiController]
 [Authorize]
+
 [Route("api/[controller]")]
 public class ApiController : ControllerBase
 {

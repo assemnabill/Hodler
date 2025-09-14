@@ -17,7 +17,7 @@ TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 // Hodler Service Layers.
 builder.Services
     .AddDomain()
-    .AddCustomJwtAuthentication(builder.Configuration)
+    //.AddCustomJwtAuthentication(builder.Configuration)
     .AddApplication()
     .AddExternalApis()
     .AddMailService(builder.Configuration);

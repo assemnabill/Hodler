@@ -1,5 +1,6 @@
 ﻿using Hodler.Domain.Shared.EmailService;
-using Hodler.Domain.Users.Services;
+using Hodler.Domain.Users.Ports;
+using Hodler.Domain.Users.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
@@ -8,17 +9,20 @@ namespace Hodler.Application.Users.Commands.ConfirmEmailRequest
 {
     class ConfirmEmailRequestCommandHandler : IRequestHandler<ConfirmEmailRequestCommand, bool>
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
 
-        public ConfirmEmailRequestCommandHandler(IAuthenticationService authenticationService, IEmailService emailService)
+        public ConfirmEmailRequestCommandHandler(IUserRepository userRepository, IEmailService emailService)
         {
-            _authenticationService = authenticationService;
+            _userRepository = userRepository;
             _emailService = emailService;
         }
         public async Task<bool> Handle(ConfirmEmailRequestCommand request, CancellationToken cancellationToken)
         {
-            var token = await _authenticationService.GenerateConfirmEmailRequestToken(request.Email);
+            var isValidEmail = EmailAddress.TryCreate(request.Email, out var email);
+            if (!isValidEmail)
+                return false;
+            var token = await _userRepository.GenerateConfirmEmailTokenAsync(email);
             if (token is null)
                 return false;
             var encodedToken = WebEncoders.Base64UrlEncode(

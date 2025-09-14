@@ -6,4 +6,5 @@ public class User : IdentityUser
 {
     public virtual UserSettings UserSettings { get; set; }
     public virtual ICollection<ApiKey> ApiKeys { get; set; }
+    public virtual ICollection<UserRefreshTokens>? RefreshTokens { get; set; }
 }

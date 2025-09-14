@@ -33,6 +33,12 @@ public class UserMappingRegistration : IRegister
             .MapWith(x =>
                 new Domain.Users.Models.User(
                     new UserId(Guid.Parse(x.Id)),
+                    new ContactInfo
+                    (
+                        new Domain.Users.ValueObjects.UserName(x.UserName),
+                        new Domain.Users.ValueObjects.PhoneNumber(x.PhoneNumber),
+                        new Domain.Users.ValueObjects.EmailAddress(x.Email)
+                    ),
                     x.UserSettings == null
                         ? null
                         : new UserSettings(
@@ -69,5 +75,12 @@ public class UserMappingRegistration : IRegister
                 Value = x.Value,
                 Secret = x.Secret
             });
+
+        config
+         .ForType<IUser, User>()
+         .Map(dest => dest.UserName, src => src.ContactInfo.UserName.Value)
+         .Map(dest => dest.PhoneNumber, src => src.ContactInfo.PhoneNumber.Value)
+         .Map(dest => dest.Email, src => src.ContactInfo.Email.Value);
+
     }
 }

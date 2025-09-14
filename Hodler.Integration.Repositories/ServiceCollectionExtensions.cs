@@ -1,6 +1,7 @@
 ﻿using Hodler.Domain.BitcoinPrices.Ports;
 using Hodler.Domain.Portfolios.Ports.Repositories;
 using Hodler.Domain.Users.Ports;
+using Hodler.Domain.Users.Services;
 using Hodler.Integration.Repositories.BitcoinPrices.Repositories;
 using Hodler.Integration.Repositories.Migrations;
 using Hodler.Integration.Repositories.Portfolios.Repositories;
@@ -19,7 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
         services.AddScoped<IBitcoinPriceRepository, BitcoinPriceRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+        //services.AddScoped<IAuthenticationService, UserRepository>();
 
         // Database Initialization
         services.AddSingleton<HodlerDbInitializer>();

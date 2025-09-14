@@ -14,15 +14,17 @@ public class User : AggregateRoot<User>, IUser
 
     public User(
         UserId userId,
+        ContactInfo contactInfo,
         UserSettings? userSettings,
         IReadOnlyCollection<ApiKey>? apiKeys = null
     )
     {
         ArgumentNullException.ThrowIfNull(userId);
-
+        ArgumentNullException.ThrowIfNull(contactInfo);
         Id = userId;
         UserSettings = userSettings ?? new UserSettings(Guid.NewGuid(), userId);
         ApiKeys = apiKeys;
+        ContactInfo = contactInfo;
     }
 
     public bool AddApiKey(ApiKeyName apiKeyName, string value, string? secret)
@@ -57,13 +59,5 @@ public class User : AggregateRoot<User>, IUser
         EnqueueDomainEvent(new UserDisplayCurrencyChanged(newDisplayCurrency));
 
         return true;
-    }
-
-    public void AddContactInfo(string userName, string phoneNumber, string email)
-    {
-        ArgumentNullException.ThrowIfNull(userName);
-        ArgumentNullException.ThrowIfNull(phoneNumber);
-        ArgumentNullException.ThrowIfNull(email);
-        ContactInfo = new ContactInfo(userName, phoneNumber, email);
     }
 }

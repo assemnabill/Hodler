@@ -5,7 +5,8 @@ namespace Hodler.Domain.Token.Services
 {
     public interface ITokenService
     {
-        public Task<string> GenerateJwtTokenAsync(IUser user);
-        public Task<ClaimsPrincipal> ValidateTokenAsync(string token);
+        string GenerateJwtToken(IUser user);
+        string GenerateRefreshToken();
+        Task<ClaimsPrincipal> ValidateTokenAsync(string token);
     }
 }

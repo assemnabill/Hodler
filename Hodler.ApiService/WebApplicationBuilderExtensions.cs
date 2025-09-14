@@ -1,11 +1,15 @@
-﻿using Hodler.Integration.Repositories;
+﻿using Hodler.Domain.Token.Models;
+using Hodler.Integration.Repositories;
 using Hodler.Integration.Repositories.BitcoinPrices.Context;
 using Hodler.Integration.Repositories.Portfolios.Context;
 using Hodler.Integration.Repositories.Users.Context;
 using Hodler.Integration.Repositories.Users.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace Hodler.ApiService;
 
@@ -33,6 +37,7 @@ public static class WebApplicationBuilderExtensions
         //JWT
         builder.Services.AddIdentity<User, IdentityRole>(options =>
         {
+            options.User.RequireUniqueEmail = true;
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
             options.Password.RequireUppercase = true;
@@ -41,7 +46,9 @@ public static class WebApplicationBuilderExtensions
             options.Password.RequiredUniqueChars = 1;
         })
                         .AddEntityFrameworkStores<UserDbContext>()
-                        .AddDefaultTokenProviders(); ;
+                        .AddDefaultTokenProviders()
+                        .AddApiEndpoints();
+
         builder.Services.AddAuthorizationBuilder();
 
         builder.Services.AddCors(options =>
@@ -62,12 +69,62 @@ public static class WebApplicationBuilderExtensions
             options.UseNpgsql(connectionString);
         });
 
+        /*
         builder.Services
             .AddIdentityCore<User>()
             .AddEntityFrameworkStores<UserDbContext>()
             .AddDefaultTokenProviders()
             .AddApiEndpoints();
+            */
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtSettings.Issuer,
+                ValidateAudience = true,
+                ValidAudience = jwtSettings.Audience,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromMinutes(jwtSettings.ClockSkewMinutes)
+            };
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Token = context.Request.Cookies["jwt"];
+                    return Task.CompletedTask;
+                }
+            };
+        });
+        
+        builder.Services.AddAntiforgery(options =>
+        {
+            // Cookie configuration
+            options.Cookie.Name = "XSRF-TOKEN";
+            options.Cookie.HttpOnly = false; // Allow JavaScript access
+            options.Cookie.SameSite = SameSiteMode.Strict; // CSRF protection
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS only
+            options.Cookie.IsEssential = true; // Required for GDPR compliance
+    
+            // Header configuration
+            options.HeaderName = "X-XSRF-TOKEN";
+    
+            // Additional security
+            options.SuppressXFrameOptionsHeader = false; // Keep X-Frame-Options
+        });
+        
+        builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         return builder;
     }
 

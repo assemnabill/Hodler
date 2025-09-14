@@ -7,5 +7,6 @@
         public string Audience { get; set; } = null!;
         public int ExpirationInMinutes { get; set; }
         public int ClockSkewMinutes { get; set; } = 5;
+        public int RefreshTokenExpirationInDays { get; set; }
     }
 }

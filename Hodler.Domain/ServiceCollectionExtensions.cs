@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddSingleton<ISystemClock, SystemClock>();
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        //services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ITokenService, TokenService>();
         return services;
     }
@@ -59,6 +59,14 @@ public static class ServiceCollectionExtensions
                     Encoding.UTF8.GetBytes(jwtSettings.Secret)),
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.FromMinutes(jwtSettings.ClockSkewMinutes)
+            };
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Token = context.Request.Cookies["jwt"];
+                    return Task.CompletedTask;
+                }
             };
         });
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
