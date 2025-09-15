@@ -1,6 +1,6 @@
 services:
   compose-dashboard:
-    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
+    image: "mcr.microsoft.com/dotnet/aspire-dashboard:latest"
     expose:
       - "18888"
       - "18889"
