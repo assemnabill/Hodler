@@ -15,7 +15,6 @@ const string dbName = $"{serviceName}-db";
 
 var postgresComponent = builder
     .AddPostgres("postgres", password: builder.AddParameter("postgres-password"))
-    .WithContainerName(dbName)
     .WithDataVolume($"{dbName}-vol")
     .WithImageTag("15-alpine"); // ARM-compatible tag
 
