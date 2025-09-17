@@ -1,13 +1,16 @@
 services:
   compose-dashboard:
+    container_name: "compose-dashboard"
     image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
-    expose:
-      - "18888"
-      - "18889"
+    ports:
+      - "18888:18888"  # Dashboard UI
+      - "18889:18889"  # OTLP/gRPC endpoint
+    environment:
+      ASPIRE_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: "true"  # Disable auth for dev
     networks:
       - "aspire"
     restart: "always"
-
+  
   cache:
     image: "docker.io/library/redis:7-alpine"
     container_name: "redis-cache"
@@ -22,15 +25,16 @@ services:
       - "6379"
     networks:
       - "aspire"
-
+  
   postgres:
     image: "docker.io/library/postgres:15-alpine"
-    container_name: "hodler-db"
+    container_name: "postgres"
     environment:
       POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "hodler-db"
     expose:
       - "5432"
     volumes:
@@ -40,8 +44,16 @@ services:
         read_only: false
     networks:
       - "aspire"
+    restart: "always"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hodler-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  
   hodler-api:
     image: "${HODLER_API_IMAGE}"
+    container_name: "hodler-api"
     environment:
       OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
       OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
@@ -53,18 +65,18 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
       OTEL_SERVICE_NAME: "hodler-api"
-    expose:
-      - "${HODLER_API_PORT}"
+    ports:
+      - "5469:${HODLER_API_PORT}" # HTTP
     depends_on:
       postgres:
-        condition: "service_started"
+        condition: service_healthy
     networks:
       - "aspire"
-        
+
 networks:
   aspire:
     driver: "bridge"
-    
+
 volumes:
   hodler-db-vol:
     driver: "local"
