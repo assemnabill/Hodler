@@ -50,17 +50,17 @@ app.UseResponseCompression();
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
-if (app.Environment.IsDevelopment())
+// if (app.Environment.IsDevelopment())
+// {
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint(
-            "/swagger/v1/swagger.json",
-            $"Hodler API {ServiceConstants.SwaggerDocumentName}");
-        c.RoutePrefix = "hodler"; // To serve the Swagger UI at the app's root
-    });
-}
+    c.SwaggerEndpoint(
+        "/swagger/v1/swagger.json",
+        $"Hodler API {ServiceConstants.SwaggerDocumentName}");
+    c.RoutePrefix = "hodler"; // To serve the Swagger UI at the app's root
+});
+// }
 
 
 app.MapDefaultEndpoints();
