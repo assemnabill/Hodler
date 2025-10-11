@@ -42,7 +42,14 @@ builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]);
 });
-builder.Services.AddCors();
+builder.Services.AddCors(x => x.AddPolicy(
+        "AllowAll",
+        p => p
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+    )
+);
 
 var app = builder.Build();
 // SignalR
